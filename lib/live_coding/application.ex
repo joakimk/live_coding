@@ -10,7 +10,7 @@ defmodule LiveCoding.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      Plug.Adapters.Cowboy.child_spec(:http, LiveCoding.Router, [], [port: 4001])
+      Plug.Adapters.Cowboy.child_spec(:http, LiveCoding.Router, [], [port: System.get_env("PORT") || 4001])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
