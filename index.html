@@ -39,12 +39,30 @@ setInterval(main, 100)</div>
       editorDiv = document.getElementsByClassName("js-editor")[0]
       editor = ace.edit(editorDiv)
 
+      // Have no looked deeply at this:
+      // "Automatically scrolling cursor into view after selection change this will be disabled in the next version set editor.$blockScrolling = Infinity to disable this message"
+      editor.$blockScrolling = Infinity
+
+      savedCode = localStorage.getItem("code")
+      if(savedCode) {
+        console.log("LiveCoding: Loading previously saved code from local storage")
+        editor.setValue(savedCode)
+        editor.clearSelection()
+      }
+
+      editor.gotoLine(1)
+      editor.focus()
+
       runCode = function() {
         code = editor.getValue()
+
         script = document.createElement("script")
         script.type = "text/javascript"
 
+	localStorage.setItem("code", code)
+
         window.liveCodeVersion += 1
+
         script.innerHTML =
           "(function() {" +
 	    // Add function that can be used to check if the code is outdated and should stop running.
@@ -54,7 +72,7 @@ setInterval(main, 100)</div>
             code +
 
             // Show what version of the code is running now.
-            "\nconsole.log('Code version ' + window.liveCodeVersion + ' loaded successfully!')" +
+            "\nconsole.log('LiveCoding: Code version ' + window.liveCodeVersion + ' loaded successfully!')" +
           "})();"
 
         document.body.appendChild(script)
