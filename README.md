@@ -37,6 +37,7 @@ Local editing and live updating without saving
 
 ## V3
 
+- [ ] Add licence
 - [ ] Make game libraries available, or just implement the caching API?
 
 ## Later
