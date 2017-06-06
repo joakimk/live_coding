@@ -39,7 +39,9 @@ setInterval(main, 100)</div>
     <script type="text/javascript">
       editorDiv = document.getElementsByClassName("js-editor")[0]
       editor = ace.edit(editorDiv)
-      editor.setTheme("ace/theme/github")
+
+      editor.setTheme("ace/theme/github") // Light theme
+      //editor.setTheme("ace/theme/twilight") // Dark theme
 
       // Settings for javascript editing
       editor.setOption("tabSize", 4)
