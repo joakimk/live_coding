@@ -16,6 +16,7 @@ Live coding environment for making things like games using javascript.
     mix deps.get
     mix test
     mix run --no-halt
+    # Then go to http://localhost:4001
 
 # Production
 
@@ -26,8 +27,8 @@ Live coding environment for making things like games using javascript.
 Local editing and live updating without saving
 
 - [x] Plug that can serve a web page
-- [ ] Editor
-- [ ] Live preview
+- [x] Editor
+- [x] Live preview
 
 ## V2
 

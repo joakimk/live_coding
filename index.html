@@ -1,1 +1,45 @@
-Test
+<html>
+  <head>
+    <script src="ace-editor/ace.js"></script>
+    <style>
+      .editor {
+        height: 300px;
+        width: 600px;
+      }
+
+      .view {
+        width: 600px;
+        height: 300px;
+        background-color: purple;
+        float: right;
+      }
+
+      .container {
+        width: 1250px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="view js-view"></div>
+      <div class="editor js-editor">view = document.getElementsByClassName("js-view")[0]
+view.style.marginTop = 30</div>
+    </div>
+
+    <script type="text/javascript">
+      editorDiv = document.getElementsByClassName("js-editor")[0]
+      editor = ace.edit(editorDiv)
+
+      runCode = function() {
+        code = editor.getValue()
+        script = document.createElement("script")
+        script.type = "text/javascript"
+        script.innerHTML = code
+        document.body.appendChild(script)
+      }
+
+      editor.on("change", runCode);
+      runCode()
+    </script>
+  </body>
+</html>
