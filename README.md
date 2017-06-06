@@ -16,7 +16,7 @@ Live coding environment for making things like games using javascript.
     mix deps.get
     mix test
     mix run --no-halt
-    # Then go to http://localhost:4001
+    # Then go to http://localhost:4001 or http://localhost:4001?vim=t
 
 # Production
 

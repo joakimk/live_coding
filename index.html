@@ -22,7 +22,8 @@
   <body>
     <div class="container">
       <div class="view js-view"></div>
-      <div class="editor js-editor">view = document.getElementsByClassName("js-view")[0]
+      <div class="editor js-editor">/* jshint asi:true */
+view = document.getElementsByClassName("js-view")[0]
 view.style.height = 300
 
 main = function() {
@@ -38,6 +39,20 @@ setInterval(main, 100)</div>
     <script type="text/javascript">
       editorDiv = document.getElementsByClassName("js-editor")[0]
       editor = ace.edit(editorDiv)
+      editor.setTheme("ace/theme/github")
+
+      // Settings for javascript editing
+      editor.setOption("tabSize", 4)
+      editor.setOption("useSoftTabs", true)
+      editor.session.setMode("ace/mode/javascript")
+
+      // Hide the 80 chars line. No strong reason, mostly because
+      // the size of the window is probably a more practical limit for now.
+      editor.setShowPrintMargin(false)
+
+      if(window.location.href.indexOf("vim") != -1) {
+        editor.setKeyboardHandler("ace/keyboard/vim")
+      }
 
       // Have no looked deeply at this:
       // "Automatically scrolling cursor into view after selection change this will be disabled in the next version set editor.$blockScrolling = Infinity to disable this message"
