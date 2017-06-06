@@ -8,9 +8,11 @@ defmodule LiveCoding.Application do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
+    port = (System.get_env("PORT") || "4001") |> String.to_integer
+
     # Define workers and child supervisors to be supervised
     children = [
-      Plug.Adapters.Cowboy.child_spec(:http, LiveCoding.Router, [], [port: System.get_env("PORT") || 4001])
+      Plug.Adapters.Cowboy.child_spec(:http, LiveCoding.Router, [], [port: port])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
