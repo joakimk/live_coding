@@ -2,25 +2,50 @@
   <head>
     <script src="ace-editor/ace.js"></script>
     <style>
+      body {
+        background-color: #232323;
+      }
+
       .editor {
-        height: 900px;
+        height: 100%;
         width: 600px;
       }
 
       .view {
-        width: 600px;
-        height: 300px;
-        background-color: purple;
+        width: 800px;
+        height: 600px;
+        background-color: #141414;
         float: right;
       }
 
       .container {
-        width: 1250px;
+        width: 1420px;
+      }
+
+      .header {
+        color: #aaa;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+        margin-bottom: 5px;
+      }
+      .header .description, .header .source {
+        font-size: 12px;
+      }
+      .header .source {
+        float: right;
       }
     </style>
   </head>
   <body>
     <div class="container">
+      <div class="header">
+        <h1>JavaScript live coding environment</h1>
+        <div class="source">You can find the source to this tool at <a href="https://github.com/joakimk/live_coding">github.com/joakimk/live_coding</a>.</div>
+        <div class="description">Change the code on the left and see the results right away on the right.</div>
+      </div>
       <div class="view js-view"></div>
       <div class="editor js-editor">/* jshint asi:true */
 view = document.getElementsByClassName("js-view")[0]
@@ -48,13 +73,15 @@ setInterval(main, 100)</div>
       editorDiv = document.getElementsByClassName("js-editor")[0]
       editor = ace.edit(editorDiv)
 
-      editor.setTheme("ace/theme/github") // Light theme
-      //editor.setTheme("ace/theme/twilight") // Dark theme
+      //editor.setTheme("ace/theme/github") // Light theme
+      editor.setTheme("ace/theme/twilight") // Dark theme
 
       // Settings for javascript editing
       editor.setOption("tabSize", 4)
       editor.setOption("useSoftTabs", true)
       editor.session.setMode("ace/mode/javascript")
+
+      editor.session.setUseWrapMode(true)
 
       // Hide the 80 chars line. No strong reason, mostly because
       // the size of the window is probably a more practical limit for now.
