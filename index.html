@@ -24,13 +24,19 @@
       <div class="view js-view"></div>
       <div class="editor js-editor">/* jshint asi:true */
 view = document.getElementsByClassName("js-view")[0]
-view.style.height = 300
+
+model = loadStateOrDefaultTo(300)
 
 main = function() {
   // Always check this in the main loop to stop running old versions of your code!
   if(codeHasChanged()) { return; }
 
-  view.style.height = parseInt(view.style.height) - 1
+  model += 1
+  // model -= 5
+
+  saveState(model)
+
+  view.style.height = model
 }
 
 setInterval(main, 100)</div>
@@ -85,6 +91,10 @@ setInterval(main, 100)</div>
 	    // Add function that can be used to check if the code is outdated and should stop running.
             "function codeHasChanged() { return " + window.liveCodeVersion + " != window.liveCodeVersion };" +
 
+            // Save and load state to be able to resume the simulation after live code update
+            "function saveState(state) { liveCodeState = state };" +
+            "function loadStateOrDefaultTo(defaultState) { savedState = window.liveCodeState; return savedState ? savedState : defaultState };" +
+
             // Load the new version of the code.
             code +
 
@@ -96,6 +106,8 @@ setInterval(main, 100)</div>
       }
 
       window.liveCodeVersion = 1
+      window.liveCodeState = null
+
       editor.on("change", runCode);
       runCode()
     </script>
