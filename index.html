@@ -23,7 +23,16 @@
     <div class="container">
       <div class="view js-view"></div>
       <div class="editor js-editor">view = document.getElementsByClassName("js-view")[0]
-view.style.marginTop = 30</div>
+view.style.height = 300
+
+main = function() {
+  // Always check this in the main loop to stop running old versions of your code!
+  if(codeHasChanged()) { return; }
+
+  view.style.height = parseInt(view.style.height) - 1
+}
+
+setInterval(main, 100)</div>
     </div>
 
     <script type="text/javascript">
@@ -34,10 +43,24 @@ view.style.marginTop = 30</div>
         code = editor.getValue()
         script = document.createElement("script")
         script.type = "text/javascript"
-        script.innerHTML = code
+
+        window.liveCodeVersion += 1
+        script.innerHTML =
+          "(function() {" +
+	    // Add function that can be used to check if the code is outdated and should stop running.
+            "function codeHasChanged() { return " + window.liveCodeVersion + " != window.liveCodeVersion };" +
+
+            // Load the new version of the code.
+            code +
+
+            // Show what version of the code is running now.
+            "\nconsole.log('Code version ' + window.liveCodeVersion + ' loaded successfully!')" +
+          "})();"
+
         document.body.appendChild(script)
       }
 
+      window.liveCodeVersion = 1
       editor.on("change", runCode);
       runCode()
     </script>

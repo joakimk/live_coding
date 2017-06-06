@@ -32,6 +32,7 @@ Local editing and live updating without saving
 
 ## V2
 
+- [ ] Save and restore code on page load
 - [ ] Save and restore state when updating code
 
 ## V3
