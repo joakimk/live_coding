@@ -15,6 +15,10 @@ defmodule LiveCoding.Router do
     send_file(conn, 200, path)
   end
 
+  get "/fabric.min.js" do
+    send_file(conn, 200, "public/fabric.min.js")
+  end
+
   match _ do
     send_resp(conn, 404, "Page not found")
   end
