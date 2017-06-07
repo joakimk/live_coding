@@ -42,4 +42,5 @@ Local editing and live updating without saving
 
 ## Later
 
+- [ ] A slider or some other type of analog input for changing values slowly, the editor has https://ace.c9.io/api/editor.html#Editor.modifyNumber
 - [ ] Shared state over the network, e.g. not only shared code but shared state within the game, etc.
