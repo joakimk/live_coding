@@ -49,27 +49,50 @@
       </div>
       <div class="view js-view"></div>
       <div class="editor js-editor">/* jshint asi:true */
-view = liveViewElement
+// PixiJS v4 example (WebGL rendering)
 
-// More examples at: https://github.com/joakimk/live_coding/tree/master/examples
+model = loadStateOrDefaultTo({
+    x: 250,
+    y: 250,
+})
 
-model = loadStateOrDefaultTo(300)
+render = (delta) => {
+    if(codeHasChanged()) { return }
 
-main = function() {
-  // Always check this in the main loop to stop running old versions of your code!
-  if(codeHasChanged()) { return; }
+    model.x = 330
 
-  model += 1
-  // model -= 5
+    graphics = new PIXI.Graphics()
 
-  saveState(model)
+    graphics.lineStyle(2, 0xFF00FF, 1)
+    graphics.beginFill(0xFF00BB, 0.25)
+    graphics.drawRoundedRect(model.x, model.y, 300, 100, 15)
+    graphics.endFill()
 
-  view.style.height = model
+    app.stage.removeChildren()
+    app.stage.addChild(graphics)
 
-  view.style.backgroundColor = "purple"
+    saveState(model)
 }
 
-setInterval(main, 100)</div>
+bootstrap = () => {
+    // We can only set up the GL context once
+    window.app = new PIXI.Application(800, 600, { antialias: true })
+    liveViewElement.appendChild(app.view);
+    start()
+}
+
+start = () => { app.ticker.add(render); app.stage.removeChildren() }
+
+if(!window.depsLoaded) {
+    script = document.createElement("script")
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"
+    document.body.appendChild(script)
+    window.depsLoaded = true
+
+    setTimeout(bootstrap, 500)
+} else {
+    start()
+}</div>
     </div>
 
     <script type="text/javascript">
