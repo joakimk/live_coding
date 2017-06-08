@@ -37,8 +37,9 @@ Local editing and live updating without saving
 
 ## V3
 
-- [ ] Add licence
-- [ ] Make game libraries available, or just implement the caching API?
+- [x] Add licence
+- [ ] Make undo work better if possible. Seems to revert to default code sometimes.
+- [ ] Add a simple way to import example code?
 
 ## Later
 
