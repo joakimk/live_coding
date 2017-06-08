@@ -12,8 +12,10 @@ defmodule LiveCoding.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      Plug.Adapters.Cowboy.child_spec(:http, LiveCoding.Router, [], [port: port])
+      Plug.Adapters.Cowboy.child_spec(:http, LiveCoding.Router, [], [port: port]),
+      worker(LiveCoding.FileCache, []),
     ]
+
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options

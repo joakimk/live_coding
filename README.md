@@ -37,8 +37,10 @@ Local editing and live updating without saving
 
 ## V3
 
+- [x] Allow fetching cached files
+- [ ] All CORS to make it hard to use cached data outside of this app
+- [ ] Handle max memory usage and single download for cache API
 - [ ] Add licence
-- [ ] Make game libraries available, or just implement the caching API?
 
 ## Later
 

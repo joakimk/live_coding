@@ -32,6 +32,7 @@ defmodule LiveCoding.Mixfile do
     [
       {:cowboy, "~> 1.0.0"},
       {:plug, "~> 1.0"},
+      {:httpoison, "~> 0.11.1"},
     ]
   end
 end
