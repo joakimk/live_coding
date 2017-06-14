@@ -125,6 +125,10 @@ if(!window.depsLoaded) {
       if(savedCode) {
         console.log("LiveCoding: Loading previously saved code from local storage")
         editor.setValue(savedCode)
+
+        // Reset undo stack to the saved code instead of the default example :)
+        editor.session.setUndoManager(new ace.UndoManager())
+
         editor.clearSelection()
       }
 
