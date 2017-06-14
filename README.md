@@ -38,8 +38,8 @@ Local editing and live updating without saving
 ## V3
 
 - [x] Add licence
-- [ ] Make undo work better if possible. Seems to revert to default code sometimes.
-- [ ] Add a simple way to import example code?
+- [x] Make undo work better if possible. Seems to revert to default code sometimes.
+- [ ] In-memory persisted code
 
 ## Later
 
