@@ -6,12 +6,9 @@
 // This was made by multiple people that don't normally work in the same
 // code base so the code style differs in some places.
 
-// All available textures
-// tile_1, tile_10, tile_11, tile_12, tile_13, tile_14, tile_15, tile_16, tile_17, tile_18, tile_2, tile_3, tile_4, tile_5, tile_6, tile_7, tile_8, tile_9, cat_dead_1, cat_dead_10, cat_dead_2, cat_dead_3, cat_dead_4, cat_dead_5, cat_dead_6, cat_dead_7, cat_dead_8, cat_dead_9, cat_fall_1, cat_fall_2, cat_fall_3, cat_fall_4, cat_fall_5, cat_fall_6, cat_fall_7, cat_fall_8, cat_hurt_1, cat_hurt_10, cat_hurt_2, cat_hurt_3, cat_hurt_4, cat_hurt_5, cat_hurt_6, cat_hurt_7, cat_hurt_8, cat_hurt_9, cat_idle_1, cat_idle_10, cat_idle_2, cat_idle_3, cat_idle_4, cat_idle_5, cat_idle_6, cat_idle_7, cat_idle_8, cat_idle_9, cat_jump_1, cat_jump_2, cat_jump_3, cat_jump_4, cat_jump_5, cat_jump_6, cat_jump_7, cat_jump_8, cat_run_1, cat_run_2, cat_run_3, cat_run_4, cat_run_5, cat_run_6, cat_run_7, cat_run_8, cat_slide_1, cat_slide_10, cat_slide_2, cat_slide_3, cat_slide_4, cat_slide_5, cat_slide_6, cat_slide_7, cat_slide_8, cat_slide_9, cat_walk_1, cat_walk_10, cat_walk_2, cat_walk_3, cat_walk_4, cat_walk_5, cat_walk_6, cat_walk_7, cat_walk_8, cat_walk_9, object_bush_1, object_bush_2, object_bush_3, object_bush_4, object_crate, object_mushroom_1, object_mushroom_2, object_sign_1, object_sign_2, object_stone, object_tree_1, object_tree_2, object_tree_3
+model = loadStateOrDefaultTo(getDefaultModelValues())
 
-model = loadStateOrDefaultTo(getDefaultModelValues());
-
-function getDefaultModelValues(){
+function getDefaultModelValues() {
     return {
         character: {
             x: 0.5,
@@ -133,7 +130,6 @@ applyVelocity = () => {
       model.character.vy = 0
     }
 }
-
 
 applyGravity = (delta) => {
     model.character.vy -= gravityAcceleration * delta
@@ -407,10 +403,7 @@ var keyWasPressed = (e) => {
         e.preventDefault()
 
         if(mode == "edit") {
-            mode = "play"
-            liveViewElement.style.borderLeft = "5px solid green"
-            window.editor.blur()
-            liveViewElement.focus()
+            enterPlayMode(e)
         } else {
             window.editor.focus()
         }
@@ -429,6 +422,15 @@ var keyWasPressed = (e) => {
     }
 }
 
+enterPlayMode = function(e) {
+    e.preventDefault()
+
+    mode = "play"
+    liveViewElement.style.borderLeft = "5px solid green"
+    window.editor.blur()
+    liveViewElement.focus()
+}
+
 loadTexture = (name) => PIXI.Sprite.fromImage(data.textures[name])
 
 if(!window.liveEventListeners) { window.liveEventListeners = [] }
@@ -443,6 +445,7 @@ if(window.liveEventListeners.length) {
 
 document.addEventListener("keydown", keyWasPressed)
 document.addEventListener("keyup", keyWasPressed)
+liveViewElement.addEventListener("click", enterPlayMode)
 window.liveEventListeners.push(keyWasPressed)
 
 function removeByValue(array, value) {
@@ -476,3 +479,6 @@ if(!window.depsLoaded) {
 } else {
     start()
 }
+
+// All available textures
+// tile_1, tile_10, tile_11, tile_12, tile_13, tile_14, tile_15, tile_16, tile_17, tile_18, tile_2, tile_3, tile_4, tile_5, tile_6, tile_7, tile_8, tile_9, cat_dead_1, cat_dead_10, cat_dead_2, cat_dead_3, cat_dead_4, cat_dead_5, cat_dead_6, cat_dead_7, cat_dead_8, cat_dead_9, cat_fall_1, cat_fall_2, cat_fall_3, cat_fall_4, cat_fall_5, cat_fall_6, cat_fall_7, cat_fall_8, cat_hurt_1, cat_hurt_10, cat_hurt_2, cat_hurt_3, cat_hurt_4, cat_hurt_5, cat_hurt_6, cat_hurt_7, cat_hurt_8, cat_hurt_9, cat_idle_1, cat_idle_10, cat_idle_2, cat_idle_3, cat_idle_4, cat_idle_5, cat_idle_6, cat_idle_7, cat_idle_8, cat_idle_9, cat_jump_1, cat_jump_2, cat_jump_3, cat_jump_4, cat_jump_5, cat_jump_6, cat_jump_7, cat_jump_8, cat_run_1, cat_run_2, cat_run_3, cat_run_4, cat_run_5, cat_run_6, cat_run_7, cat_run_8, cat_slide_1, cat_slide_10, cat_slide_2, cat_slide_3, cat_slide_4, cat_slide_5, cat_slide_6, cat_slide_7, cat_slide_8, cat_slide_9, cat_walk_1, cat_walk_10, cat_walk_2, cat_walk_3, cat_walk_4, cat_walk_5, cat_walk_6, cat_walk_7, cat_walk_8, cat_walk_9, object_bush_1, object_bush_2, object_bush_3, object_bush_4, object_crate, object_mushroom_1, object_mushroom_2, object_sign_1, object_sign_2, object_stone, object_tree_1, object_tree_2, object_tree_3
