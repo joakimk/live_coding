@@ -6,6 +6,49 @@
 // This was made by multiple people that don't normally work in the same
 // code base so the code style differs in some places.
 
+jumpAcceleration = 0.15
+gravityAcceleration = 0.006
+movementAcceleration = 0.02
+maxMovementSpeed = 0.1
+
+// This describes the ground tiles, e.g. ground and water.
+//
+// See list at the bottom of this file for all available tiles, or
+// just change things and see what happens :)
+//
+// Tile number can have moditifers:
+// - "S" means solid, e.g. you can stand on it and not walk though it
+// - "P" means platform, you can jump up to it.
+//
+// There is also shorthand syntax:
+// - "W" is shorthand for tile 17 (water)
+groundTileMap = [
+  "2S","2S","2S","2S","2S","2S","2S",
+  ["2S","4","4","1P"],
+  ["2S","5","5","2P"],
+  ["2S","5","10","3P"],
+  ["2S","6","3P"],
+  "2S",
+  "W","W","W",
+  "2S","2S","2S","2S","2S","7S",
+  ["8S","1S"],
+  ["5S","2S"],
+  ["10S","3S"],
+  "11S","3S",
+  "W","W","W","W","W","W","W","W","W","W","W",
+  "W","W","W","W","W","W","W","W","W"
+]
+
+// Here you can add bushes, trees, etc.
+mapAddons = [
+    { x: 1, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
+    bush1Entity(2,1),
+    bush2Entity(8,1),
+
+    // Designer platform!
+    // testGridEntity(0,6),
+]
+
 model = loadStateOrDefaultTo(getDefaultModelValues())
 
 function getDefaultModelValues() {
@@ -22,11 +65,6 @@ function getDefaultModelValues() {
         }
     }
 }
-
-jumpAcceleration = 0.15
-gravityAcceleration = 0.006
-movementAcceleration = 0.02
-maxMovementSpeed = 0.1
 
 tick = (delta) => {
     if(codeHasChanged()) { return }
@@ -173,8 +211,8 @@ render = (delta) => {
       texture.x -= mapX
       //texture.y += model.character.y * 64 * 1
 
-      texture.scale.x = tile.scale || 0.5
-      texture.scale.y = tile.scale || 0.5
+      texture.scale.x = tile.scale
+      texture.scale.y = tile.scale
       app.stage.addChild(texture)
     }
 
@@ -182,108 +220,35 @@ render = (delta) => {
     app.stage.addChild(cat)
 }
 
-function parseMap(mapData, collisionData, xpos, ypos) {
+generateGroundMap = () => {
+    out = []
 
-    mapElements = mapData.split('');
+    for(x = 0; x < groundTileMap.length; x++) {
+        column = groundTileMap[x]
+        if(!Array.isArray(column)) { column = [ column ] }
 
-    map = [];
+        for(y = 0; y < column.length; y++) {
+            row = column[y]
 
-    mapXPos = 0;
-    mapYPos = 0;
+            tileNumber = parseInt(row)
+            if(row[0] == "W") { tileNumber = "17" }
 
-    for(i = 0; i < mapElements.length; i++) {
+            collisionType = "bg"
+            if(row.indexOf("S") != -1) { collisionType = "solid" }
+            if(row.indexOf("P") != -1) { collisionType = "platform" }
 
-        if(mapElements[i] == '\n') {
-            i++
-            mapYPos--;
-            mapXPos = 0;
+            out.push({
+                x: x,
+                y: y,
+                scale: 0.5,
+                texture: "tile_" + tileNumber,
+                collisionType: collisionType,
+            })
         }
-
-        if(mapElements[i] == ' ' ||
-           mapElements[i] == '' ||
-           mapElements[i] == undefined){
-
-        } else if(mapElements[i] == 'w') {
-            map.push({
-                x: mapXPos + xpos,
-                y: mapYPos + ypos,
-                texture: "tile_17",
-                collisionType: "bg"
-            });
-        } else if(mapElements[i] == 'T') {
-            map.push({
-                x: mapXPos + xpos - 1,
-                y: mapYPos + ypos + 3.7,
-                texture: "object_tree_2",
-                scale: 1,
-                collisionType: "bg"
-            });
-        } else {
-            map.push({
-                x: mapXPos + xpos,
-                y: mapYPos + ypos,
-                texture: getGroundTile(mapElements[i]),
-                collisionType: getCollisionType(collisionData[i])
-            });
-        }
-
-        mapXPos++;
     }
 
-    return map
+    return out
 }
-
-function getGroundTile(mapElement) {
-
-    if(mapElement == 'A'){
-        return "tile_10"
-    }
-
-    if(mapElement == 'B'){
-        return "tile_11"
-    }
-
-    return "tile_" + mapElement ;
-}
-
-function getCollisionType(collisionElement){
-    if(collisionElement == '=')
-        return "platform";
-
-    if(collisionElement == '%')
-        return "solid"
-
-    return "bg";
-}
-
-
-collisionMap =
-`
-       ===
-          =
-                     %%%
-%%%%%%%%%%%%   %%%%%%%%%%%
-`
-
-groundMap =
-`
-       123
-       45A3
-       4556       T  123
-222222222222www22222785AB3wwwwwwwwwwwwwwwwwwww
-`
-
-map = [].concat(
-
-    parseMap(groundMap, collisionMap, 0, 4),
-
-    { x: 1, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
-    bush1Entity(2,1),
-    bush2Entity(8,1),
-
-    // Designer platform!
-    // testGridEntity(0,6),
-)
 
 function bush1Entity(xpos, ypos) {
     return [
@@ -327,6 +292,7 @@ function testGridEntity(xpos, ypos) {
     ]
 }
 
+map = generateGroundMap().concat(...mapAddons)
 
 catTextureIndex = 0
 
@@ -431,7 +397,15 @@ enterPlayMode = function(e) {
     liveViewElement.focus()
 }
 
-loadTexture = (name) => PIXI.Sprite.fromImage(data.textures[name])
+loadTexture = (name) => {
+    texture = data.textures[name]
+
+    if(texture) {
+        return PIXI.Sprite.fromImage(texture)
+    } else {
+        throw "No texture with name " + name
+    }
+}
 
 if(!window.liveEventListeners) { window.liveEventListeners = [] }
 
