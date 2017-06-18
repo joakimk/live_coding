@@ -30,7 +30,7 @@ groundTileMap = [
   ["2S","6","3P"],
   "2S",
   "W","W","W",
-  "2S","2S","2S","2S","2S","7S",
+  "2S","2S","2S","2S","2S","2S","2S","7S",
   ["8S","1S"],
   ["5S","2S"],
   ["10S","3S"],
@@ -44,6 +44,9 @@ mapAddons = [
     { x: 1, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
     bush1Entity(2,1),
     bush2Entity(8,1),
+
+   { x: 16.5, y: 9.40, texture: "object_tree_2", scale: 2, collisionType: "bg" },
+   { x: 14.5, y: 7.05, texture: "object_tree_2", scale: 1.5, collisionType: "bg" },
 
     // Designer platform!
     // testGridEntity(0,6),
