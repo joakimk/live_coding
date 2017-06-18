@@ -16,7 +16,7 @@ maxMovementSpeed = 0.1
 // See list at the bottom of this file for all available tiles, or
 // just change things and see what happens :)
 //
-// Tile number can have moditifers:
+// Tile number can have modifiers:
 // - "S" means solid, e.g. you can stand on it and not walk though it
 // - "P" means platform, you can jump up to it.
 //
