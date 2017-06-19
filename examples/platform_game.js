@@ -22,15 +22,17 @@ maxMovementSpeed = 0.1
 //
 // There is also shorthand syntax:
 // - "W" is shorthand for tile 17 (water)
+//
+// Besides those you can use addons from customMapAddons.
 groundTileMap = [
-  "2S","2S","2S","2S","2S","2S","2S",
+  "2S","2S","2S:TR1","2S","2S","2S","2S",
   ["2S","4","4","1P"],
   ["2S","5","5","2P"],
   ["2S","5","10","3P"],
   ["2S","6","3P"],
   "2S",
   "W","W","W",
-  "2S","2S","2S","2S","2S","2S","2S","7S",
+  "2S","2S","2S:TR2","2S","2S","2S:TR3","2S","7S",
   ["8S","1S"],
   ["5S","2S"],
   ["10S","3S"],
@@ -39,14 +41,16 @@ groundTileMap = [
   "W","W","W","W","W","W","W","W","W"
 ]
 
+customMapAddons = {
+    "TR1": { x: -1.7, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
+    "TR2": { x: -2.8, y: 7.05, texture: "object_tree_2", scale: 1.5, collisionType: "bg" },
+    "TR3": { x: -3.9, y: 9.4, texture: "object_tree_2", scale: 2, collisionType: "bg" },
+}
+
 // Here you can add bushes, trees, etc.
 mapAddons = [
-    { x: 1, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
     bush1Entity(2,1),
     bush2Entity(8,1),
-
-   { x: 16.5, y: 9.40, texture: "object_tree_2", scale: 2, collisionType: "bg" },
-   { x: 14.5, y: 7.05, texture: "object_tree_2", scale: 1.5, collisionType: "bg" },
 
     // Designer platform!
     // testGridEntity(0,6),
@@ -233,12 +237,23 @@ generateGroundMap = () => {
         for(y = 0; y < column.length; y++) {
             row = column[y]
 
-            tileNumber = parseInt(row)
-            if(row[0] == "W") { tileNumber = "17" }
+            temp = row.split(":")
+            number = temp[0]
+
+            addons = temp[1]
+            if(addons) {
+                addons = addons.split(",")
+            }
+            else {
+                addons = []
+            }
+
+            tileNumber = parseInt(number)
+            if(number[0] == "W") { tileNumber = "17" }
 
             collisionType = "bg"
-            if(row.indexOf("S") != -1) { collisionType = "solid" }
-            if(row.indexOf("P") != -1) { collisionType = "platform" }
+            if(number.indexOf("P") != -1) { collisionType = "platform" }
+            if(number.indexOf("S") != -1) { collisionType = "solid" }
 
             out.push({
                 x: x,
@@ -247,6 +262,14 @@ generateGroundMap = () => {
                 texture: "tile_" + tileNumber,
                 collisionType: collisionType,
             })
+
+            for(i = 0; i < addons.length; i++) {
+                addon = customMapAddons[addons[i]]
+                copy = Object.assign({}, addon);
+                copy.x += x
+                copy.y += y
+                out.push(copy)
+            }
         }
     }
 
