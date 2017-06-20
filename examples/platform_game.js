@@ -170,6 +170,12 @@ applyVelocity = () => {
         model = getDefaultModelValues();
     }
 
+    // mapTopLevel = 0.7;
+    // if(model.character.y >= mapTopLevel ) {
+    //   model.character.y = mapTopLevel
+    //   model.character.vy = 0
+    // }
+
     if(model.character.y <= groundLevel && model.character.vy <= 0) {
       model.character.y = groundLevel
       model.character.vy = 0
@@ -402,15 +408,105 @@ var keyWasPressed = (e) => {
     }
 
     if(mode == "play") {
-        if(e.key == "d" && e.type == "keydown") { model.input.direction = "right" }
-        else if(e.key == "d" && e.type == "keyup" && model.input.direction == "right") { model.input.direction = "none" }
-        else if(e.key == "a" && e.type == "keydown") { model.input.direction = "left" }
-        else if(e.key == "a" && e.type == "keyup" && model.input.direction == "left") { model.input.direction = "none" }
-        else if(e.key == "w" && e.type == "keydown") { model.input.jump = true }
-        else if(e.key == "w" && e.type == "keyup") { model.input.jump = false }
-        else if(e.key != "§") {
-            console.log("Unhandled key in play mode: " + JSON.stringify(e.key))
-        }
+        handlePlayInput(e)
+    }
+}
+
+function handlePlayInput(e,f) {
+    
+    if(e.key == "§") {
+        return;
+    }
+    
+    if(e.type == "keydown"){
+        if(e.key == "d")
+            model.input.direction = "right"
+        else if(e.key == "a")
+            model.input.direction = "left"
+        else if(e.key == "w")
+            model.input.jump = true
+
+        return;
+    }
+    
+    if (e.type == "keyup"){
+        if(e.key == "d" && model.input.direction == "right")
+            model.input.direction = "none"
+        else if(e.key == "a"&& model.input.direction == "left")
+            model.input.direction = "none"
+        else if(e.key == "w")
+            model.input.jump = false
+
+        return;
+    }
+
+    if(e.type == "touchmove") {
+        var touchObj = e.changedTouches[0];
+        var firstObj = f.changedTouches[0];
+        
+        var touchDX = parseInt(touchObj.screenX) - parseInt(firstObj.screenX)
+        var touchDY = parseInt(firstObj.screenY) - parseInt(touchObj.screenY)
+
+        var swipeTolerance = 30
+        
+        if(touchDX < swipeTolerance && touchDX > -swipeTolerance)
+            model.input.direction = "none"
+
+        if(touchDX <= -swipeTolerance)
+            model.input.direction = "left"
+
+        if(touchDX >= swipeTolerance)
+            model.input.direction = "right"
+
+        if(touchDY < swipeTolerance)
+            model.input.jump = false
+
+        if(touchDY >= swipeTolerance)
+            model.input.jump = true
+
+        return;
+    }
+
+    if(e.type == "touchend") {
+        model.input.direction = "none"
+        model.input.jump = false
+        return;
+    }
+    
+    
+    console.log("Unhandled input in play mode: " + JSON.stringify(e))
+}
+
+touchStart = undefined;
+
+function touchStartEvent(e) {
+    touchStart = e;
+    
+    if(e.path[0].className == "ace_content"){
+         if (mode != "edit"){
+            editor.on("focus", function() {
+                mode = "edit"
+                liveViewElement.style.border = "none"
+            })
+            window.editor.focus()
+         }
+    } else{
+        mode = "play"
+        enterPlayMode(e)
+    }
+}
+
+function touchMoveEvent(e) {
+    if(mode == "play"){
+        handlePlayInput(e, touchStart)
+        e.preventDefault();
+    }
+}
+
+function touchEndEvent(e) {
+    if(mode == "play"){
+        handlePlayInput(e)
+        e.preventDefault();
     }
 }
 
@@ -437,16 +533,32 @@ if(!window.liveEventListeners) { window.liveEventListeners = [] }
 
 if(window.liveEventListeners.length) {
     for(i = 0; i < window.liveEventListeners.length; i++) {
+        document.removeEventListener("touchstart", window.liveEventListeners[i])
+        document.removeEventListener("touchmove", window.liveEventListeners[i])
+        document.removeEventListener("touchend", window.liveEventListeners[i])
         document.removeEventListener("keydown", window.liveEventListeners[i])
         document.removeEventListener("keyup", window.liveEventListeners[i])
         removeByValue(window.liveEventListeners, window.liveEventListeners[i])
     }
 }
 
+
+// touch events
+document.addEventListener("touchstart", touchStartEvent)
+document.addEventListener("touchmove", touchMoveEvent)
+document.addEventListener("touchend", touchEndEvent)
+window.liveEventListeners.push(touchStartEvent)
+window.liveEventListeners.push(touchMoveEvent)
+window.liveEventListeners.push(touchEndEvent)
+
+// keyboard events
 document.addEventListener("keydown", keyWasPressed)
 document.addEventListener("keyup", keyWasPressed)
-liveViewElement.addEventListener("click", enterPlayMode)
 window.liveEventListeners.push(keyWasPressed)
+
+// mouse events
+liveViewElement.addEventListener("click", enterPlayMode)
+
 
 function removeByValue(array, value) {
     return array.filter(function(elem, _index){
