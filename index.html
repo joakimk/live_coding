@@ -132,6 +132,17 @@ if(!window.depsLoaded) {
         editor.clearSelection()
       }
 
+      if(location.href.indexOf("import_from_gist") != -1) {
+        code_url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
+        if(window.confirm("Are you sure you want to import " + code_url + " and run it?")) {
+          fetch(code_url).then(function(response) { return response.text() }).then(function(code) {
+            editor.setValue(code)
+          })
+        } else {
+          window.location = location.href.split("import_from_gist=")[0]
+        }
+      }
+
       editor.gotoLine(1)
       editor.focus()
 
