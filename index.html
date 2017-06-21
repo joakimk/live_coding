@@ -134,8 +134,14 @@ if(!window.depsLoaded) {
 
       if(location.href.indexOf("import_from_gist") != -1) {
         code_url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
+
+        headers = new Headers()
+        headers.append('pragma', 'no-cache')
+        headers.append('cache-control', 'no-cache')
+        request = new Request(code_url)
+
         if(window.confirm("Are you sure you want to import " + code_url + " and run it?")) {
-          fetch(code_url).then(function(response) { return response.text() }).then(function(code) {
+          fetch(request, headers).then(function(response) { return response.text() }).then(function(code) {
             editor.setValue(code)
           })
         } else {
