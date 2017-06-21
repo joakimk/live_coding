@@ -30,9 +30,9 @@ groundTileMap = [
   ["2S","5","5","2P"],
   ["2S","5","10","3P"],
   ["2S","6","3P"],
-  "2S",
+  "3S",
   "W","W","W",
-  "2S","2S","2S:TR2","2S","2S","2S:TR3","2S","7S",
+  "1S","2S","2S:TR2","2S","2S","2S:TR3","2S","7S",
   ["8S","1S"],
   ["5S","2S"],
   ["10S","3S"],
@@ -133,27 +133,21 @@ applyVelocity = () => {
     model.character.x += model.character.vx
     model.character.y += model.character.vy
 
-    // If character is within a map block, stop the character on top of it
-    closestDistance = 999
-    closestMapV = null
-    characterV = new Vector(model.character.x-0.5, model.character.y*2)
-    for(i = 0; i < map.length; i++) {
-        mapV = new Vector(map[i].x, map[i].y)
+    groundLevel = setGroundLevel(model)
+    rightCollision = setRightCollision(model)
+    leftCollision = setLeftCollision(model)
 
-        if(mapV.x != characterV.x.toFixed(0) ||
-           mapV.y > characterV.y.toFixed(0)) {
-            continue;
-        }
+    // console.log("groundlevel:" + groundLevel, "rightCollision:" + rightCollision, "leftCollision:" + leftCollision, characterV)
+    
 
-        distance = characterV.distanceTo(mapV);
-        if(distance < closestDistance && map[i].collisionType != "bg") {
-          closestDistance = distance
-          closestMapV = mapV
-        }
+    if(model.character.x > rightCollision - 0.2 && rightCollision > 0) {
+        model.character.x = rightCollision - 0.2;
     }
-
-    groundLevel = closestMapV !== null ? closestMapV.y/2 : -1;
-    // console.log(groundLevel, characterV, closestMapV)
+    
+    if(model.character.x < leftCollision + 0.2 && leftCollision > 0) {
+        model.character.x = leftCollision + 0.2;
+    }
+    
 
     leftMapBorder = 0.3;
     if(model.character.x < leftMapBorder) {
@@ -181,6 +175,94 @@ applyVelocity = () => {
       model.character.vy = 0
     }
 }
+
+function setRightCollision(model){
+    closestDistance = 999
+    closestMapV = null
+    characterV = new Vector(model.character.x, model.character.y*2 + 1)
+
+    for(i = 0; i < map.length; i++) {
+        mapV = new Vector(map[i].x, map[i].y)
+        
+        if(map[i].collisionType != "solid"){
+            continue;
+        }
+
+        if(mapV.y != characterV.y.toFixed(0)) {
+            continue;
+        }
+        
+        if(mapV.x < characterV.x.toFixed(0)){
+            continue;
+        }
+
+        distance = characterV.distanceTo(mapV);
+        if(distance < closestDistance) {
+          closestDistance = distance
+          closestMapV = mapV
+        }
+    }
+
+    return closestMapV !== null ? closestMapV.x : -1;
+}
+
+function setLeftCollision(model){
+    closestDistance = 999
+    closestMapV = null
+    characterV = new Vector(model.character.x, model.character.y*2 + 1)
+
+    for(i = 0; i < map.length; i++) {
+        mapV = new Vector(map[i].x + 1, map[i].y)
+        
+        if(map[i].collisionType != "solid"){
+            continue;
+        }
+
+        if(mapV.y != characterV.y.toFixed(0)) {
+            continue;
+        }
+        
+        if(mapV.x > characterV.x.toFixed(0)){
+            continue;
+        }
+
+
+        distance = characterV.distanceTo(mapV);
+        if(distance < closestDistance) {
+          closestDistance = distance
+          closestMapV = mapV
+        }
+    }
+
+    return closestMapV !== null ? closestMapV.x : -1;
+}
+
+function setGroundLevel(model){
+    closestDistance = 999
+    closestMapV = null
+    characterV = new Vector(model.character.x-0.5, model.character.y*2)
+
+    for(i = 0; i < map.length; i++) {
+        mapV = new Vector(map[i].x, map[i].y)
+
+        if(mapV.x != characterV.x.toFixed(0)){
+            continue;
+        }
+        
+        if(mapV.y > characterV.y.toFixed(0)) {
+            continue;
+        }
+
+        distance = characterV.distanceTo(mapV);
+        if(distance < closestDistance && map[i].collisionType != "bg") {
+          closestDistance = distance
+          closestMapV = mapV
+        }
+    }
+    
+    return closestMapV !== null ? closestMapV.y/2 : -1;
+}
+
 
 applyGravity = (delta) => {
     model.character.vy -= gravityAcceleration * delta
