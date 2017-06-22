@@ -75,6 +75,7 @@ function getDefaultModelValues() {
 
 tick = (delta) => {
     if(codeHasChanged()) { return }
+    logFps()
 
     onTheGround = (model.character.vy === 0)
 
@@ -138,16 +139,16 @@ applyVelocity = () => {
     leftCollision = setLeftCollision(model)
 
     // console.log("groundlevel:" + groundLevel, "rightCollision:" + rightCollision, "leftCollision:" + leftCollision, characterV)
-    
+
 
     if(model.character.x > rightCollision - 0.2 && rightCollision > 0) {
         model.character.x = rightCollision - 0.2;
     }
-    
+
     if(model.character.x < leftCollision + 0.2 && leftCollision > 0) {
         model.character.x = leftCollision + 0.2;
     }
-    
+
 
     leftMapBorder = 0.3;
     if(model.character.x < leftMapBorder) {
@@ -183,7 +184,7 @@ function setRightCollision(model){
 
     for(i = 0; i < map.length; i++) {
         mapV = new Vector(map[i].x, map[i].y)
-        
+
         if(map[i].collisionType != "solid"){
             continue;
         }
@@ -191,7 +192,7 @@ function setRightCollision(model){
         if(mapV.y != characterV.y.toFixed(0)) {
             continue;
         }
-        
+
         if(mapV.x < characterV.x.toFixed(0)){
             continue;
         }
@@ -213,7 +214,7 @@ function setLeftCollision(model){
 
     for(i = 0; i < map.length; i++) {
         mapV = new Vector(map[i].x + 1, map[i].y)
-        
+
         if(map[i].collisionType != "solid"){
             continue;
         }
@@ -221,7 +222,7 @@ function setLeftCollision(model){
         if(mapV.y != characterV.y.toFixed(0)) {
             continue;
         }
-        
+
         if(mapV.x > characterV.x.toFixed(0)){
             continue;
         }
@@ -248,7 +249,7 @@ function setGroundLevel(model){
         if(mapV.x != characterV.x.toFixed(0)){
             continue;
         }
-        
+
         if(mapV.y > characterV.y.toFixed(0)) {
             continue;
         }
@@ -259,7 +260,7 @@ function setGroundLevel(model){
           closestMapV = mapV
         }
     }
-    
+
     return closestMapV !== null ? closestMapV.y/2 : -1;
 }
 
@@ -495,11 +496,11 @@ var keyWasPressed = (e) => {
 }
 
 function handlePlayInput(e,f) {
-    
+
     if(e.key == "§") {
         return;
     }
-    
+
     if(e.type == "keydown"){
         if(e.key == "d")
             model.input.direction = "right"
@@ -510,7 +511,7 @@ function handlePlayInput(e,f) {
 
         return;
     }
-    
+
     if (e.type == "keyup"){
         if(e.key == "d" && model.input.direction == "right")
             model.input.direction = "none"
@@ -525,12 +526,12 @@ function handlePlayInput(e,f) {
     if(e.type == "touchmove") {
         var touchObj = e.changedTouches[0];
         var firstObj = f.changedTouches[0];
-        
+
         var touchDX = parseInt(touchObj.screenX) - parseInt(firstObj.screenX)
         var touchDY = parseInt(firstObj.screenY) - parseInt(touchObj.screenY)
 
         var swipeTolerance = 30
-        
+
         if(touchDX < swipeTolerance && touchDX > -swipeTolerance)
             model.input.direction = "none"
 
@@ -554,8 +555,8 @@ function handlePlayInput(e,f) {
         model.input.jump = false
         return;
     }
-    
-    
+
+
     console.log("Unhandled input in play mode: " + JSON.stringify(e))
 }
 
@@ -563,7 +564,7 @@ touchStart = undefined;
 
 function touchStartEvent(e) {
     touchStart = e;
-    
+
     if(e.path[0].className == "ace_content"){
          if (mode != "edit"){
             editor.on("focus", function() {
@@ -608,6 +609,20 @@ loadTexture = (name) => {
         return PIXI.Sprite.fromImage(texture)
     } else {
         throw "No texture with name " + name
+    }
+}
+
+lastTimeFpsWasUpdated = new Date()
+framesSinceLastFpsCheck = 0
+logFps = () => {
+    framesSinceLastFpsCheck++
+    if(new Date() - lastTimeFpsWasUpdated > 1000)
+    {
+        lastTimeFpsWasUpdated = new Date()
+        if(window.location.href.indexOf("logfps") != -1) {
+          console.log("FPS: " + framesSinceLastFpsCheck)
+        }
+        framesSinceLastFpsCheck = 0
     }
 }
 
