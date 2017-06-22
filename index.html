@@ -31,11 +31,15 @@
         font-size: 22px;
         margin-bottom: 5px;
       }
-      .header .description, .header .source {
+      .header .source {
         font-size: 12px;
       }
       .header .source {
         float: right;
+      }
+
+      a {
+        color: white;
       }
     </style>
   </head>
@@ -45,7 +49,7 @@
         <a href="#" onclick="javascript:document.getElementsByClassName('js-header')[0].style.display='none';" style="float: right">Hide header</a>
         <h1>JavaScript live coding environment</h1>
         <div class="source">You can find the source to this tool at <a href="https://github.com/joakimk/live_coding">github.com/joakimk/live_coding</a>.</div>
-        <div class="description">Change the code on the left and see the results right away on the right. Code is saved in your browser's local storage. You can find examples to use as a starting point in <a href="https://github.com/joakimk/live_coding/tree/master/examples">examples/</a>.</div>
+        <a class="js-load-code" href="#">Load latest code</a> from github.com/joakimk/examples/platform_game.js [master]
       </div>
       <div class="view js-view"></div>
       <div class="editor js-editor">/* jshint asi:true */
@@ -132,6 +136,7 @@ if(!window.depsLoaded) {
         editor.clearSelection()
       }
 
+      // Proof of concept code loading from gist
       if(location.href.indexOf("import_from_gist") != -1) {
         code_url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
 
@@ -148,6 +153,16 @@ if(!window.depsLoaded) {
           window.location = location.href.split("import_from_gist=")[0]
         }
       }
+
+      // Proof of concept code loading from github. Will be more dynamic later.
+      document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
+        e.preventDefault()
+        fetch("https://api.github.com/repos/joakimk/live_coding/contents/examples/platform_game.js?ref=master").then(function(r) { return r.json() }).then(
+          function(json) {
+            code = atob(json.content)
+            editor.setValue(code)
+          })
+      })
 
       editor.gotoLine(1)
       editor.focus()
