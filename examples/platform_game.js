@@ -1,4 +1,5 @@
 /* jshint asi:true */
+
 // PixiJS v4 example (WebGL rendering)
 
 // A platform game featuring cats :)
