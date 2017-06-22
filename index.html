@@ -157,7 +157,13 @@ if(!window.depsLoaded) {
       // Proof of concept code loading from github. Will be more dynamic later.
       document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
         e.preventDefault()
-        fetch("https://api.github.com/repos/joakimk/live_coding/contents/examples/platform_game.js?ref=master").then(function(r) { return r.json() }).then(
+
+        headers = new Headers()
+        headers.append('pragma', 'no-cache')
+        headers.append('cache-control', 'no-cache')
+        request = new Request("https://api.github.com/repos/joakimk/live_coding/contents/examples/platform_game.js?ref=master")
+
+        fetch(request, headers).then(function(r) { return r.json() }).then(
           function(json) {
             code = atob(json.content)
             editor.setValue(code)
