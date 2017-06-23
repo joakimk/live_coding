@@ -580,22 +580,36 @@ function handlePlayInput(e,f) {
     console.log("Unhandled input in play mode: " + JSON.stringify(e))
 }
 
+function IsCanvas(pathObject){
+    var object = pathObject[0]
+    
+    if( object.nodeName == 'CANVAS' ||
+        object.tagName == 'CANVAS' ||
+        object.localName == 'canvas'){
+            return true;
+        }
+    
+    return false;
+}
+
 touchStart = undefined;
 
 function touchStartEvent(e) {
     touchStart = e;
 
-    if(e.path[0].className == "ace_content"){
-         if (mode != "edit"){
+    if(IsCanvas(e.path)) {
+        if(mode != "play"){
+            mode = "play"
+            enterPlayMode(e)
+        }
+    } else {
+        if (mode != "edit"){
             editor.on("focus", function() {
                 mode = "edit"
                 liveViewElement.style.border = "none"
             })
             window.editor.focus()
-         }
-    } else{
-        mode = "play"
-        enterPlayMode(e)
+        }     
     }
 }
 
