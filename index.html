@@ -149,7 +149,8 @@ if(!window.depsLoaded) {
       }
 
       function replaceCodeInEditor(code) {
-        editor.setValue(code)
+        // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
+        editor.setValue(decodeURIComponent(escape(code)))
         editor.gotoLine(1)
         editor.focus()
       }
