@@ -57,9 +57,79 @@ groundTileMap = [
   "5:5:2",
   "10:6:3",
   "11",
+  "2",
   "3",
-  "W","W","W","W","W","W","W","W","W","W","W",
-  "W","W","W","W","W","W","W","W","W"
+  "W",
+  "W::13",
+  "W::14",
+  "W::14+TR2",
+  "W::14",
+  "W::14",
+  "W::14",
+  "W::15",
+  "W",
+  "W",
+  "W:12:4:1",
+  "W:9:10:3",
+  "W:9:11",
+  "W:9:2",
+  "W:9:2:::13",
+  "W:9:2:::14",
+  "W:9:2:::14",
+  "W:9:7:::14",
+  "W:9:8:1::14",
+  "W:9:5:2::14",
+  "W:9:5:2::14",
+  "W:9:5:2::14",
+  "W:16:6:3::14",
+  "W:::::14",
+  "W:::::15",
+  "W:13",
+  "W:14",
+  "W:14",
+  "W:14",
+  "W:14:::12:1S",
+  "W:14:::9:2",
+  "W:15:::9:2",
+  "W::::9:7",
+  "W::::9:8:4:1",
+  "4:1:::9:5:5:2",
+  "10:3:::9:5:5:2",
+  "11:::12:5:5:5:2",
+  "2:::16:6:6:6:3",
+  "2:::13::::13",
+  "2:::15::::15",
+  "2",
+  "7",
+  "8:1::::13",
+  "5:7::::15",
+  "5:8:4:4:4:4:4:1",
+  "5:5:5:5:5:5:5:2",
+  "10:6:6:6:6:6:6:3",
+  "11",
+  "2",
+  "2::13",
+  "2::15::::13",
+  "2::::::15",
+  "2",
+  "2::::13",
+  "2::::15",
+  "2",
+  "2",
+  "2:::::13",
+  "7:::::15",
+  "8:1",
+  "5:7",
+  "5:8:1+MU1",
+  "5:5:2+TR1(0.5,0)",
+  "5:5:2",
+  "5:10:3+MU1",
+  "5:11",
+  "10:3",
+  "11",
+  "2","2","2","2","2","2","2","2","3",
+  "W","W","W","W","W","W","W","W",
+  "W","W","W","W","W","W","W","W"
 ]
 
 customMapAddons = {
@@ -84,6 +154,83 @@ customMapAddons = {
     "SIGN1": { x: 0, y: 1.02, texture: "object_sign_1", scale: 1, collisionType: "bg" },
     "SIGN2": { x: 0.1, y: 1, texture: "object_sign_2", scale: 1, collisionType: "bg" },
 }
+
+
+generateMap = () => {
+    mapLayer = []
+    addonLayer = []
+
+    for(x = 0; x < groundTileMap.length; x++) {
+        column = groundTileMap[x]
+        if(!Array.isArray(column)) { column = [ column ] }
+
+        // Convert "1:2:3" to [ "1", "2", "3" ]
+        if(column.length == 1 && column[0].indexOf(":") != -1) {
+          column = column[0].split(":")
+        }
+
+        for(y = 0; y < column.length; y++) {
+            row = column[y]
+
+            temp = row.split("+")
+            number = temp[0]
+            addons = temp.slice(1)
+
+            tileNumber = parseInt(number)
+
+            collisionType = "solid"
+            if(number.indexOf("P") != -1) { collisionType = "platform" }
+            if(number.indexOf("B") != -1) { collisionType = "bg" }
+
+            if(number[0] == "W") {
+                tileNumber = "17"
+                collisionType = "bg"
+            }
+
+            if(isNaN(tileNumber)){
+                continue;
+            }
+
+            mapLayer.push({
+                x: x,
+                y: y,
+                scale: 0.5,
+                texture: "tile_" + tileNumber,
+                collisionType: collisionType,
+            })
+
+            for(i = 0; i < addons.length; i++) {
+                // Support syntax for custom offsets, e.g.
+                // TR1:(-0.5,0) to move it -0.5 in X relative
+                // to where it would otherwise be placed.
+                let [ name, offsets ] = addons[i].split("(");
+
+                let xdiff = 0
+                let ydiff = 0
+                if(offsets) {
+                    let [ x, y ] = offsets.split(")")[0].split(",")
+                    xdiff = parseFloat(x)
+                    ydiff = parseFloat(y)
+                }
+
+                let list = customMapAddons[name]
+                if(!Array.isArray(list)) { list = [ list ] }
+
+                for(let j = 0; j < list.length; j++) {
+                    copy = Object.assign({}, list[j]);
+                    copy.x += x + xdiff
+                    copy.y += y + ydiff
+                    addonLayer.push(copy)
+                }
+            }
+        }
+    }
+
+    return mapLayer.concat(addonLayer)
+}
+
+map = generateMap()
+
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
 //model.character.x = 20
@@ -357,77 +504,6 @@ render = (delta) => {
     // Render character
     app.stage.addChild(cat)
 }
-
-generateMap = () => {
-    mapLayer = []
-    addonLayer = []
-
-    for(x = 0; x < groundTileMap.length; x++) {
-        column = groundTileMap[x]
-        if(!Array.isArray(column)) { column = [ column ] }
-
-        // Convert "1:2:3" to [ "1", "2", "3" ]
-        if(column.length == 1 && column[0].indexOf(":") != -1) {
-          column = column[0].split(":")
-        }
-
-        for(y = 0; y < column.length; y++) {
-            row = column[y]
-
-            temp = row.split("+")
-            number = temp[0]
-            addons = temp.slice(1)
-
-            tileNumber = parseInt(number)
-
-            collisionType = "solid"
-            if(number.indexOf("P") != -1) { collisionType = "platform" }
-            if(number.indexOf("B") != -1) { collisionType = "bg" }
-
-            if(number[0] == "W") {
-                tileNumber = "17"
-                collisionType = "bg"
-            }
-
-            mapLayer.push({
-                x: x,
-                y: y,
-                scale: 0.5,
-                texture: "tile_" + tileNumber,
-                collisionType: collisionType,
-            })
-
-            for(i = 0; i < addons.length; i++) {
-                // Support syntax for custom offsets, e.g.
-                // TR1:(-0.5,0) to move it -0.5 in X relative
-                // to where it would otherwise be placed.
-                let [ name, offsets ] = addons[i].split("(");
-
-                let xdiff = 0
-                let ydiff = 0
-                if(offsets) {
-                    let [ x, y ] = offsets.split(")")[0].split(",")
-                    xdiff = parseFloat(x)
-                    ydiff = parseFloat(y)
-                }
-
-                let list = customMapAddons[name]
-                if(!Array.isArray(list)) { list = [ list ] }
-
-                for(let j = 0; j < list.length; j++) {
-                    copy = Object.assign({}, list[j]);
-                    copy.x += x + xdiff
-                    copy.y += y + ydiff
-                    addonLayer.push(copy)
-                }
-            }
-        }
-    }
-
-    return mapLayer.concat(addonLayer)
-}
-
-map = generateMap()
 
 catTextureIndex = 0
 
