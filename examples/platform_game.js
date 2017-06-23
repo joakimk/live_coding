@@ -37,11 +37,11 @@ groundTileMap = [
   "2+BU2:5B:5B:2P+MU2",
   "2:5B:10B:3P",
   "2:6B:3P",
-  "3",
+  "3+SIGN2",
   "W",
   "W",
   "W",
-  "1",
+  "1+SIGN1",
   "2",
   "2+TR2",
   "2+ST1",
@@ -74,6 +74,8 @@ customMapAddons = {
     "MU2": { x: 0, y: 0.62, texture: "object_mushroom_2", scale: 1, collisionType: "bg" },
     "CR1": { x: -0.12, y: 1.2, texture: "object_crate", scale: 1, collisionType: "bg" },
     "ST1": { x: -0.23, y: 0.84, texture: "object_stone", scale: 1, collisionType: "bg" },
+    "SIGN1": { x: 0, y: 1.02, texture: "object_sign_1", scale: 1, collisionType: "bg" },
+    "SIGN2": { x: 0.1, y: 1, texture: "object_sign_2", scale: 1, collisionType: "bg" },
 }
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
