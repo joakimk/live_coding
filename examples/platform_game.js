@@ -52,7 +52,7 @@ groundTileMap = [
   "8:1",
   "5:7",
   "5:8:1",
-  "5:5:2",
+  "5:5:2+TR4",
   "10:6:3",
   "11",
   "3",
@@ -64,6 +64,7 @@ customMapAddons = {
     "TR1": { x: -1.7, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
     "TR2": { x: -2.8, y: 7.05, texture: "object_tree_2", scale: 1.5, collisionType: "bg" },
     "TR3": { x: -3.9, y: 9.4, texture: "object_tree_2", scale: 2, collisionType: "bg" },
+    "TR4": { x: -0.435, y: 0.685, texture: "object_tree_1", scale: 1, collisionType: "bg" },
     "BU1":  [
         { x: -1, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
         { x: -0.5, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
@@ -79,6 +80,7 @@ customMapAddons = {
 }
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
+//model.character.x = 20
 
 function getDefaultModelValues() {
     return {
