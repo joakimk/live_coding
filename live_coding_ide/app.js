@@ -1,136 +1,161 @@
-vimInsertMode = false
+(function() {
+  this.vimInsertMode = false
+  this.liveCodeState = null
+  this.liveCodeVersion = 1
 
-init = () => {
-  editorDiv = document.getElementsByClassName("js-editor")[0]
-  editor = ace.edit(editorDiv)
+  this.liveViewElement = null
 
-  //editor.setTheme("ace/theme/github") // Light theme
-  editor.setTheme("ace/theme/twilight") // Dark theme
+  init = () => {
+    setUpLiveView()
 
-  // Settings for javascript editing
-  editor.setOption("tabSize", 4)
-  editor.setOption("useSoftTabs", true)
-  editor.session.setMode("ace/mode/javascript")
-
-  editor.session.setUseWrapMode(true)
-
-  // Hide the 80 chars line. No strong reason, mostly because
-  // the size of the window is probably a more practical limit for now.
-  editor.setShowPrintMargin(false)
-
-  if(window.location.href.indexOf("vim") != -1) {
-    editor.setKeyboardHandler("ace/keyboard/vim")
+    let editor = setUpEditor()
+    loadSavedCode(editor)
+    setUpCodeLoadingFromExternalSources(editor)
   }
 
-  // Have no looked deeply at this:
-  // "Automatically scrolling cursor into view after selection change this will be disabled in the next version set editor.$blockScrolling = Infinity to disable this message"
-  editor.$blockScrolling = Infinity
-
-  savedCode = localStorage.getItem("code")
-  if(savedCode) {
-    console.log("LiveCoding: Loading previously saved code from local storage")
-    editor.setValue(savedCode)
-
-    // Reset undo stack to the saved code instead of the default example :)
-    editor.session.setUndoManager(new ace.UndoManager())
-
-    editor.clearSelection()
+  this.setUpLiveView = () => {
+    this.liveViewElement = document.getElementsByClassName("js-view")[0]
   }
 
-  // Proof of concept code loading from gist
-  if(location.href.indexOf("import_from_gist") != -1) {
-     let url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
+  this.setUpEditor = () => {
+    let editorDiv = document.getElementsByClassName("js-editor")[0]
+    let editor = ace.edit(editorDiv)
 
-     if(window.confirm("Are you sure you want to import " + url + " and run it?")) {
-       fetchFromUrl(url, function(code) {
-         replaceCodeInEditor(code)
+    // TODO: Remove this when possible, the platform game relies on it
+    window.editor = editor
+
+    //editor.setTheme("ace/theme/github") // Light theme
+    editor.setTheme("ace/theme/twilight") // Dark theme
+
+    // Settings for javascript editing
+    editor.setOption("tabSize", 4)
+    editor.setOption("useSoftTabs", true)
+    editor.session.setMode("ace/mode/javascript")
+
+    editor.session.setUseWrapMode(true)
+
+    // Hide the 80 chars line. No strong reason, mostly because
+    // the size of the window is probably a more practical limit for now.
+    editor.setShowPrintMargin(false)
+
+    if(window.location.href.indexOf("vim") != -1) {
+      editor.setKeyboardHandler("ace/keyboard/vim")
+    }
+
+    // Have no looked deeply at this:
+    // "Automatically scrolling cursor into view after selection change this will be disabled in the next version set editor.$blockScrolling = Infinity to disable this message"
+    editor.$blockScrolling = Infinity
+
+    editor.on("changeStatus", function() {
+      if(editor.keyBinding.getStatusText(editor) == "INSERT") { vimInsertMode = true }
+      else { vimInsertMode = false; runCode(editor) }
+    })
+    editor.on("change", () => { runCode(editor) });
+
+    return editor
+  }
+
+  this.loadSavedCode = (editor) => {
+    savedCode = localStorage.getItem("code")
+
+    if(savedCode) {
+      console.log("LiveCoding: Loading previously saved code from local storage")
+      editor.setValue(savedCode)
+
+      // Reset undo stack to the saved code instead of the default example :)
+      editor.session.setUndoManager(new ace.UndoManager())
+
+      editor.clearSelection()
+    } else {
+      runCode(editor)
+    }
+
+    editor.gotoLine(1)
+    editor.focus()
+  }
+
+  this.setUpCodeLoadingFromExternalSources = (editor) => {
+    // Proof of concept code loading from gist
+    if(location.href.indexOf("import_from_gist") != -1) {
+       let url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
+
+       if(window.confirm("Are you sure you want to import " + url + " and run it?")) {
+         fetchFromUrl(url, function(code) {
+           replaceCodeInEditor(code)
+
+           // Reload page after replacing code as this is often required to get it running
+           window.location = location.href.split("import_from_gist=")[0]
+         })
+       } else {
+         window.location = location.href.split("import_from_gist=")[0]
+       }
+    }
+
+    // Proof of concept code loading from github. Will be more dynamic later.
+    document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
+       e.preventDefault()
+
+       let url = "https://api.github.com/repos/joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master"
+
+       fetchFromUrl(url, function(body) {
+         replaceCodeInEditor(atob(JSON.parse(body).content))
 
          // Reload page after replacing code as this is often required to get it running
-         window.location = location.href.split("import_from_gist=")[0]
+         window.location.reload()
        })
-     } else {
-       window.location = location.href.split("import_from_gist=")[0]
-     }
+    })
   }
 
-  // Proof of concept code loading from github. Will be more dynamic later.
-  document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
-     e.preventDefault()
+  this.runCode = (editor) => {
+    if(vimInsertMode) { return }
 
-     let url = "https://api.github.com/repos/joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master"
+    code = editor.getValue()
 
-     fetchFromUrl(url, function(body) {
-       replaceCodeInEditor(atob(JSON.parse(body).content))
+    script = document.createElement("script")
+    script.type = "text/javascript"
 
-       // Reload page after replacing code as this is often required to get it running
-       window.location.reload()
-     })
-  })
+    localStorage.setItem("code", code)
 
-  editor.gotoLine(1)
-  editor.focus()
+    window.liveCodeVersion += 1
 
-  window.liveCodeVersion = 1
-  window.liveCodeState = null
-  window.liveViewElement = document.getElementsByClassName("js-view")[0]
+    script.innerHTML =
+      "(function() {" +
+        // Add function that can be used to check if the code is outdated and should stop running.
+        "function codeHasChanged() { return " + this.liveCodeVersion + " != this.liveCodeVersion };" +
 
-  editor.on("changeStatus", function() {
-    if(editor.keyBinding.getStatusText(editor) == "INSERT") { vimInsertMode = true }
-    else { vimInsertMode = false; runCode() }
-  })
-  editor.on("change", runCode);
-  runCode()
-}
+        // Save and load state to be able to resume the simulation after live code update
+        "function saveState(state) { this.liveCodeState = state };" +
+        "function loadStateOrDefaultTo(defaultState) { savedState = this.liveCodeState; return savedState ? savedState : defaultState };" +
 
-runCode = () => {
-  if(vimInsertMode) { return }
+        // Load the new version of the code.
+        code +
 
-  code = editor.getValue()
+        // Show what version of the code is running now.
+        "\nconsole.log('LiveCoding: Code version ' + this.liveCodeVersion + ' loaded successfully!')" +
+      "})();"
 
-  script = document.createElement("script")
-  script.type = "text/javascript"
+    document.body.appendChild(script)
+  }
 
-  localStorage.setItem("code", code)
+  this.fetchFromUrl = (url, callback) => {
+    let xmlhttp = new XMLHttpRequest()
 
-  window.liveCodeVersion += 1
-
-  script.innerHTML =
-    "(function() {" +
-      // Add function that can be used to check if the code is outdated and should stop running.
-      "function codeHasChanged() { return " + window.liveCodeVersion + " != window.liveCodeVersion };" +
-
-      // Save and load state to be able to resume the simulation after live code update
-      "function saveState(state) { liveCodeState = state };" +
-      "function loadStateOrDefaultTo(defaultState) { savedState = window.liveCodeState; return savedState ? savedState : defaultState };" +
-
-      // Load the new version of the code.
-      code +
-
-      // Show what version of the code is running now.
-      "\nconsole.log('LiveCoding: Code version ' + window.liveCodeVersion + ' loaded successfully!')" +
-    "})();"
-
-  document.body.appendChild(script)
-}
-
-fetchFromUrl = (url, callback) => {
-  let xmlhttp = new XMLHttpRequest()
-
-  xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-      callback(xmlhttp.responseText)
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        callback(xmlhttp.responseText)
+      }
     }
+
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
   }
 
-  xmlhttp.open("GET", url, true)
-  xmlhttp.send()
-}
+  this.replaceCodeInEditor = (code) => {
+    // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
+    editor.setValue(decodeURIComponent(escape(code)))
+    editor.gotoLine(1)
+    editor.focus()
+  }
 
-replaceCodeInEditor = (code) => {
-  // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
-  editor.setValue(decodeURIComponent(escape(code)))
-  editor.gotoLine(1)
-  editor.focus()
-}
-
-init()
+  init()
+}())
