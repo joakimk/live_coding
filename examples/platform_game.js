@@ -44,7 +44,7 @@ groundTileMap = [
   "1",
   "2",
   "2+TR2",
-  "2",
+  "2+ST1",
   "2",
   "2+TR3",
   "2",
@@ -73,6 +73,7 @@ customMapAddons = {
     "MU1": { x: 0, y: 0.62, texture: "object_mushroom_1", scale: 1, collisionType: "bg" },
     "MU2": { x: 0, y: 0.62, texture: "object_mushroom_2", scale: 1, collisionType: "bg" },
     "CR1": { x: -0.12, y: 1.2, texture: "object_crate", scale: 1, collisionType: "bg" },
+    "ST1": { x: -0.23, y: 0.84, texture: "object_stone", scale: 1, collisionType: "bg" },
 }
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
