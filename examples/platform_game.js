@@ -235,18 +235,42 @@ map = generateMap()
 model = loadStateOrDefaultTo(getDefaultModelValues())
 //model.character.x = 20
 
-function getDefaultModelValues() {
-    return {
-        character: {
-            x: 0.5,
-            y: 0,
-            vx: 0,
-            vy: 0,
-        },
-        input: {
-            direction: "none",
-            isJumpPossible: false,
-            jump: false,
+characterResetValues = {
+    x: 0.5,
+    y: 0,
+    lastdirection: "right",
+};
+
+function getDefaultModelValues(resetValues) {
+    if(resetValues === undefined){
+        return {
+            character: {
+                x: 0.5,
+                y: 0,
+                vx: 0,
+                vy: 0,
+            },
+            input: {
+                direction: "none",
+                lastdirection: "right",
+                isJumpPossible: false,
+                jump: false,
+            },
+        }
+    } else {
+        return {
+            character: {
+                x: resetValues.x,
+                y: resetValues.y,
+                vx: 0,
+                vy: 0,
+            },
+            input: {
+                direction: "none",
+                lastdirection: resetValues.lastdirection,
+                isJumpPossible: false,
+                jump: false,
+            },
         }
     }
 }
@@ -323,12 +347,10 @@ applyVelocity = () => {
     model.character.x += model.character.vx
     model.character.y += model.character.vy
 
-    groundLevel = setGroundLevel(model)
+    bottomCollision = setBottomCollision(model)
+    topCollision = setTopCollision(model);
     rightCollision = setRightCollision(model)
     leftCollision = setLeftCollision(model)
-
-    // console.log("groundlevel:" + groundLevel, "rightCollision:" + rightCollision, "leftCollision:" + leftCollision, characterV)
-
 
     if(model.character.x > rightCollision - 0.2 && rightCollision > 0) {
         model.character.x = rightCollision - 0.2;
@@ -338,6 +360,10 @@ applyVelocity = () => {
         model.character.x = leftCollision + 0.2;
     }
 
+    if(model.character.y >= topCollision && topCollision > -0.5) {
+      model.character.y = topCollision
+      model.character.vy = -0.00001
+    }
 
     leftMapBorder = 0.3;
     if(model.character.x < leftMapBorder) {
@@ -351,18 +377,16 @@ applyVelocity = () => {
 
     if (model.character.y <= -1){
         console.log("Thus ends the story of our brave kitty! You have died!")
-        model = getDefaultModelValues();
+        model = getDefaultModelValues(characterResetValues);
     }
 
-    // mapTopLevel = 0.7;
-    // if(model.character.y >= mapTopLevel ) {
-    //   model.character.y = mapTopLevel
-    //   model.character.vy = 0
-    // }
+    if(model.character.y <= bottomCollision && model.character.vy <= 0) {
+        model.character.y = bottomCollision
+        model.character.vy = 0
 
-    if(model.character.y <= groundLevel && model.character.vy <= 0) {
-      model.character.y = groundLevel
-      model.character.vy = 0
+        characterResetValues.x = model.character.x;
+        characterResetValues.y = model.character.y;
+        characterResetValues.lastdirection = model.input.lastdirection;
     }
 }
 
@@ -416,7 +440,6 @@ function setLeftCollision(model){
             continue;
         }
 
-
         distance = characterV.distanceTo(mapV);
         if(distance < closestDistance) {
           closestDistance = distance
@@ -427,7 +450,7 @@ function setLeftCollision(model){
     return closestMapV !== null ? closestMapV.x : -1;
 }
 
-function setGroundLevel(model){
+function setBottomCollision(model){
     closestDistance = 999
     closestMapV = null
     characterV = new Vector(model.character.x-0.5, model.character.y*2)
@@ -435,6 +458,10 @@ function setGroundLevel(model){
     for(i = 0; i < map.length; i++) {
         mapV = new Vector(map[i].x, map[i].y)
 
+        if(map[i].collisionType == "bg"){
+            continue;
+        }
+        
         if(mapV.x != characterV.x.toFixed(0)){
             continue;
         }
@@ -444,7 +471,7 @@ function setGroundLevel(model){
         }
 
         distance = characterV.distanceTo(mapV);
-        if(distance < closestDistance && map[i].collisionType != "bg") {
+        if(distance < closestDistance) {
           closestDistance = distance
           closestMapV = mapV
         }
@@ -453,6 +480,35 @@ function setGroundLevel(model){
     return closestMapV !== null ? closestMapV.y/2 : -1;
 }
 
+function setTopCollision(model){
+    closestDistance = 999
+    closestMapV = null
+    characterV = new Vector(model.character.x-0.5, model.character.y*2 + 1)
+
+    for(i = 0; i < map.length; i++) {
+        mapV = new Vector(map[i].x, map[i].y)
+
+        if(map[i].collisionType != "solid"){
+            continue;
+        }
+
+        if(mapV.x != characterV.x.toFixed(0)){
+            continue;
+        }
+
+        if(mapV.y < characterV.y.toFixed(0)) {
+            continue;
+        }
+
+        distance = characterV.distanceTo(mapV);
+        if(distance < closestDistance) {
+          closestDistance = distance
+          closestMapV = mapV
+        }
+    }
+
+    return closestMapV !== null ? closestMapV.y/2 - 0.75 : -1;
+}
 
 applyGravity = (delta) => {
     model.character.vy -= gravityAcceleration * delta
