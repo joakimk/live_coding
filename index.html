@@ -188,7 +188,11 @@ if(!window.depsLoaded) {
       editor.gotoLine(1)
       editor.focus()
 
+      vimInsertMode = false
+
       runCode = function() {
+        if(vimInsertMode) { return }
+
         code = editor.getValue()
 
         script = document.createElement("script")
@@ -221,6 +225,10 @@ if(!window.depsLoaded) {
       window.liveCodeState = null
       window.liveViewElement = document.getElementsByClassName("js-view")[0]
 
+      editor.on("changeStatus", function() {
+	if(editor.keyBinding.getStatusText(editor) == "INSERT") { vimInsertMode = true }
+ 	else { vimInsertMode = false; runCode() }
+      })
       editor.on("change", runCode);
       runCode()
     </script>
