@@ -10,6 +10,10 @@ defmodule LiveCoding.Router do
     send_file(conn, 200, "index.html")
   end
 
+  get "/app.js" do
+    send_file(conn, 200, "app.js")
+  end
+
   get "/ace-editor/:file" do
     path = "public/ace-editor/" <> (conn.params["file"] |> String.replace("..", ""))
     send_file(conn, 200, path)
