@@ -6,7 +6,8 @@
 // This was made by multiple people that don't normally work in the same
 // code base so the code style differs in some places.
 
-jumpAcceleration = 0.12
+maxJumpAcceleration = 0.09
+jumpAcceleration = 0.025
 gravityAcceleration = 0.006
 movementAcceleration = 0.02
 maxMovementSpeed = 0.1
@@ -102,15 +103,26 @@ function getDefaultModelValues() {
     }
 }
 
+jumpPossible = true;
+
 tick = (delta) => {
     if(codeHasChanged()) { return }
     logFps()
 
-    onTheGround = (model.character.vy === 0)
+    if (jumpPossible){
+        jumpPossible = (model.character.vy < maxJumpAcceleration && 
+                       model.character.vy >= 0)
+    }
+                   
+    onTheGround = model.character.vy === 0
 
-    if(onTheGround) {
+    if(jumpPossible) {
         applyKeyboardInput(delta)
+    }
+    
+    if(onTheGround){
         applyFriction(delta)
+        jumpPossible = true
     }
 
     applyGravity(delta)
@@ -136,8 +148,9 @@ applyKeyboardInput = (delta) => {
     }
 
     if(model.input.jump) {
-        model.character.vy += jumpAcceleration * delta
-        model.input.jump = false
+        if(model.character.vy < maxJumpAcceleration){
+            model.character.vy += jumpAcceleration * delta
+        }
     }
 }
 
