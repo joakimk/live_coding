@@ -28,13 +28,13 @@ maxMovementSpeed = 0.1
 groundTileMap = [
   "2",
   "2",
-  "2+TR1+BU1(1.2,0)",
+  "2+TR1+CR1(1.25,0)+BU1(1.2,0)",
   "2",
   "2",
-  "2",
+  "2+MU1",
   "2",
   "2:4B:4B:1P",
-  "2+BU2:5B:5B:2P",
+  "2+BU2:5B:5B:2P+MU2",
   "2:5B:10B:3P",
   "2:6B:3P",
   "3",
@@ -70,6 +70,9 @@ customMapAddons = {
         { x: 0, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
     ],
     "BU2": { x: 0, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
+    "MU1": { x: 0, y: 0.62, texture: "object_mushroom_1", scale: 1, collisionType: "bg" },
+    "MU2": { x: 0, y: 0.62, texture: "object_mushroom_2", scale: 1, collisionType: "bg" },
+    "CR1": { x: -0.12, y: 1.2, texture: "object_crate", scale: 1, collisionType: "bg" },
 }
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
