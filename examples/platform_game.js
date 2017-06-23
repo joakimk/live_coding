@@ -672,17 +672,28 @@ bootstrap = () => {
 
 start = () => { app.ticker.add(tick); app.stage.removeChildren() }
 
+function fetchFromUrl(url, callback) {
+    let xmlhttp = new XMLHttpRequest()
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            callback(xmlhttp.responseText)
+        }
+    }
+
+    xmlhttp.open("GET", url, true)
+    xmlhttp.send()
+}
+
 if(!window.depsLoaded) {
     script = document.createElement("script")
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"
     document.body.appendChild(script)
 
-    fetch("https://gist.githubusercontent.com/joakimk/c014b72f418a9160b72761efd98acdf6/raw/406773b93343a49b3704704317072abc54e673d8/data.json").
-        then(function(response) { return response.json() }).
-        then(function(data) {
-            window.data = data
-            setTimeout(bootstrap, 500)
-        })
+    fetchFromUrl("https://gist.githubusercontent.com/joakimk/c014b72f418a9160b72761efd98acdf6/raw/406773b93343a49b3704704317072abc54e673d8/data.json", (body) => {
+        window.data = JSON.parse(body)
+        setTimeout(bootstrap, 500)
+    })
 
     window.depsLoaded = true
 } else {
