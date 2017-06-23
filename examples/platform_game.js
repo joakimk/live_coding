@@ -6,7 +6,7 @@
 // This was made by multiple people that don't normally work in the same
 // code base so the code style differs in some places.
 
-jumpAcceleration = 0.15
+jumpAcceleration = 0.12
 gravityAcceleration = 0.006
 movementAcceleration = 0.02
 maxMovementSpeed = 0.1
