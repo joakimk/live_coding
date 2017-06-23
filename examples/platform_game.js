@@ -414,40 +414,6 @@ generateMap = () => {
     return mapLayer.concat(addonLayer)
 }
 
-function bush2Entity(xpos, ypos){
-    return [
-        { x: xpos, y: ypos, texture: "object_bush_1", scale: 1, collisionType: "bg" },
-    ]
-}
-
-function testGridEntity(xpos, ypos) {
-    return [
-        { x: xpos + 2, y: ypos - 0, texture: "tile_1" },
-        { x: xpos + 3, y: ypos - 0, texture: "tile_2" },
-        { x: xpos + 4, y: ypos - 0, texture: "tile_3" },
-        { x: xpos + 2, y: ypos - 1, texture: "tile_4" },
-        { x: xpos + 3, y: ypos - 1, texture: "tile_5" },
-        { x: xpos + 4, y: ypos - 1, texture: "tile_6" },
-
-        { x: xpos + 0, y: ypos - 2, texture: "tile_1" },
-
-        { x: xpos + 1, y: ypos - 2, texture: "tile_7" },
-        { x: xpos + 2, y: ypos - 2, texture: "tile_8" },
-        { x: xpos + 3, y: ypos - 2, texture: "tile_5" },
-        { x: xpos + 4, y: ypos - 2, texture: "tile_10" },
-        { x: xpos + 5, y: ypos - 2, texture: "tile_11" },
-        { x: xpos + 6, y: ypos - 2, texture: "tile_3" },
-
-        { x: xpos + 0, y: ypos - 3, texture: "tile_1" },
-        { x: xpos + 1, y: ypos - 3, texture: "tile_1" },
-        { x: xpos + 2, y: ypos - 3, texture: "tile_1" },
-        { x: xpos + 3, y: ypos - 3, texture: "tile_1" },
-        { x: xpos + 4, y: ypos - 3, texture: "tile_1" },
-        { x: xpos + 5, y: ypos - 3, texture: "tile_1" },
-        { x: xpos + 6, y: ypos - 3, texture: "tile_1" },
-    ]
-}
-
 map = generateMap()
 
 catTextureIndex = 0
