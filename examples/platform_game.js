@@ -24,11 +24,12 @@ maxMovementSpeed = 0.1
 // - "W" is shorthand for 17:B (water, background)
 //
 // Besides those you can use addons from customMapAddons.
+// These also have offset syntax, e.g. BU1(0.5,0).
 groundTileMap = [
   "2",
   "2",
-  "2+TR1",
-  "2+BU1",
+  "2+TR1+BU1(1.2,0)",
+  "2",
   "2",
   "2",
   "2",
@@ -371,13 +372,26 @@ generateMap = () => {
             })
 
             for(i = 0; i < addons.length; i++) {
-                let list = customMapAddons[addons[i]]
+                // Support syntax for custom offsets, e.g.
+                // TR1:(-0.5,0) to move it -0.5 in X relative
+                // to where it would otherwise be placed.
+                let [ name, offsets ] = addons[i].split("(");
+
+                let xdiff = 0
+                let ydiff = 0
+                if(offsets) {
+                    let [ x, y ] = offsets.split(")")[0].split(",")
+                    xdiff = parseFloat(x)
+                    ydiff = parseFloat(y)
+                }
+
+                let list = customMapAddons[name]
                 if(!Array.isArray(list)) { list = [ list ] }
 
                 for(let j = 0; j < list.length; j++) {
                     copy = Object.assign({}, list[j]);
-                    copy.x += x
-                    copy.y += y
+                    copy.x += x + xdiff
+                    copy.y += y + ydiff
                     addonLayer.push(copy)
                 }
             }
