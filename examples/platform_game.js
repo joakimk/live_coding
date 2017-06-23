@@ -21,22 +21,40 @@ maxMovementSpeed = 0.1
 // - "P" means platform, you can jump up to it.
 //
 // There is also shorthand syntax:
-// - "W" is shorthand for tile 17 (water)
+// - "W" is shorthand for 17:B (water, background)
 //
 // Besides those you can use addons from customMapAddons.
 groundTileMap = [
-  "2S","2S","2S:TR1","2S","2S","2S","2S",
-  ["2S","4","4","1P"],
-  ["2S","5","5","2P"],
-  ["2S","5","10","3P"],
-  ["2S","6","3P"],
-  "3S",
-  "W","W","W",
-  "1S","2S","2S:TR2","2S","2S","2S:TR3","2S","7S",
-  ["8S","1S"],
-  ["5S","2S"],
-  ["10S","3S"],
-  "11S","3S",
+  "2",
+  "2",
+  "2+TR1",
+  "2",
+  "2",
+  "2",
+  "2",
+  "2:4B:4B:1P",
+  "2:5B:5B:2P",
+  "2:5B:10B:3P",
+  "2:6B:3P",
+  "3",
+  "W",
+  "W",
+  "W",
+  "1",
+  "2",
+  "2+TR2",
+  "2",
+  "2",
+  "2+TR3",
+  "2",
+  "7",
+  "8:1",
+  "5:7",
+  "5:8:1",
+  "5:5:2",
+  "10:6:3",
+  "11",
+  "3",
   "W","W","W","W","W","W","W","W","W","W","W",
   "W","W","W","W","W","W","W","W","W"
 ]
@@ -323,26 +341,28 @@ generateGroundMap = () => {
         column = groundTileMap[x]
         if(!Array.isArray(column)) { column = [ column ] }
 
+        // Convert "1:2:3" to [ "1", "2", "3" ]
+        if(column.length == 1 && column[0].indexOf(":") != -1) {
+          column = column[0].split(":")
+        }
+
         for(y = 0; y < column.length; y++) {
             row = column[y]
 
-            temp = row.split(":")
+            temp = row.split("+")
             number = temp[0]
-
-            addons = temp[1]
-            if(addons) {
-                addons = addons.split(",")
-            }
-            else {
-                addons = []
-            }
+            addons = temp.slice(1)
 
             tileNumber = parseInt(number)
-            if(number[0] == "W") { tileNumber = "17" }
 
-            collisionType = "bg"
+            collisionType = "solid"
             if(number.indexOf("P") != -1) { collisionType = "platform" }
-            if(number.indexOf("S") != -1) { collisionType = "solid" }
+            if(number.indexOf("B") != -1) { collisionType = "bg" }
+
+            if(number[0] == "W") {
+                tileNumber = "17"
+                collisionType = "bg"
+            }
 
             out.push({
                 x: x,
