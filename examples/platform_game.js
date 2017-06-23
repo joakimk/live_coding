@@ -245,31 +245,31 @@ function getDefaultModelValues() {
         },
         input: {
             direction: "none",
+            isJumpPossible: false,
             jump: false,
         }
     }
 }
 
-jumpPossible = true;
-
 tick = (delta) => {
     if(codeHasChanged()) { return }
     logFps()
 
-    if (jumpPossible){
-        jumpPossible = (model.character.vy < maxJumpAcceleration && 
-                       model.character.vy >= 0)
+    if (model.input.isJumpPossible){
+        model.input.isJumpPossible =
+        (model.character.vy < maxJumpAcceleration &&
+         model.character.vy >= 0)
     }
                    
     onTheGround = model.character.vy === 0
 
-    if(jumpPossible) {
+    if(model.input.isJumpPossible) {
         applyKeyboardInput(delta)
     }
     
     if(onTheGround){
         applyFriction(delta)
-        jumpPossible = true
+        model.input.isJumpPossible = true
     }
 
     applyGravity(delta)
@@ -608,13 +608,15 @@ function handlePlayInput(e,f) {
         return;
     }
 
-    if (e.type == "keyup"){
+    if (e.type == "keyup") {
         if(e.key == "d" && model.input.direction == "right")
             model.input.direction = "none"
         else if(e.key == "a"&& model.input.direction == "left")
             model.input.direction = "none"
-        else if(e.key == "w")
-            model.input.jump = false
+        else if(e.key == "w") {
+            model.input.jump = false;
+            model.input.isJumpPossible = false;
+        }
 
         return;
     }
