@@ -1,15 +1,16 @@
 # Live coding
 
-**WIP**: This is Readme Driven Development. The readme explains how it's supposed to work. Work in progress.
+Live coding environment (or IDE) for making things like games using javascript.
 
-Live coding environment for making things like games using javascript.
+# Live Coding IDE
 
-0. Go to https://live-coding.herokuapp.com
-0. Code
-0. Store current state with `window.storeState` every time it changes and implement `window.loadState` to restore it on code changes.
-0. Get outside resources by linking to them like this: https://live-coding.herokuapp.com/api/v1/resource.jpg?url=http://example.com/image.jpg
-  - This way they can be cached for fast load times.
-0. Share the secret URL and others can see what you do in real time and collaborate.
+The IDE is built using HTML/CSS/JS and can be run by it's own from `live_coding_ide/index.html` but is normally hosted by the Elixir based web server in this project, like on <https://live-coding.herokuapp.com>.
+
+If all you want to do this play around with live coding locally you don't need the web server.
+
+# Web server
+
+The Elixir based web server in this project is intended to provide sharing and collaboration features.
 
 # Development
 
@@ -18,30 +19,7 @@ Live coding environment for making things like games using javascript.
     mix run --no-halt
     # Then go to http://localhost:4001 or http://localhost:4001?vim=t
 
-# Production
-
-# Todo
-
-## V1
-
-Local editing and live updating without saving
-
-- [x] Plug that can serve a web page
-- [x] Editor
-- [x] Live preview
-
-## V2
-
-- [x] Save and restore code on page load
-- [x] Save and restore state when updating code
-
-## V3
-
-- [x] Add licence
-- [x] Make undo work better if possible. Seems to revert to default code sometimes.
-- [ ] In-memory persisted code
-
-## Later
+## Various ideas for later
 
 - [ ] A slider or some other type of analog input for changing values slowly, the editor has https://ace.c9.io/api/editor.html#Editor.modifyNumber
 - [ ] Shared state over the network, e.g. not only shared code but shared state within the game, etc.
