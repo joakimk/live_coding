@@ -44,7 +44,7 @@ groundTileMap = [
   "1+SIGN1",
   "2",
   "2+TR2",
-  "2+ST1",
+  "2+ST1+TR5",
   "2",
   "2+TR3",
   "2",
@@ -65,6 +65,7 @@ customMapAddons = {
     "TR2": { x: -2.8, y: 7.05, texture: "object_tree_2", scale: 1.5, collisionType: "bg" },
     "TR3": { x: -3.9, y: 9.4, texture: "object_tree_2", scale: 2, collisionType: "bg" },
     "TR4": { x: -0.435, y: 0.685, texture: "object_tree_1", scale: 1, collisionType: "bg" },
+    "TR5": { x: -1.75, y: 4.3, texture: "object_tree_3", scale: 1, collisionType: "bg" },
     "BU1":  [
         { x: -1, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
         { x: -0.5, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
