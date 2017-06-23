@@ -4,7 +4,7 @@ Live coding environment (or IDE) for making things like games using javascript.
 
 # Live Coding IDE
 
-The IDE is built using HTML/CSS/JS and can be run by it's own from `live_coding_ide/index.html`, but is normally hosted by the Elixir based web server in this project, for example at <https://live-coding.herokuapp.com>.
+The IDE is built using HTML/CSS/JS and can be run by it's own from `live_coding_ide/index.html` but is normally hosted by the Elixir based web server in this project, like on <https://live-coding.herokuapp.com>.
 
 If all you want to do this play around with live coding locally you don't need the web server.
 
