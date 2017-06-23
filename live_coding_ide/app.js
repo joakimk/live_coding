@@ -73,7 +73,7 @@ if(location.href.indexOf("import_from_gist") != -1) {
 document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
    e.preventDefault()
 
-   let url = "https://api.github.com/repos/joakimk/live_coding/contents/examples/platform_game.js?ref=master"
+   let url = "https://api.github.com/repos/joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master"
 
    fetchFromUrl(url, function(body) {
      replaceCodeInEditor(atob(JSON.parse(body).content))
