@@ -28,12 +28,12 @@ groundTileMap = [
   "2",
   "2",
   "2+TR1",
-  "2",
+  "2+BU1",
   "2",
   "2",
   "2",
   "2:4B:4B:1P",
-  "2:5B:5B:2P",
+  "2+BU2:5B:5B:2P",
   "2:5B:10B:3P",
   "2:6B:3P",
   "3",
@@ -63,16 +63,13 @@ customMapAddons = {
     "TR1": { x: -1.7, y: 4.7, texture: "object_tree_2", scale: 1, collisionType: "bg" },
     "TR2": { x: -2.8, y: 7.05, texture: "object_tree_2", scale: 1.5, collisionType: "bg" },
     "TR3": { x: -3.9, y: 9.4, texture: "object_tree_2", scale: 2, collisionType: "bg" },
+    "BU1":  [
+        { x: -1, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
+        { x: -0.5, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
+        { x: 0, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
+    ],
+    "BU2": { x: 0, y: 1, texture: "object_bush_1", scale: 1, collisionType: "bg" },
 }
-
-// Here you can add bushes, trees, etc.
-mapAddons = [
-    bush1Entity(2,1),
-    bush2Entity(8,1),
-
-    // Designer platform!
-    // testGridEntity(0,6),
-]
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
 
@@ -334,8 +331,9 @@ render = (delta) => {
     app.stage.addChild(cat)
 }
 
-generateGroundMap = () => {
-    out = []
+generateMap = () => {
+    mapLayer = []
+    addonLayer = []
 
     for(x = 0; x < groundTileMap.length; x++) {
         column = groundTileMap[x]
@@ -364,7 +362,7 @@ generateGroundMap = () => {
                 collisionType = "bg"
             }
 
-            out.push({
+            mapLayer.push({
                 x: x,
                 y: y,
                 scale: 0.5,
@@ -373,24 +371,20 @@ generateGroundMap = () => {
             })
 
             for(i = 0; i < addons.length; i++) {
-                addon = customMapAddons[addons[i]]
-                copy = Object.assign({}, addon);
-                copy.x += x
-                copy.y += y
-                out.push(copy)
+                let list = customMapAddons[addons[i]]
+                if(!Array.isArray(list)) { list = [ list ] }
+
+                for(let j = 0; j < list.length; j++) {
+                    copy = Object.assign({}, list[j]);
+                    copy.x += x
+                    copy.y += y
+                    addonLayer.push(copy)
+                }
             }
         }
     }
 
-    return out
-}
-
-function bush1Entity(xpos, ypos) {
-    return [
-        { x: xpos, y: ypos, texture: "object_bush_1", scale: 1, collisionType: "bg" },
-        { x: xpos + 0.5, y: ypos, texture: "object_bush_1", scale: 1, collisionType: "bg" },
-        { x: xpos + 1, y: ypos, texture: "object_bush_1", scale: 1, collisionType: "bg" },
-    ];
+    return mapLayer.concat(addonLayer)
 }
 
 function bush2Entity(xpos, ypos){
@@ -427,7 +421,7 @@ function testGridEntity(xpos, ypos) {
     ]
 }
 
-map = generateGroundMap().concat(...mapAddons)
+map = generateMap()
 
 catTextureIndex = 0
 
