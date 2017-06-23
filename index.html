@@ -136,40 +136,48 @@ if(!window.depsLoaded) {
         editor.clearSelection()
       }
 
+      function fetchFromUrl(url, callback) {
+        let xmlhttp = new XMLHttpRequest()
+
+          xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+              callback(xmlhttp.responseText)
+            }
+          }
+
+        xmlhttp.open("GET", url, true)
+        xmlhttp.send()
+      }
+
+      function replaceCodeInEditor(code) {
+        editor.setValue(code)
+        editor.gotoLine(1)
+        editor.focus()
+
+        // Reload page after replacing code as this is often required to get it running
+        window.location.reload()
+      }
+
       // Proof of concept code loading from gist
       if(location.href.indexOf("import_from_gist") != -1) {
-        code_url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
+         let url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
 
-        headers = new Headers()
-        headers.append('pragma', 'no-cache')
-        headers.append('cache-control', 'no-cache')
-        request = new Request(code_url)
-
-        if(window.confirm("Are you sure you want to import " + code_url + " and run it?")) {
-          fetch(request, headers).then(function(response) { return response.text() }).then(function(code) {
-            editor.setValue(code)
-          })
-        } else {
-          window.location = location.href.split("import_from_gist=")[0]
-        }
+         if(window.confirm("Are you sure you want to import " + code_url + " and run it?")) {
+           fetchFromUrl(url, replaceCodeInEditor)
+         } else {
+           window.location = location.href.split("import_from_gist=")[0]
+         }
       }
 
       // Proof of concept code loading from github. Will be more dynamic later.
       document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
-        e.preventDefault()
+         e.preventDefault()
 
-        headers = new Headers()
-        headers.append('pragma', 'no-cache')
-        headers.append('cache-control', 'no-cache')
-        request = new Request("https://api.github.com/repos/joakimk/live_coding/contents/examples/platform_game.js?ref=master")
+         let url = "https://api.github.com/repos/joakimk/live_coding/contents/examples/platform_game.js?ref=master"
 
-        fetch(request, headers).then(function(r) { return r.json() }).then(
-          function(json) {
-            code = atob(json.content)
-            editor.setValue(code)
-            editor.gotoLine(1)
-            editor.focus()
-          })
+         fetchFromUrl(url, function(body) {
+           replaceCodeInEditor(atob(JSON.parse(body).content))
+         })
       })
 
       editor.gotoLine(1)
