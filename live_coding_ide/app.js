@@ -48,7 +48,7 @@
 
     editor.on("changeStatus", function() {
       if(editor.keyBinding.getStatusText(editor) == "INSERT") { vimInsertMode = true }
-      else { vimInsertMode = false; runCode(editor) }
+      else { if(vimInsertMode) { vimInsertMode = false; runCode(editor) } }
     })
     editor.on("change", () => { runCode(editor) });
 
