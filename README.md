@@ -1,6 +1,8 @@
 # Live coding
 
-Live coding environment (or IDE) for making things like games using javascript.
+Live coding environment (or IDE) for making things like games using JavaScript.
+
+No installs needed, just go to <https://live-coding.herokuapp.com> and start coding.
 
 # Live Coding IDE
 
