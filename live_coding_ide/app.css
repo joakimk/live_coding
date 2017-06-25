@@ -1,37 +1,41 @@
 body {
   background-color: #232323;
-}
-
-.editor {
-  height: 600px;
-  width: 600px;
-}
-
-.view {
-  width: 800px;
-  height: 600px;
-  background-color: #141414;
-  float: right;
+  color: #aaa;
 }
 
 .container {
   width: 1420px;
+  padding-top: 20px;
 }
 
-.header {
-  color: #aaa;
-  margin-bottom: 20px;
+.editor {
+  width: 600px;
 }
 
-.header h1 {
-  font-size: 22px;
-  margin-bottom: 5px;
+.editor__content {
+  height: 600px;
 }
-.header .source {
-  font-size: 12px;
-}
-.header .source {
+
+.view {
+  width: 800px;
   float: right;
+}
+
+.view__content {
+  background-color: #141414;
+  height: 600px;
+}
+
+.editor__controls, .view__controls {
+  margin-top: 20px;
+}
+
+.view__controls__console {
+  background-color: #141414;
+  height: 100px;
+  overflow: scroll;
+  padding-left: 10px;
+  padding-top: 10px;
 }
 
 a {

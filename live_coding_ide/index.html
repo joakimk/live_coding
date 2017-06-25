@@ -5,60 +5,23 @@
   </head>
   <body>
     <div class="container">
-      <div class="header js-header">
-        <a href="#" onclick="javascript:document.getElementsByClassName('js-header')[0].style.display='none';" style="float: right">Hide header</a>
-        <h1>JavaScript live coding environment</h1>
-        <div class="source">You can find the source to this tool at <a href="https://github.com/joakimk/live_coding">github.com/joakimk/live_coding</a>.</div>
-        <a class="js-load-code" href="#">Load latest code</a> from github.com/joakimk/live_coding/live_coding_ide/examples/platform_game.js [master]
+      <div class="view">
+        <div class="view__content js-view"></div>
+        <div class="view__controls">
+          <div class="view__controls__console js-console">
+          </div>
+        </div>
       </div>
-      <div class="view js-view"></div>
-      <div class="editor js-editor">/* jshint asi:true */
-// PixiJS v4 example (WebGL rendering)
-
-model = loadStateOrDefaultTo({
-    x: 250,
-    y: 250,
-})
-
-render = (delta) => {
-    if(codeHasChanged()) { return }
-
-    model.x = 330
-
-    graphics = new PIXI.Graphics()
-
-    graphics.lineStyle(2, 0xFF00FF, 1)
-    graphics.beginFill(0xFF00BB, 0.25)
-    graphics.drawRoundedRect(model.x, model.y, 300, 100, 15)
-    graphics.endFill()
-
-    app.stage.removeChildren()
-    app.stage.addChild(graphics)
-
-    saveState(model)
-}
-
-bootstrap = () => {
-    // We can only set up the GL context once
-    window.app = new PIXI.Application(800, 600, { antialias: true })
-    liveViewElement.appendChild(app.view);
-    start()
-}
-
-start = () => { app.ticker.add(render); app.stage.removeChildren() }
-
-if(!window.depsLoaded) {
-    script = document.createElement("script")
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"
-    document.body.appendChild(script)
-    window.depsLoaded = true
-
-    setTimeout(bootstrap, 500)
-} else {
-    start()
-}</div>
+      <div class="editor">
+        <div class="editor__content js-editor"></div>
+        <div class="editor__controls">
+          <p>JavaScript live coding environment. <a href="https://github.com/joakimk/live_coding">github.com/joakimk/live_coding</a>.</p>
+          <a class="js-load-code" href="#">Load latest code</a> from github.com/joakimk/live_coding/live_coding_ide/examples/platform_game.js [master]
+        </div>
+      </div>
     </div>
 
+    </div>
     <script type="text/javascript" src="app.js"></script>
   </body>
 </html>

@@ -1,12 +1,15 @@
 (function() {
   this.vimInsertMode = false
+  this.pendingSuccessfulCodeLoadAfterError = false
   this.liveCodeState = null
   this.liveCodeVersion = 1
 
   this.liveViewElement = null
 
+
   init = () => {
     setUpLiveView()
+    setUpConsole()
 
     let editor = setUpEditor()
     loadSavedCode(editor)
@@ -15,6 +18,23 @@
 
   this.setUpLiveView = () => {
     this.liveViewElement = document.getElementsByClassName("js-view")[0]
+  }
+
+  this.setUpConsole = () => {
+    let consoleElement = document.getElementsByClassName("js-console")[0]
+
+    // Catch runtime errors (code loading errors are handled in runCode)
+    window.onerror = function(e) { console.log("LiveCoding: Runtime error: " + e) };
+
+    window.console.log = function(data, type) {
+      if(data instanceof Error) {
+        data = data.stack.split(" at ")[1] + data
+      } else if(typeof data === "object") {
+        data = JSON.stringify(data)
+      }
+
+      consoleElement.innerHTML = data + "<br/>" + consoleElement.innerHTML
+    }
   }
 
   this.setUpEditor = () => {
@@ -125,13 +145,13 @@
 
         // Save and load state to be able to resume the simulation after live code update
         "function saveState(state) { this.liveCodeState = state };" +
-        "function loadStateOrDefaultTo(defaultState) { savedState = this.liveCodeState; return savedState ? savedState : defaultState };" +
+        "function loadStateOrDefaultTo(defaultState) { savedState = this.liveCodeState; return savedState ? savedState : defaultState }; try { " +
 
         // Load the new version of the code.
         code +
 
-        // Show what version of the code is running now.
-        "\nconsole.log('LiveCoding: Code version ' + this.liveCodeVersion + ' loaded successfully!')" +
+        "if(this.pendingSuccessfulCodeLoadAfterError) { this.pendingSuccessfulCodeLoadAfterError = false; console.log('LiveCoding: Code now loads successfully again!') }" +
+        " } catch(e) { this.pendingSuccessfulCodeLoadAfterError = true; console.log(e) }" +
       "})();"
 
     document.body.appendChild(script)
