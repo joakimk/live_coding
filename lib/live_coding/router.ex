@@ -10,6 +10,10 @@ defmodule LiveCoding.Router do
     send_file(conn, 200, "live_coding_ide/index.html")
   end
 
+  get "/ui.js" do
+    send_file(conn, 200, "live_coding_ide/ui.js")
+  end
+
   get "/app.js" do
     send_file(conn, 200, "live_coding_ide/app.js")
   end

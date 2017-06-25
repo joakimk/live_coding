@@ -13,7 +13,23 @@
 
     let editor = setUpEditor()
     loadSavedCode(editor)
-    setUpCodeLoadingFromExternalSources(editor)
+    setUpCodeLoadingFromGists(editor)
+
+    setUpEditorControlUI()
+  }
+
+  this.setUpEditorControlUI = () => {
+    let node = document.getElementsByClassName("js-editor-controls")[0]
+    let app = Elm.Main.embed(node)
+
+    app.ports.loadCodeFromGithub.subscribe((url) => {
+      fetchFromUrl(url, function(body) {
+        replaceCodeInEditor(atob(JSON.parse(body).content))
+
+        // Reload page after replacing code as this is often required to get it running
+        window.location.reload()
+      })
+    })
   }
 
   this.setUpLiveView = () => {
@@ -94,7 +110,7 @@
     editor.focus()
   }
 
-  this.setUpCodeLoadingFromExternalSources = (editor) => {
+  this.setUpCodeLoadingFromGists = (editor) => {
     // Proof of concept code loading from gist
     if(location.href.indexOf("import_from_gist") != -1) {
        let url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
@@ -110,20 +126,6 @@
          window.location = location.href.split("import_from_gist=")[0]
        }
     }
-
-    // Proof of concept code loading from github. Will be more dynamic later.
-    document.getElementsByClassName("js-load-code")[0].addEventListener("click", function(e) {
-       e.preventDefault()
-
-       let url = "https://api.github.com/repos/joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master"
-
-       fetchFromUrl(url, function(body) {
-         replaceCodeInEditor(atob(JSON.parse(body).content))
-
-         // Reload page after replacing code as this is often required to get it running
-         window.location.reload()
-       })
-    })
   }
 
   this.runCode = (editor) => {

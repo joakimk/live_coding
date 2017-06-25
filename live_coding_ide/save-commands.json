@@ -1,0 +1,6 @@
+{
+    "timeout": 5000,
+    "commands" : [
+        "*.elm : elm make Main.elm --output=ui.js"
+    ]
+}
