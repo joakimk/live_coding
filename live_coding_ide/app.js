@@ -24,7 +24,7 @@
     let consoleElement = document.getElementsByClassName("js-console")[0]
 
     // Catch runtime errors (code loading errors are handled in runCode)
-    window.onerror = function(e) { console.log("LiveCoding: Runtime error: " + e) };
+    window.onerror = function(e) { console.log("LiveCoding: " + e) };
 
     window.console.log = function(data, type) {
       if(data instanceof Error) {
