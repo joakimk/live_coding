@@ -150,7 +150,7 @@
         // Load the new version of the code.
         code +
 
-        "if(this.pendingSuccessfulCodeLoadAfterError) { this.pendingSuccessfulCodeLoadAfterError = false; console.log('LiveCoding: Code now loads successfully again!') }" +
+        "\nif(this.pendingSuccessfulCodeLoadAfterError) { this.pendingSuccessfulCodeLoadAfterError = false; console.log('LiveCoding: Code now loads successfully again!') }" +
         " } catch(e) { this.pendingSuccessfulCodeLoadAfterError = true; console.log(e) }" +
       "})();"
 
