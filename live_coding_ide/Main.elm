@@ -65,6 +65,7 @@ view model =
             , a [ href "https://github.com/joakimk/live_coding" ] [ text "https://github.com/joakimk/live_coding" ]
             , p []
                 [ button [ class "editor__controls__load-code__button", onClick LoadLatestCode ] [ text "Load from github" ]
+                  -- TODO: Path and branch as separate to remove github API-specifics, also be able to load from gist here
                 , input [ class "editor__controls__load-code__input", value model.githubProjectPath, onInput UpdateGithubProjectPath ] []
                 ]
             ]
