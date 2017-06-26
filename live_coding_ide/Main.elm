@@ -64,7 +64,7 @@ view model =
             [ text "JavaScript live coding environment. "
             , a [ href "https://github.com/joakimk/live_coding" ] [ text "https://github.com/joakimk/live_coding" ]
             , p []
-                [ button [ class "editor__controls__load-code__button", onClick LoadLatestCode ] [ text "Load latest code" ]
+                [ button [ class "editor__controls__load-code__button", onClick LoadLatestCode ] [ text "Load from github" ]
                 , input [ class "editor__controls__load-code__input", value model.githubProjectPath, onInput UpdateGithubProjectPath ] []
                 ]
             ]

@@ -8363,7 +8363,7 @@ var _user$example$Main$view = function (model) {
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Load latest code'),
+											_0: _elm_lang$html$Html$text('Load from github'),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
