@@ -8260,13 +8260,11 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$example$Main$defaultModel = {githubProjectPath: 'joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master'};
 var _user$example$Main$init = function (savedModel) {
 	return A2(
 		_elm_lang$core$Platform_Cmd_ops['!'],
-		A2(
-			_elm_lang$core$Maybe$withDefault,
-			{},
-			savedModel),
+		A2(_elm_lang$core$Maybe$withDefault, _user$example$Main$defaultModel, savedModel),
 		{ctor: '[]'});
 };
 var _user$example$Main$loadCodeFromGithub = _elm_lang$core$Native_Platform.outgoingPort(
@@ -8274,26 +8272,50 @@ var _user$example$Main$loadCodeFromGithub = _elm_lang$core$Native_Platform.outgo
 	function (v) {
 		return v;
 	});
+var _user$example$Main$saveGithubProjectPath = _elm_lang$core$Native_Platform.outgoingPort(
+	'saveGithubProjectPath',
+	function (v) {
+		return v;
+	});
 var _user$example$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		if (_p0.ctor === 'NoOp') {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				model,
-				{ctor: '[]'});
-		} else {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				model,
-				{
-					ctor: '::',
-					_0: _user$example$Main$loadCodeFromGithub('https://api.github.com/repos/joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master'),
-					_1: {ctor: '[]'}
-				});
+		switch (_p0.ctor) {
+			case 'NoOp':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
+			case 'LoadLatestCode':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: _user$example$Main$loadCodeFromGithub(
+							A2(_elm_lang$core$Basics_ops['++'], 'https://api.github.com/repos/', model.githubProjectPath)),
+						_1: {ctor: '[]'}
+					});
+			default:
+				var _p1 = _p0._0;
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{githubProjectPath: _p1}),
+					{
+						ctor: '::',
+						_0: _user$example$Main$saveGithubProjectPath(_p1),
+						_1: {ctor: '[]'}
+					});
 		}
 	});
-var _user$example$Main$Model = {};
+var _user$example$Main$Model = function (a) {
+	return {githubProjectPath: a};
+};
+var _user$example$Main$UpdateGithubProjectPath = function (a) {
+	return {ctor: 'UpdateGithubProjectPath', _0: a};
+};
 var _user$example$Main$LoadLatestCode = {ctor: 'LoadLatestCode'};
 var _user$example$Main$view = function (model) {
 	return A2(
@@ -8332,8 +8354,12 @@ var _user$example$Main$view = function (model) {
 										_elm_lang$html$Html$button,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(_user$example$Main$LoadLatestCode),
-											_1: {ctor: '[]'}
+											_0: _elm_lang$html$Html_Attributes$class('editor__controls__load-code__button'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_user$example$Main$LoadLatestCode),
+												_1: {ctor: '[]'}
+											}
 										},
 										{
 											ctor: '::',
@@ -8342,7 +8368,22 @@ var _user$example$Main$view = function (model) {
 										}),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html$text(' from github.com/joakimk/live_coding/live_coding_ide/examples/platform_game.js [master]'),
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('editor__controls__load-code__input'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$value(model.githubProjectPath),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onInput(_user$example$Main$UpdateGithubProjectPath),
+														_1: {ctor: '[]'}
+													}
+												}
+											},
+											{ctor: '[]'}),
 										_1: {ctor: '[]'}
 									}
 								}),
@@ -8358,7 +8399,7 @@ var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 		init: _user$example$Main$init,
 		view: _user$example$Main$view,
 		update: _user$example$Main$update,
-		subscriptions: function (_p1) {
+		subscriptions: function (_p2) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(
@@ -8371,8 +8412,13 @@ var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 				_0: A2(
 					_elm_lang$core$Json_Decode$map,
 					_elm_lang$core$Maybe$Just,
-					_elm_lang$core$Json_Decode$succeed(
-						{})),
+					A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (githubProjectPath) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{githubProjectPath: githubProjectPath});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'githubProjectPath', _elm_lang$core$Json_Decode$string))),
 				_1: {ctor: '[]'}
 			}
 		}));

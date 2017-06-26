@@ -20,7 +20,13 @@
 
   this.setUpEditorControlUI = () => {
     let node = document.getElementsByClassName("js-editor-controls")[0]
-    let app = Elm.Main.embed(node)
+    let settings = { githubProjectPath: localStorage.getItem("githubProjectPath") }
+    if(!settings.githubProjectPath) { settings = null } // limitation in Elm code so far
+    let app = Elm.Main.embed(node, settings)
+
+    app.ports.saveGithubProjectPath.subscribe((path) => {
+      localStorage.setItem("githubProjectPath", path)
+    })
 
     app.ports.loadCodeFromGithub.subscribe((url) => {
       fetchFromUrl(url, function(body) {
@@ -165,6 +171,8 @@
     xmlhttp.onreadystatechange = function() {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         callback(xmlhttp.responseText)
+      } else if (xmlhttp.status != 0 && xmlhttp.status != 200) {
+        console.log("Failed to get " + url + ": " + xmlhttp.responseText + " [" + xmlhttp.status + "]")
       }
     }
 

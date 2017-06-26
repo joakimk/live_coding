@@ -38,6 +38,15 @@ body {
   padding-top: 10px;
 }
 
+.editor__controls__load-code__button {
+  width: 20%;
+}
+.editor__controls__load-code__input {
+  width: 79%;
+  margin-top: 10px;
+  margin-left: 1%;
+}
+
 a {
   color: white;
 }

@@ -1,11 +1,14 @@
 port module Main exposing (..)
 
-import Html exposing (text, div, p, a, button)
-import Html.Attributes exposing (href)
-import Html.Events exposing (onClick)
+import Html exposing (text, div, p, a, button, input)
+import Html.Attributes exposing (href, value, class)
+import Html.Events exposing (onClick, onInput)
 
 
 port loadCodeFromGithub : String -> Cmd msg
+
+
+port saveGithubProjectPath : String -> Cmd msg
 
 
 main : Program (Maybe Model) Model Msg
@@ -19,17 +22,25 @@ main =
 
 
 type alias Model =
-    {}
+    { githubProjectPath : String
+    }
 
 
 type Msg
     = NoOp
     | LoadLatestCode
+    | UpdateGithubProjectPath String
+
+
+defaultModel : Model
+defaultModel =
+    { githubProjectPath = "joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master"
+    }
 
 
 init : Maybe Model -> ( Model, Cmd Msg )
 init savedModel =
-    Maybe.withDefault {} savedModel ! []
+    Maybe.withDefault defaultModel savedModel ! []
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -39,7 +50,10 @@ update msg model =
             model ! []
 
         LoadLatestCode ->
-            model ! [ loadCodeFromGithub "https://api.github.com/repos/joakimk/live_coding/contents/live_coding_ide/examples/platform_game.js?ref=master" ]
+            model ! [ loadCodeFromGithub ("https://api.github.com/repos/" ++ model.githubProjectPath) ]
+
+        UpdateGithubProjectPath path ->
+            { model | githubProjectPath = path } ! [ saveGithubProjectPath path ]
 
 
 view : Model -> Html.Html Msg
@@ -50,8 +64,8 @@ view model =
             [ text "JavaScript live coding environment. "
             , a [ href "https://github.com/joakimk/live_coding" ] [ text "https://github.com/joakimk/live_coding" ]
             , p []
-                [ button [ onClick LoadLatestCode ] [ text "Load latest code" ]
-                , text " from github.com/joakimk/live_coding/live_coding_ide/examples/platform_game.js [master]"
+                [ button [ class "editor__controls__load-code__button", onClick LoadLatestCode ] [ text "Load latest code" ]
+                , input [ class "editor__controls__load-code__input", value model.githubProjectPath, onInput UpdateGithubProjectPath ] []
                 ]
             ]
         ]
