@@ -63,24 +63,19 @@ update msg model =
             model ! [ model |> buildGithubApiUrl |> loadCodeFromGithub ]
 
         UpdateGithubProjectPath path ->
-            let
-                settings =
-                    model.settings
-
-                updatedSettings =
-                    { settings | githubProjectPath = path }
-            in
-                { model | settings = updatedSettings } ! [ saveSettings updatedSettings ]
+            updateSettings model (\settings -> { settings | githubProjectPath = path })
 
         UpdateGithubProjectRef ref ->
-            let
-                settings =
-                    model.settings
+            updateSettings model (\settings -> { settings | githubProjectRef = ref })
 
-                updatedSettings =
-                    { settings | githubProjectRef = ref }
-            in
-                { model | settings = updatedSettings } ! [ saveSettings updatedSettings ]
+
+updateSettings : Model -> (Settings -> Settings) -> ( Model, Cmd msg )
+updateSettings model callback =
+    let
+        updatedSettings =
+            (callback model.settings)
+    in
+        { model | settings = updatedSettings } ! [ saveSettings updatedSettings ]
 
 
 buildGithubApiUrl : Model -> String

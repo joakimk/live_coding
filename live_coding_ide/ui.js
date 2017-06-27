@@ -8321,6 +8321,20 @@ var _user$example$Main$saveSettings = _elm_lang$core$Native_Platform.outgoingPor
 	function (v) {
 		return {githubProjectPath: v.githubProjectPath, githubProjectRef: v.githubProjectRef};
 	});
+var _user$example$Main$updateSettings = F2(
+	function (model, callback) {
+		var updatedSettings = callback(model.settings);
+		return A2(
+			_elm_lang$core$Platform_Cmd_ops['!'],
+			_elm_lang$core$Native_Utils.update(
+				model,
+				{settings: updatedSettings}),
+			{
+				ctor: '::',
+				_0: _user$example$Main$saveSettings(updatedSettings),
+				_1: {ctor: '[]'}
+			});
+	});
 var _user$example$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -8341,34 +8355,22 @@ var _user$example$Main$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'UpdateGithubProjectPath':
-				var settings = model.settings;
-				var updatedSettings = _elm_lang$core$Native_Utils.update(
-					settings,
-					{githubProjectPath: _p0._0});
 				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{settings: updatedSettings}),
-					{
-						ctor: '::',
-						_0: _user$example$Main$saveSettings(updatedSettings),
-						_1: {ctor: '[]'}
+					_user$example$Main$updateSettings,
+					model,
+					function (settings) {
+						return _elm_lang$core$Native_Utils.update(
+							settings,
+							{githubProjectPath: _p0._0});
 					});
 			default:
-				var settings = model.settings;
-				var updatedSettings = _elm_lang$core$Native_Utils.update(
-					settings,
-					{githubProjectRef: _p0._0});
 				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{settings: updatedSettings}),
-					{
-						ctor: '::',
-						_0: _user$example$Main$saveSettings(updatedSettings),
-						_1: {ctor: '[]'}
+					_user$example$Main$updateSettings,
+					model,
+					function (settings) {
+						return _elm_lang$core$Native_Utils.update(
+							settings,
+							{githubProjectRef: _p0._0});
 					});
 		}
 	});
