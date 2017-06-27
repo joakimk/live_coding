@@ -24,11 +24,6 @@
 
     if(settings) { settings = JSON.parse(settings) }
 
-    // Migrate old settings data
-    // Remove after 2017-07-30 (1 month)
-    if(!settings) { settings = { githubProjectPath: localStorage.getItem("githubProjectPath"), githubProjectRef: "master" } }
-    if(!settings.githubProjectPath) { settings = null }
-
     let app = Elm.Main.embed(node, settings)
 
     app.ports.saveSettings.subscribe((settings) => {
