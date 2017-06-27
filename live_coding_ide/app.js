@@ -20,12 +20,19 @@
 
   this.setUpEditorControlUI = () => {
     let node = document.getElementsByClassName("js-editor-controls")[0]
-    let settings = { githubProjectPath: localStorage.getItem("githubProjectPath") }
-    if(!settings.githubProjectPath) { settings = null } // limitation in Elm code so far
+    let settings = localStorage.getItem("settings")
+
+    if(settings) { settings = JSON.parse(settings) }
+
+    // Migrate old settings data
+    // Remove after 2017-07-30 (1 month)
+    if(!settings) { settings = { githubProjectPath: localStorage.getItem("githubProjectPath"), githubProjectRef: "master" } }
+    if(!settings.githubProjectPath) { settings = null }
+
     let app = Elm.Main.embed(node, settings)
 
-    app.ports.saveGithubProjectPath.subscribe((path) => {
-      localStorage.setItem("githubProjectPath", path)
+    app.ports.saveSettings.subscribe((settings) => {
+      localStorage.setItem("settings", JSON.stringify(settings))
     })
 
     app.ports.loadCodeFromGithub.subscribe((url) => {

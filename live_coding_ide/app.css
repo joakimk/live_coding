@@ -39,12 +39,15 @@ body {
 }
 
 .editor__controls__load-code__button {
-  width: 20%;
+  width: 120px;
 }
-.editor__controls__load-code__input {
-  width: 79%;
+.editor__controls__load-code__input_ref {
+  width: 110px;
   margin-top: 10px;
-  margin-left: 1%;
+}
+.editor__controls__load-code__input_path {
+  width: 300px;
+  margin-top: 10px;
 }
 
 a {
