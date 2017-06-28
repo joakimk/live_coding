@@ -21,6 +21,11 @@ main =
         }
 
 
+type CodeUrlType
+    = Github
+    | None
+
+
 type alias Model =
     { projects : List Project
     , pendingCodeUrl : String
@@ -112,7 +117,7 @@ update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         LoadCode project ->
-            model ! [ project.codeUrl |> buildGithubProjectUrl |> buildGithubApiUrl |> loadCodeFromGithub ]
+            model ! (loadCodeFromProject project)
 
         UpdatePendingCodeUrl url ->
             { model | pendingCodeUrl = url } ! []
@@ -130,6 +135,23 @@ update msg model =
                     { codeUrl = model.pendingCodeUrl } :: model.projects
             in
                 { model | projects = projects, pendingCodeUrl = "" } ! []
+
+
+loadCodeFromProject : Project -> List (Cmd msg)
+loadCodeFromProject project =
+    case (detectCodeUrlType project) of
+        Github ->
+            [ project.codeUrl |> buildGithubProjectUrl |> buildGithubApiUrl |> loadCodeFromGithub ]
+
+        None ->
+            []
+
+
+detectCodeUrlType : Project -> CodeUrlType
+detectCodeUrlType project =
+    -- todo: real implementation for github
+    -- todo: real implementation for gist
+    Github
 
 
 buildGithubApiUrl : GithubProjectUrl -> String
@@ -198,8 +220,13 @@ renderProject project =
 
 shortFormCodeUrl : Project -> String
 shortFormCodeUrl project =
-    let
-        projectUrl =
-            project.codeUrl |> buildGithubProjectUrl
-    in
-        "[github] " ++ projectUrl.user ++ "/" ++ projectUrl.repo ++ "/" ++ projectUrl.path
+    case (detectCodeUrlType project) of
+        Github ->
+            let
+                projectUrl =
+                    project.codeUrl |> buildGithubProjectUrl
+            in
+                "[github] " ++ projectUrl.user ++ "/" ++ projectUrl.repo ++ "/" ++ projectUrl.path
+
+        None ->
+            project.codeUrl
