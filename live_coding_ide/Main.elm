@@ -8,6 +8,9 @@ import Html.Events exposing (onClick, onInput)
 port loadCodeFromGithub : String -> Cmd msg
 
 
+port loadCodeFromGist : String -> Cmd msg
+
+
 port saveSettings : Settings -> Cmd msg
 
 
@@ -23,6 +26,7 @@ main =
 
 type CodeUrlType
     = Github
+    | Gist
     | None
 
 
@@ -143,6 +147,9 @@ loadCodeFromProject project =
         Github ->
             [ project.codeUrl |> buildGithubProjectUrl |> buildGithubApiUrl |> loadCodeFromGithub ]
 
+        Gist ->
+            [ project.codeUrl |> loadCodeFromGist ]
+
         None ->
             []
 
@@ -151,6 +158,8 @@ detectCodeUrlType : Project -> CodeUrlType
 detectCodeUrlType project =
     if project.codeUrl |> String.contains "https://github.com/" then
         Github
+    else if project.codeUrl |> String.contains "https://gist.github.com/" then
+        Gist
     else
         None
 
@@ -197,14 +206,14 @@ view model =
             [ text "JavaScript live coding environment. "
             , a [ href "https://github.com/joakimk/live_coding" ] [ text "https://github.com/joakimk/live_coding" ]
             , p []
-                [ input [ class "editor__controls__add-project__input", value model.pendingCodeUrl, placeholder "<< Enter Github URL including path to file here >>", onInput UpdatePendingCodeUrl ] []
+                [ input [ class "editor__controls__add-project__input", value model.pendingCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingCodeUrl ] []
                 , text " "
                 , button [ class "editor__controls__add-project__button", onClick AddProject ] [ text "Add project" ]
                 ]
             ]
         , div [] (List.map renderProject model.projects)
-          -- todo: gist
-          -- todo: add-project-by-url?
+          -- todo: gist: do string parsing in elm
+          -- todo: gist at specific revision
           -- todo: break code out into modules
         ]
 
@@ -228,6 +237,9 @@ shortFormCodeUrl project =
                     project.codeUrl |> buildGithubProjectUrl
             in
                 "[github] " ++ projectUrl.user ++ "/" ++ projectUrl.repo ++ "/" ++ projectUrl.path
+
+        Gist ->
+            "[gist] " ++ project.codeUrl
 
         None ->
             project.codeUrl

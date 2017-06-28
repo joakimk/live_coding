@@ -13,7 +13,6 @@
 
     let editor = setUpEditor()
     loadSavedCode(editor)
-    setUpCodeLoadingFromGists(editor)
 
     setUpEditorControlUI()
   }
@@ -35,11 +34,33 @@
 
     app.ports.loadCodeFromGithub.subscribe((url) => {
       fetchFromUrl(url, function(body) {
-        replaceCodeInEditor(atob(JSON.parse(body).content))
+        // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
+        code = decodeURIComponent(escape(atob(JSON.parse(body).content)))
+
+        replaceCodeInEditor(code)
 
         // Reload page after replacing code as this is often required to get it running
         window.location.reload()
       })
+    })
+
+    app.ports.loadCodeFromGist.subscribe((webUrl) => {
+       id = webUrl.split("/").reverse()[0]
+       let url = "https://api.github.com/gists/" + id
+
+       fetchFromUrl(url, function(body) {
+         files = Object.values(JSON.parse(body).files)
+
+         if(files.length != 1) {
+           alert("Importing more than one file in a gist isn't supported yet.")
+         }
+         else {
+           replaceCodeInEditor(files[0].content)
+
+           // Reload page after replacing code as this is often required to get it running
+           window.location.reload()
+         }
+       })
     })
   }
 
@@ -121,24 +142,6 @@
     editor.focus()
   }
 
-  this.setUpCodeLoadingFromGists = (editor) => {
-    // Proof of concept code loading from gist
-    if(location.href.indexOf("import_from_gist") != -1) {
-       let url = location.href.split("import_from_gist=")[1].replace("gist.github.com", "gist.githubusercontent.com") + "/raw"
-
-       if(window.confirm("Are you sure you want to import " + url + " and run it?")) {
-         fetchFromUrl(url, function(code) {
-           replaceCodeInEditor(code)
-
-           // Reload page after replacing code as this is often required to get it running
-           window.location = location.href.split("import_from_gist=")[0]
-         })
-       } else {
-         window.location = location.href.split("import_from_gist=")[0]
-       }
-    }
-  }
-
   this.runCode = (editor) => {
     if(vimInsertMode) { return }
 
@@ -186,8 +189,7 @@
   }
 
   this.replaceCodeInEditor = (code) => {
-    // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
-    editor.setValue(decodeURIComponent(escape(code)))
+    editor.setValue(code)
     editor.gotoLine(1)
     editor.focus()
   }

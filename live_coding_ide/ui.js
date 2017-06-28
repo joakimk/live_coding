@@ -8372,6 +8372,11 @@ var _user$example$Main$loadCodeFromGithub = _elm_lang$core$Native_Platform.outgo
 	function (v) {
 		return v;
 	});
+var _user$example$Main$loadCodeFromGist = _elm_lang$core$Native_Platform.outgoingPort(
+	'loadCodeFromGist',
+	function (v) {
+		return v;
+	});
 var _user$example$Main$saveSettings = _elm_lang$core$Native_Platform.outgoingPort(
 	'saveSettings',
 	function (v) {
@@ -8397,22 +8402,30 @@ var _user$example$Main$GithubProjectUrl = F4(
 		return {ref: a, user: b, repo: c, path: d};
 	});
 var _user$example$Main$None = {ctor: 'None'};
+var _user$example$Main$Gist = {ctor: 'Gist'};
 var _user$example$Main$Github = {ctor: 'Github'};
 var _user$example$Main$detectCodeUrlType = function (project) {
-	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.codeUrl) ? _user$example$Main$Github : _user$example$Main$None;
+	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.codeUrl) ? _user$example$Main$Github : (A2(_elm_lang$core$String$contains, 'https://gist.github.com/', project.codeUrl) ? _user$example$Main$Gist : _user$example$Main$None);
 };
 var _user$example$Main$loadCodeFromProject = function (project) {
 	var _p0 = _user$example$Main$detectCodeUrlType(project);
-	if (_p0.ctor === 'Github') {
-		return {
-			ctor: '::',
-			_0: _user$example$Main$loadCodeFromGithub(
-				_user$example$Main$buildGithubApiUrl(
-					_user$example$Main$buildGithubProjectUrl(project.codeUrl))),
-			_1: {ctor: '[]'}
-		};
-	} else {
-		return {ctor: '[]'};
+	switch (_p0.ctor) {
+		case 'Github':
+			return {
+				ctor: '::',
+				_0: _user$example$Main$loadCodeFromGithub(
+					_user$example$Main$buildGithubApiUrl(
+						_user$example$Main$buildGithubProjectUrl(project.codeUrl))),
+				_1: {ctor: '[]'}
+			};
+		case 'Gist':
+			return {
+				ctor: '::',
+				_0: _user$example$Main$loadCodeFromGist(project.codeUrl),
+				_1: {ctor: '[]'}
+			};
+		default:
+			return {ctor: '[]'};
 	}
 };
 var _user$example$Main$update = F2(
@@ -8481,23 +8494,26 @@ var _user$example$Main$updateAndSaveSettings = F2(
 	});
 var _user$example$Main$shortFormCodeUrl = function (project) {
 	var _p3 = _user$example$Main$detectCodeUrlType(project);
-	if (_p3.ctor === 'Github') {
-		var projectUrl = _user$example$Main$buildGithubProjectUrl(project.codeUrl);
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'[github] ',
-			A2(
+	switch (_p3.ctor) {
+		case 'Github':
+			var projectUrl = _user$example$Main$buildGithubProjectUrl(project.codeUrl);
+			return A2(
 				_elm_lang$core$Basics_ops['++'],
-				projectUrl.user,
+				'[github] ',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					'/',
+					projectUrl.user,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						projectUrl.repo,
-						A2(_elm_lang$core$Basics_ops['++'], '/', projectUrl.path)))));
-	} else {
-		return project.codeUrl;
+						'/',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							projectUrl.repo,
+							A2(_elm_lang$core$Basics_ops['++'], '/', projectUrl.path)))));
+		case 'Gist':
+			return A2(_elm_lang$core$Basics_ops['++'], '[gist] ', project.codeUrl);
+		default:
+			return project.codeUrl;
 	}
 };
 var _user$example$Main$LoadCode = function (a) {
@@ -8607,7 +8623,7 @@ var _user$example$Main$view = function (model) {
 												_0: _elm_lang$html$Html_Attributes$value(model.pendingCodeUrl),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$placeholder('<< Enter Github URL including path to file here >>'),
+													_0: _elm_lang$html$Html_Attributes$placeholder('<< Enter Github URL including path to file or Gist URL here >>'),
 													_1: {
 														ctor: '::',
 														_0: _elm_lang$html$Html_Events$onInput(_user$example$Main$UpdatePendingCodeUrl),
