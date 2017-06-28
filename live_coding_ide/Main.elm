@@ -7,6 +7,7 @@ port module Main exposing (..)
 --       handle code loading through Elm?
 -- todo: backup and restore of locally persisted settings?
 
+import Types exposing (..)
 import Html exposing (text, div, p, a, button, input, span)
 import Html.Attributes exposing (href, value, class, placeholder)
 import Html.Events exposing (onClick, onInput)
@@ -29,50 +30,6 @@ main =
         , update = updateAndSaveSettings
         , subscriptions = \_ -> Sub.none
         }
-
-
-type CodeUrlType
-    = Github
-    | Gist
-    | None
-
-
-type alias Model =
-    { projects : List Project
-    , pendingCodeUrl : String
-    }
-
-
-type alias Settings =
-    { projects : List Project
-    }
-
-
-type alias Project =
-    { --title : String
-      codeUrl : String
-    }
-
-
-type alias GithubProjectMetadata =
-    { ref : String
-    , user : String
-    , repo : String
-    , path : String
-    }
-
-
-type alias GithubGistMetadata =
-    { user : String
-    , id : String
-    }
-
-
-type Msg
-    = UpdatePendingCodeUrl String
-    | AddProject
-    | RemoveProject Project
-    | LoadCode Project
 
 
 defaultModel : Model
