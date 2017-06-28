@@ -8292,10 +8292,10 @@ var _user$example$Types$UpdatePendingCodeUrl = function (a) {
 	return {ctor: 'UpdatePendingCodeUrl', _0: a};
 };
 
-var _user$example$Main$buildGithubGistApiUrl = function (gistMetadata) {
+var _user$example$Helpers$buildGithubGistApiUrl = function (gistMetadata) {
 	return A2(_elm_lang$core$Basics_ops['++'], 'https://api.github.com/gists/', gistMetadata.id);
 };
-var _user$example$Main$buildGithubGistMetaData = function (codeUrl) {
+var _user$example$Helpers$buildGithubGistMetaData = function (codeUrl) {
 	var parts = _elm_lang$core$List$reverse(
 		A2(_elm_lang$core$String$split, '/', codeUrl));
 	var id = A2(
@@ -8309,7 +8309,7 @@ var _user$example$Main$buildGithubGistMetaData = function (codeUrl) {
 			A2(_elm_lang$core$List$drop, 1, parts)));
 	return {id: id, user: user};
 };
-var _user$example$Main$buildGithubProjectMetadata = function (url) {
+var _user$example$Helpers$buildGithubProjectMetadata = function (url) {
 	var parts = A2(_elm_lang$core$String$split, '/', url);
 	var userAndRepoParts = A2(
 		_elm_lang$core$List$take,
@@ -8351,7 +8351,7 @@ var _user$example$Main$buildGithubProjectMetadata = function (url) {
 						A2(_elm_lang$core$List$drop, 3, parts))))));
 	return {ref: ref, user: user, repo: repo, path: path};
 };
-var _user$example$Main$buildGithubApiUrl = function (githubProjectMetadata) {
+var _user$example$Helpers$buildGithubApiUrl = function (githubProjectMetadata) {
 	var apiUrl = A2(
 		_elm_lang$core$String$join,
 		'/',
@@ -8381,14 +8381,15 @@ var _user$example$Main$buildGithubApiUrl = function (githubProjectMetadata) {
 		apiUrl,
 		A2(_elm_lang$core$Basics_ops['++'], '?ref=', githubProjectMetadata.ref));
 };
-var _user$example$Main$detectCodeUrlType = function (project) {
+var _user$example$Helpers$detectCodeUrlType = function (project) {
 	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.codeUrl) ? _user$example$Types$Github : (A2(_elm_lang$core$String$contains, 'https://gist.github.com/', project.codeUrl) ? _user$example$Types$Gist : _user$example$Types$None);
 };
-var _user$example$Main$shortFormCodeUrl = function (project) {
-	var _p0 = _user$example$Main$detectCodeUrlType(project);
+
+var _user$example$View$shortFormCodeUrl = function (project) {
+	var _p0 = _user$example$Helpers$detectCodeUrlType(project);
 	switch (_p0.ctor) {
 		case 'Github':
-			var githubProjectMetadata = _user$example$Main$buildGithubProjectMetadata(project.codeUrl);
+			var githubProjectMetadata = _user$example$Helpers$buildGithubProjectMetadata(project.codeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[github] ',
@@ -8403,7 +8404,7 @@ var _user$example$Main$shortFormCodeUrl = function (project) {
 							githubProjectMetadata.repo,
 							A2(_elm_lang$core$Basics_ops['++'], '/', githubProjectMetadata.path)))));
 		case 'Gist':
-			var gistMetadata = _user$example$Main$buildGithubGistMetaData(project.codeUrl);
+			var gistMetadata = _user$example$Helpers$buildGithubGistMetaData(project.codeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[gist] ',
@@ -8415,7 +8416,7 @@ var _user$example$Main$shortFormCodeUrl = function (project) {
 			return project.codeUrl;
 	}
 };
-var _user$example$Main$renderProject = function (project) {
+var _user$example$View$renderProject = function (project) {
 	return A2(
 		_elm_lang$html$Html$p,
 		{ctor: '[]'},
@@ -8427,7 +8428,7 @@ var _user$example$Main$renderProject = function (project) {
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html$text(
-						_user$example$Main$shortFormCodeUrl(project)),
+						_user$example$View$shortFormCodeUrl(project)),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -8469,7 +8470,7 @@ var _user$example$Main$renderProject = function (project) {
 			}
 		});
 };
-var _user$example$Main$view = function (model) {
+var _user$example$View$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -8556,15 +8557,13 @@ var _user$example$Main$view = function (model) {
 				_0: A2(
 					_elm_lang$html$Html$div,
 					{ctor: '[]'},
-					A2(_elm_lang$core$List$map, _user$example$Main$renderProject, model.projects)),
+					A2(_elm_lang$core$List$map, _user$example$View$renderProject, model.projects)),
 				_1: {ctor: '[]'}
 			}
 		});
 };
-var _user$example$Main$dumpSettings = function (model) {
-	return {projects: model.projects};
-};
-var _user$example$Main$defaultSettings = {
+
+var _user$example$State$defaultSettings = {
 	projects: {
 		ctor: '::',
 		_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'},
@@ -8579,77 +8578,80 @@ var _user$example$Main$defaultSettings = {
 		}
 	}
 };
-var _user$example$Main$defaultModel = {
+var _user$example$State$defaultModel = {
 	pendingCodeUrl: '',
 	projects: {ctor: '[]'}
 };
-var _user$example$Main$restoreSettings = F2(
+var _user$example$State$dumpSettings = function (model) {
+	return {projects: model.projects};
+};
+var _user$example$State$restoreSettings = F2(
 	function (model, settings) {
 		return _elm_lang$core$Native_Utils.update(
-			_user$example$Main$defaultModel,
+			_user$example$State$defaultModel,
 			{projects: settings.projects});
 	});
-var _user$example$Main$init = function (savedSettings) {
-	var settings = A2(_elm_lang$core$Maybe$withDefault, _user$example$Main$defaultSettings, savedSettings);
+var _user$example$State$init = function (savedSettings) {
+	var settings = A2(_elm_lang$core$Maybe$withDefault, _user$example$State$defaultSettings, savedSettings);
 	return A2(
 		_elm_lang$core$Platform_Cmd_ops['!'],
-		A2(_user$example$Main$restoreSettings, _user$example$Main$defaultModel, settings),
+		A2(_user$example$State$restoreSettings, _user$example$State$defaultModel, settings),
 		{ctor: '[]'});
 };
-var _user$example$Main$loadCodeFromGithub = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$example$State$loadCodeFromGithub = _elm_lang$core$Native_Platform.outgoingPort(
 	'loadCodeFromGithub',
 	function (v) {
 		return v;
 	});
-var _user$example$Main$loadCodeFromGist = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$example$State$loadCodeFromGist = _elm_lang$core$Native_Platform.outgoingPort(
 	'loadCodeFromGist',
 	function (v) {
 		return v;
 	});
-var _user$example$Main$loadCodeFromProject = function (project) {
-	var _p1 = _user$example$Main$detectCodeUrlType(project);
-	switch (_p1.ctor) {
+var _user$example$State$loadCodeFromProject = function (project) {
+	var _p0 = _user$example$Helpers$detectCodeUrlType(project);
+	switch (_p0.ctor) {
 		case 'Github':
 			return {
 				ctor: '::',
-				_0: _user$example$Main$loadCodeFromGithub(
-					_user$example$Main$buildGithubApiUrl(
-						_user$example$Main$buildGithubProjectMetadata(project.codeUrl))),
+				_0: _user$example$State$loadCodeFromGithub(
+					_user$example$Helpers$buildGithubApiUrl(
+						_user$example$Helpers$buildGithubProjectMetadata(project.codeUrl))),
 				_1: {ctor: '[]'}
 			};
 		case 'Gist':
 			return {
 				ctor: '::',
-				_0: _user$example$Main$loadCodeFromGist(
-					_user$example$Main$buildGithubGistApiUrl(
-						_user$example$Main$buildGithubGistMetaData(project.codeUrl))),
+				_0: _user$example$State$loadCodeFromGist(
+					_user$example$Helpers$buildGithubGistApiUrl(
+						_user$example$Helpers$buildGithubGistMetaData(project.codeUrl))),
 				_1: {ctor: '[]'}
 			};
 		default:
 			return {ctor: '[]'};
 	}
 };
-var _user$example$Main$update = F2(
+var _user$example$State$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
-		switch (_p2.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'LoadCode':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
-					_user$example$Main$loadCodeFromProject(_p2._0));
+					_user$example$State$loadCodeFromProject(_p1._0));
 			case 'UpdatePendingCodeUrl':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{pendingCodeUrl: _p2._0}),
+						{pendingCodeUrl: _p1._0}),
 					{ctor: '[]'});
 			case 'RemoveProject':
 				var projects = A2(
 					_elm_lang$core$List$filter,
 					function (p) {
-						return !_elm_lang$core$Native_Utils.eq(p, _p2._0);
+						return !_elm_lang$core$Native_Utils.eq(p, _p1._0);
 					},
 					model.projects);
 				return A2(
@@ -8672,7 +8674,7 @@ var _user$example$Main$update = F2(
 					{ctor: '[]'});
 		}
 	});
-var _user$example$Main$saveSettings = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$example$State$saveSettings = _elm_lang$core$Native_Platform.outgoingPort(
 	'saveSettings',
 	function (v) {
 		return {
@@ -8682,19 +8684,19 @@ var _user$example$Main$saveSettings = _elm_lang$core$Native_Platform.outgoingPor
 				})
 		};
 	});
-var _user$example$Main$updateAndSaveSettings = F2(
+var _user$example$State$updateAndSaveSettings = F2(
 	function (msg, model) {
-		var _p3 = A2(_user$example$Main$update, msg, model);
-		var newModel = _p3._0;
-		var cmds = _p3._1;
+		var _p2 = A2(_user$example$State$update, msg, model);
+		var newModel = _p2._0;
+		var cmds = _p2._1;
 		return {
 			ctor: '_Tuple2',
 			_0: newModel,
 			_1: _elm_lang$core$Platform_Cmd$batch(
 				{
 					ctor: '::',
-					_0: _user$example$Main$saveSettings(
-						_user$example$Main$dumpSettings(newModel)),
+					_0: _user$example$State$saveSettings(
+						_user$example$State$dumpSettings(newModel)),
 					_1: {
 						ctor: '::',
 						_0: cmds,
@@ -8703,12 +8705,13 @@ var _user$example$Main$updateAndSaveSettings = F2(
 				})
 		};
 	});
+
 var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 	{
-		init: _user$example$Main$init,
-		view: _user$example$Main$view,
-		update: _user$example$Main$updateAndSaveSettings,
-		subscriptions: function (_p4) {
+		init: _user$example$State$init,
+		view: _user$example$View$view,
+		update: _user$example$State$updateAndSaveSettings,
+		subscriptions: function (_p0) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(

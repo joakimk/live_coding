@@ -20,4 +20,4 @@ erl_crash.dump
 *.ez
 
 # Ignore installed Elm packages
-live_coding_ide/elm-stuff
+live_coding_ide/ui/elm-stuff
