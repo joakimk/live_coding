@@ -8399,7 +8399,7 @@ var _user$example$Main$GithubProjectUrl = F4(
 var _user$example$Main$None = {ctor: 'None'};
 var _user$example$Main$Github = {ctor: 'Github'};
 var _user$example$Main$detectCodeUrlType = function (project) {
-	return _user$example$Main$Github;
+	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.codeUrl) ? _user$example$Main$Github : _user$example$Main$None;
 };
 var _user$example$Main$loadCodeFromProject = function (project) {
 	var _p0 = _user$example$Main$detectCodeUrlType(project);

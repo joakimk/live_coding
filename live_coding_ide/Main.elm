@@ -149,9 +149,10 @@ loadCodeFromProject project =
 
 detectCodeUrlType : Project -> CodeUrlType
 detectCodeUrlType project =
-    -- todo: real implementation for github
-    -- todo: real implementation for gist
-    Github
+    if project.codeUrl |> String.contains "https://github.com/" then
+        Github
+    else
+        None
 
 
 buildGithubApiUrl : GithubProjectUrl -> String
