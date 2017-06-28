@@ -24,6 +24,9 @@
 
     if(settings) { settings = JSON.parse(settings) }
 
+    // Throw away old incompatible data, remove after juli 2017
+    if(settings && settings.githubProjectPath) { settings = null }
+
     let app = Elm.Main.embed(node, settings)
 
     app.ports.saveSettings.subscribe((settings) => {

@@ -38,15 +38,11 @@ body {
   padding-top: 10px;
 }
 
-.editor__controls__load-code__button {
+.editor__controls__add-project__button {
   width: 120px;
 }
-.editor__controls__load-code__input_ref {
-  width: 110px;
-  margin-top: 10px;
-}
-.editor__controls__load-code__input_path {
-  width: 300px;
+.editor__controls__add-project__input {
+  width: 470px;
   margin-top: 10px;
 }
 
