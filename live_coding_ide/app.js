@@ -44,10 +44,7 @@
       })
     })
 
-    app.ports.loadCodeFromGist.subscribe((webUrl) => {
-       id = webUrl.split("/").reverse()[0]
-       let url = "https://api.github.com/gists/" + id
-
+    app.ports.loadCodeFromGist.subscribe((url) => {
        fetchFromUrl(url, function(body) {
          files = Object.values(JSON.parse(body).files)
 

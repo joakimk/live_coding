@@ -8260,7 +8260,24 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$example$Main$buildGithubProjectUrl = function (url) {
+var _user$example$Main$buildGithubGistApiUrl = function (gistMetadata) {
+	return A2(_elm_lang$core$Basics_ops['++'], 'https://api.github.com/gists/', gistMetadata.id);
+};
+var _user$example$Main$buildGithubGistMetaData = function (codeUrl) {
+	var parts = _elm_lang$core$List$reverse(
+		A2(_elm_lang$core$String$split, '/', codeUrl));
+	var id = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'unknown-gist-id',
+		_elm_lang$core$List$head(parts));
+	var user = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'unknown-user',
+		_elm_lang$core$List$head(
+			A2(_elm_lang$core$List$drop, 1, parts)));
+	return {id: id, user: user};
+};
+var _user$example$Main$buildGithubProjectMetadata = function (url) {
 	var parts = A2(_elm_lang$core$String$split, '/', url);
 	var userAndRepoParts = A2(
 		_elm_lang$core$List$take,
@@ -8302,7 +8319,7 @@ var _user$example$Main$buildGithubProjectUrl = function (url) {
 						A2(_elm_lang$core$List$drop, 3, parts))))));
 	return {ref: ref, user: user, repo: repo, path: path};
 };
-var _user$example$Main$buildGithubApiUrl = function (projectUrl) {
+var _user$example$Main$buildGithubApiUrl = function (githubProjectMetadata) {
 	var apiUrl = A2(
 		_elm_lang$core$String$join,
 		'/',
@@ -8311,16 +8328,16 @@ var _user$example$Main$buildGithubApiUrl = function (projectUrl) {
 			_0: 'https://api.github.com/repos',
 			_1: {
 				ctor: '::',
-				_0: projectUrl.user,
+				_0: githubProjectMetadata.user,
 				_1: {
 					ctor: '::',
-					_0: projectUrl.repo,
+					_0: githubProjectMetadata.repo,
 					_1: {
 						ctor: '::',
 						_0: 'contents',
 						_1: {
 							ctor: '::',
-							_0: projectUrl.path,
+							_0: githubProjectMetadata.path,
 							_1: {ctor: '[]'}
 						}
 					}
@@ -8330,7 +8347,7 @@ var _user$example$Main$buildGithubApiUrl = function (projectUrl) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		apiUrl,
-		A2(_elm_lang$core$Basics_ops['++'], '?ref=', projectUrl.ref));
+		A2(_elm_lang$core$Basics_ops['++'], '?ref=', githubProjectMetadata.ref));
 };
 var _user$example$Main$dumpSettings = function (model) {
 	return {projects: model.projects};
@@ -8397,9 +8414,13 @@ var _user$example$Main$Settings = function (a) {
 var _user$example$Main$Project = function (a) {
 	return {codeUrl: a};
 };
-var _user$example$Main$GithubProjectUrl = F4(
+var _user$example$Main$GithubProjectMetadata = F4(
 	function (a, b, c, d) {
 		return {ref: a, user: b, repo: c, path: d};
+	});
+var _user$example$Main$GithubGistMetadata = F2(
+	function (a, b) {
+		return {user: a, id: b};
 	});
 var _user$example$Main$None = {ctor: 'None'};
 var _user$example$Main$Gist = {ctor: 'Gist'};
@@ -8415,13 +8436,15 @@ var _user$example$Main$loadCodeFromProject = function (project) {
 				ctor: '::',
 				_0: _user$example$Main$loadCodeFromGithub(
 					_user$example$Main$buildGithubApiUrl(
-						_user$example$Main$buildGithubProjectUrl(project.codeUrl))),
+						_user$example$Main$buildGithubProjectMetadata(project.codeUrl))),
 				_1: {ctor: '[]'}
 			};
 		case 'Gist':
 			return {
 				ctor: '::',
-				_0: _user$example$Main$loadCodeFromGist(project.codeUrl),
+				_0: _user$example$Main$loadCodeFromGist(
+					_user$example$Main$buildGithubGistApiUrl(
+						_user$example$Main$buildGithubGistMetaData(project.codeUrl))),
 				_1: {ctor: '[]'}
 			};
 		default:
@@ -8496,22 +8519,29 @@ var _user$example$Main$shortFormCodeUrl = function (project) {
 	var _p3 = _user$example$Main$detectCodeUrlType(project);
 	switch (_p3.ctor) {
 		case 'Github':
-			var projectUrl = _user$example$Main$buildGithubProjectUrl(project.codeUrl);
+			var githubProjectMetadata = _user$example$Main$buildGithubProjectMetadata(project.codeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[github] ',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					projectUrl.user,
+					githubProjectMetadata.user,
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/',
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							projectUrl.repo,
-							A2(_elm_lang$core$Basics_ops['++'], '/', projectUrl.path)))));
+							githubProjectMetadata.repo,
+							A2(_elm_lang$core$Basics_ops['++'], '/', githubProjectMetadata.path)))));
 		case 'Gist':
-			return A2(_elm_lang$core$Basics_ops['++'], '[gist] ', project.codeUrl);
+			var gistMetadata = _user$example$Main$buildGithubGistMetaData(project.codeUrl);
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'[gist] ',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					gistMetadata.user,
+					A2(_elm_lang$core$Basics_ops['++'], '/', gistMetadata.id)));
 		default:
 			return project.codeUrl;
 	}

@@ -1,5 +1,12 @@
 port module Main exposing (..)
 
+-- todo: break code out into modules
+-- todo: load multiple files?
+-- todo: redo UI, click project to see info and options, also naming for projects
+--       delete, load remote, load local, has local changes?, change name, ...
+--       handle code loading through Elm?
+-- todo: backup and restore of locally persisted settings?
+
 import Html exposing (text, div, p, a, button, input, span)
 import Html.Attributes exposing (href, value, class, placeholder)
 import Html.Events exposing (onClick, onInput)
@@ -47,11 +54,17 @@ type alias Project =
     }
 
 
-type alias GithubProjectUrl =
+type alias GithubProjectMetadata =
     { ref : String
     , user : String
     , repo : String
     , path : String
+    }
+
+
+type alias GithubGistMetadata =
+    { user : String
+    , id : String
     }
 
 
@@ -145,10 +158,10 @@ loadCodeFromProject : Project -> List (Cmd msg)
 loadCodeFromProject project =
     case (detectCodeUrlType project) of
         Github ->
-            [ project.codeUrl |> buildGithubProjectUrl |> buildGithubApiUrl |> loadCodeFromGithub ]
+            [ project.codeUrl |> buildGithubProjectMetadata |> buildGithubApiUrl |> loadCodeFromGithub ]
 
         Gist ->
-            [ project.codeUrl |> loadCodeFromGist ]
+            [ project.codeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
 
         None ->
             []
@@ -164,18 +177,18 @@ detectCodeUrlType project =
         None
 
 
-buildGithubApiUrl : GithubProjectUrl -> String
-buildGithubApiUrl projectUrl =
+buildGithubApiUrl : GithubProjectMetadata -> String
+buildGithubApiUrl githubProjectMetadata =
     let
         apiUrl =
-            [ "https://api.github.com/repos", projectUrl.user, projectUrl.repo, "contents", projectUrl.path ]
+            [ "https://api.github.com/repos", githubProjectMetadata.user, githubProjectMetadata.repo, "contents", githubProjectMetadata.path ]
                 |> String.join ("/")
     in
-        apiUrl ++ "?ref=" ++ projectUrl.ref
+        apiUrl ++ "?ref=" ++ githubProjectMetadata.ref
 
 
-buildGithubProjectUrl : String -> GithubProjectUrl
-buildGithubProjectUrl url =
+buildGithubProjectMetadata : String -> GithubProjectMetadata
+buildGithubProjectMetadata url =
     let
         parts =
             url |> (String.split "/")
@@ -198,6 +211,26 @@ buildGithubProjectUrl url =
         { ref = ref, user = user, repo = repo, path = path }
 
 
+buildGithubGistMetaData : String -> GithubGistMetadata
+buildGithubGistMetaData codeUrl =
+    let
+        parts =
+            codeUrl |> String.split "/" |> List.reverse
+
+        id =
+            parts |> List.head |> Maybe.withDefault "unknown-gist-id"
+
+        user =
+            parts |> List.drop 1 |> List.head |> Maybe.withDefault "unknown-user"
+    in
+        { id = id, user = user }
+
+
+buildGithubGistApiUrl : GithubGistMetadata -> String
+buildGithubGistApiUrl gistMetadata =
+    "https://api.github.com/gists/" ++ gistMetadata.id
+
+
 view : Model -> Html.Html Msg
 view model =
     div
@@ -212,9 +245,6 @@ view model =
                 ]
             ]
         , div [] (List.map renderProject model.projects)
-          -- todo: gist: do string parsing in elm
-          -- todo: gist at specific revision
-          -- todo: break code out into modules
         ]
 
 
@@ -233,13 +263,17 @@ shortFormCodeUrl project =
     case (detectCodeUrlType project) of
         Github ->
             let
-                projectUrl =
-                    project.codeUrl |> buildGithubProjectUrl
+                githubProjectMetadata =
+                    project.codeUrl |> buildGithubProjectMetadata
             in
-                "[github] " ++ projectUrl.user ++ "/" ++ projectUrl.repo ++ "/" ++ projectUrl.path
+                "[github] " ++ githubProjectMetadata.user ++ "/" ++ githubProjectMetadata.repo ++ "/" ++ githubProjectMetadata.path
 
         Gist ->
-            "[gist] " ++ project.codeUrl
+            let
+                gistMetadata =
+                    (buildGithubGistMetaData project.codeUrl)
+            in
+                "[gist] " ++ gistMetadata.user ++ "/" ++ gistMetadata.id
 
         None ->
             project.codeUrl
