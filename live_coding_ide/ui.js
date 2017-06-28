@@ -8352,15 +8352,23 @@ var _user$example$Main$dumpSettings = function (model) {
 	return {projects: model.projects};
 };
 var _user$example$Main$defaultSettings = {
-	projects: {ctor: '[]'}
-};
-var _user$example$Main$defaultModel = {
-	pendingCodeUrl: '',
 	projects: {
 		ctor: '::',
 		_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'},
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'},
+			_1: {
+				ctor: '::',
+				_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'},
+				_1: {ctor: '[]'}
+			}
+		}
 	}
+};
+var _user$example$Main$defaultModel = {
+	pendingCodeUrl: '',
+	projects: {ctor: '[]'}
 };
 var _user$example$Main$restoreSettings = F2(
 	function (model, settings) {

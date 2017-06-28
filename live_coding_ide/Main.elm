@@ -56,17 +56,19 @@ type Msg
 defaultModel : Model
 defaultModel =
     { pendingCodeUrl = ""
-    , projects =
-        [ { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js" }
-          --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714"
-          --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714/0000ded16a016d21116b904223a55da8d5f0193b"
-        ]
+    , projects = []
     }
 
 
 defaultSettings : Settings
 defaultSettings =
-    { projects = []
+    { projects =
+        --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714"
+        --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714/0000ded16a016d21116b904223a55da8d5f0193b"
+        [ { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js" }
+        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js" }
+        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js" }
+        ]
     }
 
 
