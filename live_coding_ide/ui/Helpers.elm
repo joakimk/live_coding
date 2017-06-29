@@ -13,8 +13,8 @@ detectCodeUrlType project =
         None
 
 
-buildGithubApiUrl : GithubProjectMetadata -> String
-buildGithubApiUrl githubProjectMetadata =
+buildGithubProjectApiUrl : GithubProjectMetadata -> String
+buildGithubProjectApiUrl githubProjectMetadata =
     let
         apiUrl =
             [ "https://api.github.com/repos", githubProjectMetadata.user, githubProjectMetadata.repo, "contents", githubProjectMetadata.path ]

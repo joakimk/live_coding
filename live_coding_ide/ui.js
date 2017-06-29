@@ -8351,7 +8351,7 @@ var _user$example$Helpers$buildGithubProjectMetadata = function (url) {
 						A2(_elm_lang$core$List$drop, 3, parts))))));
 	return {ref: ref, user: user, repo: repo, path: path};
 };
-var _user$example$Helpers$buildGithubApiUrl = function (githubProjectMetadata) {
+var _user$example$Helpers$buildGithubProjectApiUrl = function (githubProjectMetadata) {
 	var apiUrl = A2(
 		_elm_lang$core$String$join,
 		'/',
@@ -8615,7 +8615,7 @@ var _user$example$State$loadCodeFromProject = function (project) {
 			return {
 				ctor: '::',
 				_0: _user$example$State$loadCodeFromGithub(
-					_user$example$Helpers$buildGithubApiUrl(
+					_user$example$Helpers$buildGithubProjectApiUrl(
 						_user$example$Helpers$buildGithubProjectMetadata(project.codeUrl))),
 				_1: {ctor: '[]'}
 			};

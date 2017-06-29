@@ -1,6 +1,6 @@
 ## Development
 
-    elm make Main.elm --output ui.js
+    ./build_ui.sh
 
 ### Using the atom editor?
 

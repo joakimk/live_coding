@@ -1,7 +1,7 @@
 port module State exposing (init, updateAndSaveSettings)
 
 import Types exposing (..)
-import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubApiUrl, buildGithubGistMetaData, buildGithubGistApiUrl)
+import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubProjectApiUrl, buildGithubGistMetaData, buildGithubGistApiUrl)
 
 
 port loadCodeFromGithub : String -> Cmd msg
@@ -37,19 +37,6 @@ update msg model =
                 { model | projects = projects, pendingCodeUrl = "" } ! []
 
 
-loadCodeFromProject : Project -> List (Cmd msg)
-loadCodeFromProject project =
-    case (detectCodeUrlType project) of
-        Github ->
-            [ project.codeUrl |> buildGithubProjectMetadata |> buildGithubApiUrl |> loadCodeFromGithub ]
-
-        Gist ->
-            [ project.codeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
-
-        None ->
-            []
-
-
 restoreSettings : Model -> Settings -> Model
 restoreSettings model settings =
     -- We handle settings this way so that we don't need to care what is being
@@ -64,6 +51,19 @@ restoreSettings model settings =
 dumpSettings : Model -> Settings
 dumpSettings model =
     { projects = model.projects }
+
+
+loadCodeFromProject : Project -> List (Cmd msg)
+loadCodeFromProject project =
+    case (detectCodeUrlType project) of
+        Github ->
+            [ project.codeUrl |> buildGithubProjectMetadata |> buildGithubProjectApiUrl |> loadCodeFromGithub ]
+
+        Gist ->
+            [ project.codeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
+
+        None ->
+            []
 
 
 defaultModel : Model
