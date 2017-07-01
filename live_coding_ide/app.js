@@ -49,8 +49,8 @@
 
                 replaceCodeInEditor(editor, code)
 
-                // Reload page after replacing code as this is often required to get it running
-                window.location.reload()
+                // Reload the player after loading code as this is often required to get it running
+                liveViewElement.contentWindow.location.reload()
             })
         })
 
@@ -64,8 +64,8 @@
                 else {
                     replaceCodeInEditor(editor, files[0].content)
 
-                    // Reload page after replacing code as this is often required to get it running
-                    window.location.reload()
+                    // Reload the player after loading code as this is often required to get it running
+                    liveViewElement.contentWindow.location.reload()
                 }
             })
         })
