@@ -11,6 +11,7 @@ jumpAcceleration = 0.025
 gravityAcceleration = 0.006
 movementAcceleration = 0.02
 maxMovementSpeed = 0.1
+inDebugMode = true
 
 // This describes the ground tiles, e.g. ground and water.
 //
@@ -231,6 +232,16 @@ generateMap = () => {
 
 map = generateMap()
 
+collisionMapIndexByIntegerX = {}
+for(let i = 0; i < map.length; i++) {
+    if(!collisionMapIndexByIntegerX[map[i].x.toFixed(0)]) {
+        collisionMapIndexByIntegerX[map[i].x.toFixed(0)] = []
+    }
+    
+    if(map[i].collisionType != "bg") {
+      collisionMapIndexByIntegerX[map[i].x.toFixed(0)].push(map[i])
+    }
+}
 
 model = loadStateOrDefaultTo(getDefaultModelValues())
 //model.character.x = 20
@@ -278,7 +289,8 @@ function getDefaultModelValues(resetValues) {
 tick = (delta) => {
     if(codeHasChanged()) { return }
     logFps()
-
+    model.debugboxes = []
+    
     if (model.input.isJumpPossible){
         model.input.isJumpPossible =
         (model.character.vy < maxJumpAcceleration &&
@@ -343,32 +355,90 @@ applyFriction = (delta) => {
     }
 }
 
+//console.log(mapIndexByIntegerX)
 applyVelocity = () => {
     model.character.x += model.character.vx
     model.character.y += model.character.vy
 
-    bottomCollision = setBottomCollision(model)
-    topCollision = setTopCollision(model);
-    rightCollision = setRightCollision(model)
-    leftCollision = setLeftCollision(model)
+    // does boxes collide? on what side
 
-    if(model.character.x > rightCollision - 0.2 && rightCollision > 0) {
-        model.character.x = rightCollision - 0.2;
+    //model.debugboxes = { x: 7, y: 1 }
+    //collisionBoxes = []
+    characterCollision = { x: model.character.x - 0.5, y: (model.character.y*2) + 1 }
+    
+    characterIntX = Math.floor(characterCollision.x + 0.5)
+    nearMap = []
+    nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX - 1] || [])
+    nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX] || [])
+    nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX + 1] || [])
+    
+    //console.log(characterCollision.x)
+    // console.log(nearMap)
+    
+    for(let i = 0; i < nearMap.length; i++) {
+        if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
+        
+        xHitLeft = (characterCollision.x < nearMap[i].x + 1 && characterCollision.x > nearMap[i].x && nearMap[i].collisionType != "platform")
+        xHitRight = (characterCollision.x + 1 > nearMap[i].x && characterCollision.x + 1 < nearMap[i].x + 1 && nearMap[i].collisionType != "platform")
+        
+        yHitBottom = checkHitBottom(characterCollision, nearMap[i], model);
+        yHitTop = (characterCollision.y + 1 > nearMap[i].y && characterCollision.y + 1 < nearMap[i].y + 1 && nearMap[i].collisionType != "platform")
+        
+        onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
+
+        if(onSameColumn) {
+            if(yHitBottom) {
+                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
+
+                if(model.character.vy <= 0) {
+                    model.character.y = nearMap[i].y * 0.5
+                    if(model.character.y == -1) {
+                      model.character.y = 0
+                    }
+                    
+                    model.character.vy = 0
+                }
+                
+                characterResetValues.x = model.character.x
+                characterResetValues.y = model.character.y
+                characterResetValues.lastdirection = model.input.lastdirection
+            }
+            if(yHitTop){
+                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
+                // console.log("Hit top " + new Date().getMilliseconds())
+
+                model.character.y = nearMap[i].y * 0.5 - 1
+                if(model.character.y == -1) {
+                    model.character.y = 0
+                }
+                model.character.vy = -0.01
+            }
+        }
+
+        onSameLevel = (nearMap[i].y == Math.ceil(characterCollision.y - 0.25))
+        
+        if (onSameLevel) {
+            if(xHitRight) {
+                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
+                // console.log("Hit right " + new Date().getMilliseconds())
+
+                model.character.x = nearMap[i].x - 0.5
+            }
+            if(xHitLeft) {
+                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
+                // console.log("Hit left " + new Date().getMilliseconds())
+
+                model.character.x = nearMap[i].x + 1 + 0.5
+            }
+        }
     }
 
-    if(model.character.x < leftCollision + 0.2 && leftCollision > 0) {
-        model.character.x = leftCollision + 0.2;
-    }
+    // model.debugboxes.push(characterCollision)
 
-    if(model.character.y >= topCollision && topCollision > -0.5) {
-      model.character.y = topCollision
-      model.character.vy = -0.00001
-    }
-
-    leftMapBorder = 0.3;
-    if(model.character.x < leftMapBorder) {
-        model.character.x = leftMapBorder
-    }
+    //leftMapBorder = 0.3;
+    //if(model.character.x < leftMapBorder) {
+    //    model.character.x = leftMapBorder
+    //}
 
     // rightMapBorder = 24.8;
     // if(model.character.x > rightMapBorder) {
@@ -379,136 +449,23 @@ applyVelocity = () => {
         console.log("Thus ends the story of our brave kitty! You have died!")
         model = getDefaultModelValues(characterResetValues);
     }
-
-    if(model.character.y <= bottomCollision && model.character.vy <= 0) {
-        model.character.y = bottomCollision
-        model.character.vy = 0
-
-        characterResetValues.x = model.character.x;
-        characterResetValues.y = model.character.y;
-        characterResetValues.lastdirection = model.input.lastdirection;
-    }
 }
 
-function setRightCollision(model){
-    closestDistance = 999
-    closestMapV = null
-    characterV = new Vector(model.character.x, model.character.y*2 + 1)
-
-    for(i = 0; i < map.length; i++) {
-        mapV = new Vector(map[i].x, map[i].y)
-
-        if(map[i].collisionType != "solid"){
-            continue;
-        }
-
-        if(mapV.y != characterV.y.toFixed(0)) {
-            continue;
-        }
-
-        if(mapV.x < characterV.x.toFixed(0)){
-            continue;
-        }
-
-        distance = characterV.distanceTo(mapV);
-        if(distance < closestDistance) {
-          closestDistance = distance
-          closestMapV = mapV
-        }
-    }
-
-    return closestMapV !== null ? closestMapV.x : -1;
+function checkHitBottom(characterCollision, nearMap, model) {
+    // console.log(characterCollision.y)
+    return (nearMap.collisionType == "solid"
+            && characterCollision.y > nearMap.y
+            && characterCollision.y < nearMap.y + 1) ||
+          (nearMap.collisionType == "platform"
+            && characterCollision.y > nearMap.y + 0.75
+            && characterCollision.y < nearMap.y + 1
+            && model.character.vy <= 0
+            )
+            
+            
 }
 
-function setLeftCollision(model){
-    closestDistance = 999
-    closestMapV = null
-    characterV = new Vector(model.character.x, model.character.y*2 + 1)
 
-    for(i = 0; i < map.length; i++) {
-        mapV = new Vector(map[i].x + 1, map[i].y)
-
-        if(map[i].collisionType != "solid"){
-            continue;
-        }
-
-        if(mapV.y != characterV.y.toFixed(0)) {
-            continue;
-        }
-
-        if(mapV.x > characterV.x.toFixed(0)){
-            continue;
-        }
-
-        distance = characterV.distanceTo(mapV);
-        if(distance < closestDistance) {
-          closestDistance = distance
-          closestMapV = mapV
-        }
-    }
-
-    return closestMapV !== null ? closestMapV.x : -1;
-}
-
-function setBottomCollision(model){
-    closestDistance = 999
-    closestMapV = null
-    characterV = new Vector(model.character.x-0.5, model.character.y*2)
-
-    for(i = 0; i < map.length; i++) {
-        mapV = new Vector(map[i].x, map[i].y)
-
-        if(map[i].collisionType == "bg"){
-            continue;
-        }
-        
-        if(mapV.x != characterV.x.toFixed(0)){
-            continue;
-        }
-
-        if(mapV.y > characterV.y.toFixed(0)) {
-            continue;
-        }
-
-        distance = characterV.distanceTo(mapV);
-        if(distance < closestDistance) {
-          closestDistance = distance
-          closestMapV = mapV
-        }
-    }
-
-    return closestMapV !== null ? closestMapV.y/2 : -1;
-}
-
-function setTopCollision(model){
-    closestDistance = 999
-    closestMapV = null
-    characterV = new Vector(model.character.x-0.5, model.character.y*2 + 1)
-
-    for(i = 0; i < map.length; i++) {
-        mapV = new Vector(map[i].x, map[i].y)
-
-        if(map[i].collisionType != "solid"){
-            continue;
-        }
-
-        if(mapV.x != characterV.x.toFixed(0)){
-            continue;
-        }
-
-        if(mapV.y < characterV.y.toFixed(0)) {
-            continue;
-        }
-
-        distance = characterV.distanceTo(mapV);
-        if(distance < closestDistance) {
-          closestDistance = distance
-          closestMapV = mapV
-        }
-    }
-
-    return closestMapV !== null ? closestMapV.y/2 - 0.75 : -1;
-}
 
 applyGravity = (delta) => {
     model.character.vy -= gravityAcceleration * delta
@@ -559,6 +516,21 @@ render = (delta) => {
 
     // Render character
     app.stage.addChild(cat)
+
+    if(inDebugMode){
+        app.stage.addChild(window.pixiDebugText)
+
+        if(model.debugboxes && model.debugboxes.length) {
+            graphics = new PIXI.Graphics()
+            graphics.beginFill(0xFFFF00, 0.2)
+            graphics.lineStyle(5, 0xFF0000)
+            for(i = 0; i < model.debugboxes.length; i++) {
+              graphics.drawRect(model.debugboxes[i].x * 64 - mapX, -model.debugboxes[i].y  * 64 + app.renderer.height - 64, 64, 64)    
+            }
+            
+            app.stage.addChild(graphics)
+        }
+    }
 }
 
 catTextureIndex = 0
@@ -647,14 +619,15 @@ var keyWasPressed = (e) => {
     }
 }
 
-function handlePlayInput(e,f) {
-
+function handlePlayInput(e, f) {
     if(e.key == "§") {
         return;
     }
 
-    if(e.type == "keydown"){
-        if(e.key == "d")
+    if(e.type == "keydown") {
+        if(e.key == "r")
+            model = getDefaultModelValues()
+        else if(e.key == "d")
             model.input.direction = "right"
         else if(e.key == "a")
             model.input.direction = "left"
@@ -672,17 +645,22 @@ function handlePlayInput(e,f) {
         else if(e.key == "w") {
             model.input.jump = false;
             model.input.isJumpPossible = false;
+        } else if(e.key == "g") {
+            inDebugMode = !inDebugMode
         }
 
         return;
     }
 
     if(e.type == "touchmove") {
-        var touchObj = e.changedTouches[0];
-        var firstObj = f.changedTouches[0];
+        WriteDebugText("inside touchmove");
+        var touchObj = e.touches[0];
+        var firstObj = f.touches[0];
+        
+        var touchDX = parseInt(touchObj.clientX) - parseInt(firstObj.clientX)
+        var touchDY = parseInt(firstObj.clientY) - parseInt(touchObj.clientY)
 
-        var touchDX = parseInt(touchObj.screenX) - parseInt(firstObj.screenX)
-        var touchDY = parseInt(firstObj.screenY) - parseInt(touchObj.screenY)
+        WriteDebugText("inside touchmove\nDX:" + touchDX + " DY:" + touchDY);
 
         var swipeTolerance = 30
 
@@ -721,14 +699,23 @@ function IsCanvas(pathObject){
         object.tagName == 'CANVAS' ||
         object.localName == 'canvas'){
             return true;
-        }
+    }
     
     return false;
 }
 
-touchStart = undefined;
+function IsAceEditor(pathObject){
+    var object = pathObject[0]
+    
+    if( object.className == 'ace_content'){
+        return true;
+    }
+    
+    return false;
+}
 
 function touchStartEvent(e) {
+    WriteDebugText("touchstart");
     touchStart = e;
 
     if(IsCanvas(e.path)) {
@@ -736,18 +723,19 @@ function touchStartEvent(e) {
             mode = "play"
             enterPlayMode(e)
         }
-    } else {
+    } else if(IsAceEditor(e.path)){
         if (mode != "edit"){
             editor.on("focus", function() {
                 mode = "edit"
                 liveViewElement.style.border = "none"
             })
             window.editor.focus()
-        }     
+        }
     }
 }
 
 function touchMoveEvent(e) {
+    WriteDebugText("touchmove");
     if(mode == "play"){
         handlePlayInput(e, touchStart)
         e.preventDefault();
@@ -755,6 +743,7 @@ function touchMoveEvent(e) {
 }
 
 function touchEndEvent(e) {
+    WriteDebugText("touchend");
     if(mode == "play"){
         handlePlayInput(e)
         e.preventDefault();
@@ -834,6 +823,7 @@ function removeByValue(array, value) {
 bootstrap = () => {
     // We can only set up the GL context once
     window.app = new PIXI.Application(800, 600, { antialias: true })
+    window.pixiDebugText = new PIXI.Text('Debug print is working!', {})
     liveViewElement.appendChild(app.view);
     start()
 }
@@ -867,6 +857,14 @@ if(!window.depsLoaded) {
 } else {
     start()
 }
+
+
+function WriteDebugText(text){
+    var textStyle = {};
+    //var textStyle = { font: 'bold 32px Arial', fill: '#0000ff', align: 'left', stroke: '#000000', strokeThickness: 2 };1
+    window.pixiDebugText = new PIXI.Text(text, textStyle);
+}
+
 
 // All available textures
 // tile_1, tile_10, tile_11, tile_12, tile_13, tile_14, tile_15, tile_16, tile_17, tile_18, tile_2, tile_3, tile_4, tile_5, tile_6, tile_7, tile_8, tile_9, cat_dead_1, cat_dead_10, cat_dead_2, cat_dead_3, cat_dead_4, cat_dead_5, cat_dead_6, cat_dead_7, cat_dead_8, cat_dead_9, cat_fall_1, cat_fall_2, cat_fall_3, cat_fall_4, cat_fall_5, cat_fall_6, cat_fall_7, cat_fall_8, cat_hurt_1, cat_hurt_10, cat_hurt_2, cat_hurt_3, cat_hurt_4, cat_hurt_5, cat_hurt_6, cat_hurt_7, cat_hurt_8, cat_hurt_9, cat_idle_1, cat_idle_10, cat_idle_2, cat_idle_3, cat_idle_4, cat_idle_5, cat_idle_6, cat_idle_7, cat_idle_8, cat_idle_9, cat_jump_1, cat_jump_2, cat_jump_3, cat_jump_4, cat_jump_5, cat_jump_6, cat_jump_7, cat_jump_8, cat_run_1, cat_run_2, cat_run_3, cat_run_4, cat_run_5, cat_run_6, cat_run_7, cat_run_8, cat_slide_1, cat_slide_10, cat_slide_2, cat_slide_3, cat_slide_4, cat_slide_5, cat_slide_6, cat_slide_7, cat_slide_8, cat_slide_9, cat_walk_1, cat_walk_10, cat_walk_2, cat_walk_3, cat_walk_4, cat_walk_5, cat_walk_6, cat_walk_7, cat_walk_8, cat_walk_9, object_bush_1, object_bush_2, object_bush_3, object_bush_4, object_crate, object_mushroom_1, object_mushroom_2, object_sign_1, object_sign_2, object_stone, object_tree_1, object_tree_2, object_tree_3
