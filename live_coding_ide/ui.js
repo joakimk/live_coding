@@ -8437,55 +8437,44 @@ var _user$example$View$renderProject = function (project) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$span,
-				{ctor: '[]'},
+				_elm_lang$html$Html$button,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						_user$example$View$shortFormCodeUrl(project)),
+					_0: _elm_lang$html$Html_Events$onClick(
+						_user$example$Types$LoadCode(project)),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Load code'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$br,
-					{ctor: '[]'},
-					{ctor: '[]'}),
+				_0: _elm_lang$html$Html$text(' <- '),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$br,
+						_elm_lang$html$Html$span,
 						{ctor: '[]'},
-						{ctor: '[]'}),
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_user$example$View$shortFormCodeUrl(project)),
+							_1: {ctor: '[]'}
+						}),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(
-									_user$example$Types$LoadCode(project)),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Load code'),
-								_1: {ctor: '[]'}
-							}),
+							_elm_lang$html$Html$br,
+							{ctor: '[]'},
+							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$button,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Close'),
-									_1: {ctor: '[]'}
-								}),
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
+								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
@@ -8497,21 +8486,27 @@ var _user$example$View$renderProject = function (project) {
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Reboot'),
+										_0: _elm_lang$html$Html$text('Reboot the player'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
+									_0: _elm_lang$html$Html$text(' '),
 									_1: {
 										ctor: '::',
 										_0: A2(
-											_elm_lang$html$Html$br,
-											{ctor: '[]'},
-											{ctor: '[]'}),
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(
+													_user$example$Types$RemoveProject(project)),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Delete local code (!)'),
+												_1: {ctor: '[]'}
+											}),
 										_1: {
 											ctor: '::',
 											_0: A2(
@@ -8521,19 +8516,32 @@ var _user$example$View$renderProject = function (project) {
 											_1: {
 												ctor: '::',
 												_0: A2(
-													_elm_lang$html$Html$button,
-													{
+													_elm_lang$html$Html$br,
+													{ctor: '[]'},
+													{ctor: '[]'}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$button,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
+															_1: {ctor: '[]'}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('Close project'),
+															_1: {ctor: '[]'}
+														}),
+													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onClick(
-															_user$example$Types$RemoveProject(project)),
+														_0: A2(
+															_elm_lang$html$Html$br,
+															{ctor: '[]'},
+															{ctor: '[]'}),
 														_1: {ctor: '[]'}
-													},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Delete local code (!)'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
+													}
+												}
 											}
 										}
 									}

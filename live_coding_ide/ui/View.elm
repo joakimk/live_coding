@@ -39,16 +39,18 @@ renderProjectListItem project =
 renderProject : Project -> Html.Html Msg
 renderProject project =
     p []
-        [ span [] [ text (shortFormCodeUrl project) ]
+        [ button [ onClick (LoadCode project) ] [ text "Load code" ]
+        , text " <- "
+        , span [] [ text (shortFormCodeUrl project) ]
         , br [] []
         , br [] []
-        , button [ onClick (LoadCode project) ] [ text "Load code" ]
-        , button [ onClick (CloseProject) ] [ text "Close" ]
-        , button [ onClick (RebootPlayer) ] [ text "Reboot" ]
-        , br [] []
-        , br [] []
-        , br [] []
+        , button [ onClick (RebootPlayer) ] [ text "Reboot the player" ]
+        , text " "
         , button [ onClick (RemoveProject project) ] [ text "Delete local code (!)" ]
+        , br [] []
+        , br [] []
+        , button [ onClick (CloseProject) ] [ text "Close project" ]
+        , br [] []
         ]
 
 
