@@ -71,11 +71,17 @@
     // Catch runtime errors (code loading errors are handled in runCode)
     window.onerror = function(e) { console.log("LiveCoding: " + e) };
 
+    browserLog = window.console.log
     window.console.log = function(data, type) {
       if(data instanceof Error) {
         data = data.stack.split(" at ")[1] + data
       } else if(typeof data === "object") {
-        data = JSON.stringify(data)
+        try {
+          data = JSON.stringify(data)
+        } catch(TypeError) {
+          browserLog(data)
+          console.log("LiveCoding: ^ Also logged this message to console since LiveCoding does not know how to display it.")
+        }
       }
 
       consoleElement.innerHTML = data + "<br/>" + consoleElement.innerHTML
