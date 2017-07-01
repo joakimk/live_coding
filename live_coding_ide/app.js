@@ -250,9 +250,6 @@
         "})();"
 
         liveViewElement.contentWindow.loadCode(code)
-
-        // TODO:
-        // - add css to highlight when running
     }
 
     this.fetchFromUrl = (url, callback) => {
