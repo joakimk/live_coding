@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Types exposing (..)
 import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubGistMetaData)
-import Html exposing (text, div, p, a, button, input, span)
+import Html exposing (text, div, p, a, button, input, span, br)
 import Html.Attributes exposing (href, value, class, placeholder)
 import Html.Events exposing (onClick, onInput)
 
@@ -40,11 +40,15 @@ renderProject : Project -> Html.Html Msg
 renderProject project =
     p []
         [ span [] [ text (shortFormCodeUrl project) ]
-        , text " "
-        , button [ onClick (RemoveProject project) ] [ text "Delete local code" ]
+        , br [] []
+        , br [] []
         , button [ onClick (LoadCode project) ] [ text "Load code" ]
         , button [ onClick (CloseProject) ] [ text "Close" ]
         , button [ onClick (RebootPlayer) ] [ text "Reboot" ]
+        , br [] []
+        , br [] []
+        , br [] []
+        , button [ onClick (RemoveProject project) ] [ text "Delete local code (!)" ]
         ]
 
 
