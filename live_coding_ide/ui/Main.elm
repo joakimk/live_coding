@@ -1,6 +1,11 @@
 module Main exposing (..)
 
--- todo: load multiple files?
+-- todo:
+-- - See if code can be reloaded by having an iframe to blow away js-state, this would allow nicer Elm UI navigation
+-- - Select project and see things for the active project
+-- - Have Elm handle code loading, write to local cache and assume multiple files
+-- - Save changes from editor through Elm
+-- - Load code from local cache when switching projects
 -- todo: redo UI, click project to see info and options, also naming for projects
 --       delete, load remote, load local, has local changes?, change name, ...
 --       handle code loading through Elm?
@@ -9,7 +14,7 @@ module Main exposing (..)
 
 import Types exposing (Settings, Model, Msg)
 import View exposing (view)
-import State exposing (init, updateAndSaveSettings)
+import State exposing (init, updateAndSaveSettings, updateMode)
 import Html
 
 
@@ -19,5 +24,5 @@ main =
         { init = init
         , view = view
         , update = updateAndSaveSettings
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = \_ -> Sub.batch [ updateMode Types.ChangeModeByString ]
         }

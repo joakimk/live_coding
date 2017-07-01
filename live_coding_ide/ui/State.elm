@@ -1,4 +1,4 @@
-port module State exposing (init, updateAndSaveSettings)
+port module State exposing (init, updateAndSaveSettings, updateMode)
 
 import Types exposing (..)
 import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubProjectApiUrl, buildGithubGistMetaData, buildGithubGistApiUrl)
@@ -11,6 +11,15 @@ port loadCodeFromGist : String -> Cmd msg
 
 
 port saveSettings : Settings -> Cmd msg
+
+
+port rebootPlayer : String -> Cmd msg
+
+
+port modeChangedTo : String -> Cmd msg
+
+
+port updateMode : (String -> msg) -> Sub msg
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -27,7 +36,7 @@ update msg model =
                 projects =
                     List.filter (\p -> p /= project) model.projects
             in
-                { model | projects = projects } ! []
+                { model | projects = projects, activeSection = Start } ! []
 
         AddProject ->
             let
@@ -35,6 +44,26 @@ update msg model =
                     { codeUrl = model.pendingCodeUrl } :: model.projects
             in
                 { model | projects = projects, pendingCodeUrl = "" } ! []
+
+        OpenProject project ->
+            { model | activeSection = ViewProject project } ! []
+
+        CloseProject ->
+            { model | activeSection = Start } ! []
+
+        ChangeModeByString modeString ->
+            case modeString of
+                "editing" ->
+                    { model | mode = Editing } ! [ modeChangedTo "editing" ]
+
+                "playing" ->
+                    { model | mode = Playing } ! [ modeChangedTo "playing" ]
+
+                _ ->
+                    Debug.crash "If we get here then we have bad js"
+
+        RebootPlayer ->
+            model ! [ rebootPlayer "" ]
 
 
 restoreSettings : Model -> Settings -> Model
@@ -70,6 +99,8 @@ defaultModel : Model
 defaultModel =
     { pendingCodeUrl = ""
     , projects = []
+    , activeSection = Start
+    , mode = Editing
     }
 
 

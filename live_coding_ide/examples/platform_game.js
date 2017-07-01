@@ -237,13 +237,13 @@ for(let i = 0; i < map.length; i++) {
     if(!collisionMapIndexByIntegerX[map[i].x.toFixed(0)]) {
         collisionMapIndexByIntegerX[map[i].x.toFixed(0)] = []
     }
-    
+
     if(map[i].collisionType != "bg") {
       collisionMapIndexByIntegerX[map[i].x.toFixed(0)].push(map[i])
     }
 }
 
-model = loadStateOrDefaultTo(getDefaultModelValues())
+model = liveCoding.loadStateOrDefaultTo(getDefaultModelValues())
 //model.character.x = 20
 
 characterResetValues = {
@@ -287,22 +287,22 @@ function getDefaultModelValues(resetValues) {
 }
 
 tick = (delta) => {
-    if(codeHasChanged()) { return }
+    if(liveCoding.codeHasChanged()) { return }
     logFps()
     model.debugboxes = []
-    
+
     if (model.input.isJumpPossible){
         model.input.isJumpPossible =
         (model.character.vy < maxJumpAcceleration &&
          model.character.vy >= 0)
     }
-                   
+
     onTheGround = model.character.vy === 0
 
     if(model.input.isJumpPossible) {
         applyKeyboardInput(delta)
     }
-    
+
     if(onTheGround){
         applyFriction(delta)
         model.input.isJumpPossible = true
@@ -314,7 +314,7 @@ tick = (delta) => {
 
     render(delta)
 
-    saveState(model)
+    liveCoding.saveState(model)
 }
 
 applyKeyboardInput = (delta) => {
@@ -365,25 +365,25 @@ applyVelocity = () => {
     //model.debugboxes = { x: 7, y: 1 }
     //collisionBoxes = []
     characterCollision = { x: model.character.x - 0.5, y: (model.character.y*2) + 1 }
-    
+
     characterIntX = Math.floor(characterCollision.x + 0.5)
     nearMap = []
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX - 1] || [])
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX] || [])
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX + 1] || [])
-    
+
     //console.log(characterCollision.x)
     // console.log(nearMap)
-    
+
     for(let i = 0; i < nearMap.length; i++) {
         if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-        
+
         xHitLeft = (characterCollision.x < nearMap[i].x + 1 && characterCollision.x > nearMap[i].x && nearMap[i].collisionType != "platform")
         xHitRight = (characterCollision.x + 1 > nearMap[i].x && characterCollision.x + 1 < nearMap[i].x + 1 && nearMap[i].collisionType != "platform")
-        
+
         yHitBottom = checkHitBottom(characterCollision, nearMap[i], model);
         yHitTop = (characterCollision.y + 1 > nearMap[i].y && characterCollision.y + 1 < nearMap[i].y + 1 && nearMap[i].collisionType != "platform")
-        
+
         onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
 
         if(onSameColumn) {
@@ -395,10 +395,10 @@ applyVelocity = () => {
                     if(model.character.y == -1) {
                       model.character.y = 0
                     }
-                    
+
                     model.character.vy = 0
                 }
-                
+
                 characterResetValues.x = model.character.x
                 characterResetValues.y = model.character.y
                 characterResetValues.lastdirection = model.input.lastdirection
@@ -416,7 +416,7 @@ applyVelocity = () => {
         }
 
         onSameLevel = (nearMap[i].y == Math.ceil(characterCollision.y - 0.25))
-        
+
         if (onSameLevel) {
             if(xHitRight) {
                 if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
@@ -461,8 +461,8 @@ function checkHitBottom(characterCollision, nearMap, model) {
             && characterCollision.y < nearMap.y + 1
             && model.character.vy <= 0
             )
-            
-            
+
+
 }
 
 
@@ -525,9 +525,9 @@ render = (delta) => {
             graphics.beginFill(0xFFFF00, 0.2)
             graphics.lineStyle(5, 0xFF0000)
             for(i = 0; i < model.debugboxes.length; i++) {
-              graphics.drawRect(model.debugboxes[i].x * 64 - mapX, -model.debugboxes[i].y  * 64 + app.renderer.height - 64, 64, 64)    
+              graphics.drawRect(model.debugboxes[i].x * 64 - mapX, -model.debugboxes[i].y  * 64 + app.renderer.height - 64, 64, 64)
             }
-            
+
             app.stage.addChild(graphics)
         }
     }
@@ -596,25 +596,8 @@ Vector.prototype.distanceTo = function(v) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-mode = "edit"
-
 var keyWasPressed = (e) => {
-    editor.on("focus", function() {
-        mode = "edit"
-        liveViewElement.style.border = "none"
-    })
-
-    if(e.key == "§" && e.type == "keydown") {
-        e.preventDefault()
-
-        if(mode == "edit") {
-            enterPlayMode(e)
-        } else {
-            window.editor.focus()
-        }
-    }
-
-    if(mode == "play") {
+    if(liveCoding.mode == "playing") {
         handlePlayInput(e)
     }
 }
@@ -656,7 +639,7 @@ function handlePlayInput(e, f) {
         WriteDebugText("inside touchmove");
         var touchObj = e.touches[0];
         var firstObj = f.touches[0];
-        
+
         var touchDX = parseInt(touchObj.clientX) - parseInt(firstObj.clientX)
         var touchDY = parseInt(firstObj.clientY) - parseInt(touchObj.clientY)
 
@@ -692,51 +675,15 @@ function handlePlayInput(e, f) {
     console.log("Unhandled input in play mode: " + JSON.stringify(e))
 }
 
-function IsCanvas(pathObject){
-    var object = pathObject[0]
-    
-    if( object.nodeName == 'CANVAS' ||
-        object.tagName == 'CANVAS' ||
-        object.localName == 'canvas'){
-            return true;
-    }
-    
-    return false;
-}
-
-function IsAceEditor(pathObject){
-    var object = pathObject[0]
-    
-    if( object.className == 'ace_content'){
-        return true;
-    }
-    
-    return false;
-}
-
 function touchStartEvent(e) {
     WriteDebugText("touchstart");
     touchStart = e;
-
-    if(IsCanvas(e.path)) {
-        if(mode != "play"){
-            mode = "play"
-            enterPlayMode(e)
-        }
-    } else if(IsAceEditor(e.path)){
-        if (mode != "edit"){
-            editor.on("focus", function() {
-                mode = "edit"
-                liveViewElement.style.border = "none"
-            })
-            window.editor.focus()
-        }
-    }
 }
 
 function touchMoveEvent(e) {
     WriteDebugText("touchmove");
-    if(mode == "play"){
+
+    if(liveCoding.mode == "playing"){
         handlePlayInput(e, touchStart)
         e.preventDefault();
     }
@@ -744,19 +691,11 @@ function touchMoveEvent(e) {
 
 function touchEndEvent(e) {
     WriteDebugText("touchend");
-    if(mode == "play"){
+
+    if(liveCoding.mode == "playing") {
         handlePlayInput(e)
         e.preventDefault();
     }
-}
-
-enterPlayMode = function(e) {
-    e.preventDefault()
-
-    mode = "play"
-    liveViewElement.style.borderLeft = "5px solid green"
-    window.editor.blur()
-    liveViewElement.focus()
 }
 
 loadTexture = (name) => {
@@ -810,10 +749,6 @@ document.addEventListener("keydown", keyWasPressed)
 document.addEventListener("keyup", keyWasPressed)
 window.liveEventListeners.push(keyWasPressed)
 
-// mouse events
-liveViewElement.addEventListener("click", enterPlayMode)
-
-
 function removeByValue(array, value) {
     return array.filter(function(elem, _index){
         return value != elem ? true : false
@@ -824,7 +759,7 @@ bootstrap = () => {
     // We can only set up the GL context once
     window.app = new PIXI.Application(800, 600, { antialias: true })
     window.pixiDebugText = new PIXI.Text('Debug print is working!', {})
-    liveViewElement.appendChild(app.view);
+    liveCoding.outputElement.appendChild(app.view);
     start()
 }
 

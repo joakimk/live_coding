@@ -8260,9 +8260,9 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$example$Types$Model = F2(
-	function (a, b) {
-		return {projects: a, pendingCodeUrl: b};
+var _user$example$Types$Model = F4(
+	function (a, b, c, d) {
+		return {projects: a, pendingCodeUrl: b, activeSection: c, mode: d};
 	});
 var _user$example$Types$Settings = function (a) {
 	return {projects: a};
@@ -8281,11 +8281,25 @@ var _user$example$Types$GithubGistMetadata = F2(
 var _user$example$Types$None = {ctor: 'None'};
 var _user$example$Types$Gist = {ctor: 'Gist'};
 var _user$example$Types$Github = {ctor: 'Github'};
+var _user$example$Types$ViewProject = function (a) {
+	return {ctor: 'ViewProject', _0: a};
+};
+var _user$example$Types$Start = {ctor: 'Start'};
+var _user$example$Types$Playing = {ctor: 'Playing'};
+var _user$example$Types$Editing = {ctor: 'Editing'};
+var _user$example$Types$RebootPlayer = {ctor: 'RebootPlayer'};
+var _user$example$Types$ChangeModeByString = function (a) {
+	return {ctor: 'ChangeModeByString', _0: a};
+};
 var _user$example$Types$LoadCode = function (a) {
 	return {ctor: 'LoadCode', _0: a};
 };
 var _user$example$Types$RemoveProject = function (a) {
 	return {ctor: 'RemoveProject', _0: a};
+};
+var _user$example$Types$CloseProject = {ctor: 'CloseProject'};
+var _user$example$Types$OpenProject = function (a) {
+	return {ctor: 'OpenProject', _0: a};
 };
 var _user$example$Types$AddProject = {ctor: 'AddProject'};
 var _user$example$Types$UpdatePendingCodeUrl = function (a) {
@@ -8464,103 +8478,157 @@ var _user$example$View$renderProject = function (project) {
 								_0: _elm_lang$html$Html$text('Load code'),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$button,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Close'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$RebootPlayer),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Reboot'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						}
 					}
 				}
 			}
 		});
 };
-var _user$example$View$view = function (model) {
+var _user$example$View$renderProjectListItem = function (project) {
 	return A2(
-		_elm_lang$html$Html$div,
+		_elm_lang$html$Html$p,
 		{ctor: '[]'},
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$p,
+				_elm_lang$html$Html$span,
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('JavaScript live coding environment. '),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$a,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href('https://github.com/joakimk/live_coding'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('https://github.com/joakimk/live_coding'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$p,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$input,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('editor__controls__add-project__input'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$value(model.pendingCodeUrl),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$placeholder('<< Enter Github URL including path to file or Gist URL here >>'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onInput(_user$example$Types$UpdatePendingCodeUrl),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										},
-										{ctor: '[]'}),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(' '),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$button,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$class('editor__controls__add-project__button'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$AddProject),
-														_1: {ctor: '[]'}
-													}
-												},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Add project'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
-									}
-								}),
-							_1: {ctor: '[]'}
-						}
-					}
+					_0: _elm_lang$html$Html$text(
+						_user$example$View$shortFormCodeUrl(project)),
+					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					A2(_elm_lang$core$List$map, _user$example$View$renderProject, model.projects)),
-				_1: {ctor: '[]'}
+				_0: _elm_lang$html$Html$text(' '),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$example$Types$OpenProject(project)),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Open'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
+};
+var _user$example$View$view = function (model) {
+	var _p1 = model.activeSection;
+	if (_p1.ctor === 'Start') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$p,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$p,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('editor__controls__add-project__input'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$value(model.pendingCodeUrl),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$placeholder('<< Enter Github URL including path to file or Gist URL here >>'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_user$example$Types$UpdatePendingCodeUrl),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(' '),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('editor__controls__add-project__button'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$AddProject),
+													_1: {ctor: '[]'}
+												}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Add project'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						A2(_elm_lang$core$List$map, _user$example$View$renderProjectListItem, model.projects)),
+					_1: {ctor: '[]'}
+				}
+			});
+	} else {
+		return _user$example$View$renderProject(_p1._0);
+	}
 };
 
 var _user$example$State$defaultSettings = {
@@ -8584,7 +8652,9 @@ var _user$example$State$defaultSettings = {
 };
 var _user$example$State$defaultModel = {
 	pendingCodeUrl: '',
-	projects: {ctor: '[]'}
+	projects: {ctor: '[]'},
+	activeSection: _user$example$Types$Start,
+	mode: _user$example$Types$Editing
 };
 var _user$example$State$dumpSettings = function (model) {
 	return {projects: model.projects};
@@ -8635,6 +8705,26 @@ var _user$example$State$loadCodeFromProject = function (project) {
 			return {ctor: '[]'};
 	}
 };
+var _user$example$State$saveSettings = _elm_lang$core$Native_Platform.outgoingPort(
+	'saveSettings',
+	function (v) {
+		return {
+			projects: _elm_lang$core$Native_List.toArray(v.projects).map(
+				function (v) {
+					return {codeUrl: v.codeUrl};
+				})
+		};
+	});
+var _user$example$State$rebootPlayer = _elm_lang$core$Native_Platform.outgoingPort(
+	'rebootPlayer',
+	function (v) {
+		return v;
+	});
+var _user$example$State$modeChangedTo = _elm_lang$core$Native_Platform.outgoingPort(
+	'modeChangedTo',
+	function (v) {
+		return v;
+	});
 var _user$example$State$update = F2(
 	function (msg, model) {
 		var _p1 = msg;
@@ -8662,9 +8752,9 @@ var _user$example$State$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{projects: projects}),
+						{projects: projects, activeSection: _user$example$Types$Start}),
 					{ctor: '[]'});
-			default:
+			case 'AddProject':
 				var projects = {
 					ctor: '::',
 					_0: {codeUrl: model.pendingCodeUrl},
@@ -8676,23 +8766,72 @@ var _user$example$State$update = F2(
 						model,
 						{projects: projects, pendingCodeUrl: ''}),
 					{ctor: '[]'});
+			case 'OpenProject':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							activeSection: _user$example$Types$ViewProject(_p1._0)
+						}),
+					{ctor: '[]'});
+			case 'CloseProject':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{activeSection: _user$example$Types$Start}),
+					{ctor: '[]'});
+			case 'ChangeModeByString':
+				var _p2 = _p1._0;
+				switch (_p2) {
+					case 'editing':
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{mode: _user$example$Types$Editing}),
+							{
+								ctor: '::',
+								_0: _user$example$State$modeChangedTo('editing'),
+								_1: {ctor: '[]'}
+							});
+					case 'playing':
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{mode: _user$example$Types$Playing}),
+							{
+								ctor: '::',
+								_0: _user$example$State$modeChangedTo('playing'),
+								_1: {ctor: '[]'}
+							});
+					default:
+						return _elm_lang$core$Native_Utils.crashCase(
+							'State',
+							{
+								start: {line: 55, column: 13},
+								end: {line: 63, column: 69}
+							},
+							_p2)('If we get here then we have bad js');
+				}
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: _user$example$State$rebootPlayer(''),
+						_1: {ctor: '[]'}
+					});
 		}
-	});
-var _user$example$State$saveSettings = _elm_lang$core$Native_Platform.outgoingPort(
-	'saveSettings',
-	function (v) {
-		return {
-			projects: _elm_lang$core$Native_List.toArray(v.projects).map(
-				function (v) {
-					return {codeUrl: v.codeUrl};
-				})
-		};
 	});
 var _user$example$State$updateAndSaveSettings = F2(
 	function (msg, model) {
-		var _p2 = A2(_user$example$State$update, msg, model);
-		var newModel = _p2._0;
-		var cmds = _p2._1;
+		var _p4 = A2(_user$example$State$update, msg, model);
+		var newModel = _p4._0;
+		var cmds = _p4._1;
 		return {
 			ctor: '_Tuple2',
 			_0: newModel,
@@ -8709,6 +8848,7 @@ var _user$example$State$updateAndSaveSettings = F2(
 				})
 		};
 	});
+var _user$example$State$updateMode = _elm_lang$core$Native_Platform.incomingPort('updateMode', _elm_lang$core$Json_Decode$string);
 
 var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 	{
@@ -8716,7 +8856,12 @@ var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 		view: _user$example$View$view,
 		update: _user$example$State$updateAndSaveSettings,
 		subscriptions: function (_p0) {
-			return _elm_lang$core$Platform_Sub$none;
+			return _elm_lang$core$Platform_Sub$batch(
+				{
+					ctor: '::',
+					_0: _user$example$State$updateMode(_user$example$Types$ChangeModeByString),
+					_1: {ctor: '[]'}
+				});
 		}
 	})(
 	_elm_lang$core$Json_Decode$oneOf(

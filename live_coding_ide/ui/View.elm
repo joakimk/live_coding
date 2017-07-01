@@ -9,18 +9,30 @@ import Html.Events exposing (onClick, onInput)
 
 view : Model -> Html.Html Msg
 view model =
-    div
-        []
-        [ p []
-            [ text "JavaScript live coding environment. "
-            , a [ href "https://github.com/joakimk/live_coding" ] [ text "https://github.com/joakimk/live_coding" ]
-            , p []
-                [ input [ class "editor__controls__add-project__input", value model.pendingCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingCodeUrl ] []
-                , text " "
-                , button [ class "editor__controls__add-project__button", onClick AddProject ] [ text "Add project" ]
+    case model.activeSection of
+        Start ->
+            div
+                []
+                [ p []
+                    [ p []
+                        [ input [ class "editor__controls__add-project__input", value model.pendingCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingCodeUrl ] []
+                        , text " "
+                        , button [ class "editor__controls__add-project__button", onClick AddProject ] [ text "Add project" ]
+                        ]
+                    ]
+                , div [] (List.map renderProjectListItem model.projects)
                 ]
-            ]
-        , div [] (List.map renderProject model.projects)
+
+        ViewProject project ->
+            renderProject project
+
+
+renderProjectListItem : Project -> Html.Html Msg
+renderProjectListItem project =
+    p []
+        [ span [] [ text (shortFormCodeUrl project) ]
+        , text " "
+        , button [ onClick (OpenProject project) ] [ text "Open" ]
         ]
 
 
@@ -31,6 +43,8 @@ renderProject project =
         , text " "
         , button [ onClick (RemoveProject project) ] [ text "X" ]
         , button [ onClick (LoadCode project) ] [ text "Load code" ]
+        , button [ onClick (CloseProject) ] [ text "Close" ]
+        , button [ onClick (RebootPlayer) ] [ text "Reboot" ]
         ]
 
 

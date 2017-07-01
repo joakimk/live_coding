@@ -1,0 +1,34 @@
+<body>
+    <script type="text/javascript">
+        // Code that enables running live-updated javascript within an iframe
+        //
+        // We do this so that we can reload the entire frame when needed, e.g.
+        // when we switch projects or otherwise need a full reset.
+
+        document.addEventListener("keydown", function (e) {
+            parent.postMessage({ keyDownInIframe: e.key }, "*")
+        })
+
+        document.addEventListener("click", function() { parent.postMessage("iframeWasClickedOrTouched", "*") })
+
+        document.addEventListener("touchstart", function() { parent.postMessage("iframeWasClickedOrTouched", "*") })
+
+        // See app.js for more info
+        if(window.location.href.indexOf("tempEnableRealConsole") == -1) {
+            window.onerror = function(e) { console.log("LiveCoding: " + e) }
+
+            window.console.log = function(x) {
+                parent.postMessage({ consoleLogFromIframe: x.toString() }, "*")
+            }
+        }
+
+        window.loadCode = function(code) {
+            script = document.createElement("script")
+            script.type = "text/javascript"
+            script.innerHTML = code
+            document.body.appendChild(script)
+        }
+
+        parent.postMessage("iframeLoaded", "*")
+    </script>
+</body>

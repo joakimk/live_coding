@@ -4,15 +4,19 @@
     this.liveCodeState = null
     this.liveCodeVersion = 1
     this.liveViewElement = null
+    this.mode = "editing" // NOTE: Duplicated in Elm
+    this.modeChangedSincePageLoad = false
+    this.firstAttemptToLoadCodeHasRun = false
 
     init = () => {
         setUpLiveView()
         setUpConsole()
 
         let editor = setUpEditor()
-        loadSavedCode(editor)
+        let ui = setUpEditorControlUI(editor)
 
-        setUpEditorControlUI()
+        setUpCodeLoading(ui)
+        setUpModeHandling(editor, ui)
     }
 
     this.setUpEditorControlUI = () => {
@@ -24,25 +28,33 @@
         // Throw away old incompatible data, remove after juli 2017
         if(settings && settings.githubProjectPath) { settings = null }
 
-        let app = Elm.Main.embed(node, settings)
+        let ui = Elm.Main.embed(node, settings)
 
-        app.ports.saveSettings.subscribe((settings) => {
+        ui.ports.saveSettings.subscribe((settings) => {
             localStorage.setItem("settings", JSON.stringify(settings))
         })
 
-        app.ports.loadCodeFromGithub.subscribe((url) => {
+        ui.ports.rebootPlayer.subscribe(() => {
+            liveViewElement.contentWindow.location.reload()
+        })
+
+        return ui
+    }
+
+    this.setUpCodeLoading = (ui) => {
+        ui.ports.loadCodeFromGithub.subscribe((url) => {
             fetchFromUrl(url, function(body) {
                 // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
                 code = decodeURIComponent(escape(atob(JSON.parse(body).content)))
 
-                replaceCodeInEditor(code)
+                replaceCodeInEditor(editor, code)
 
                 // Reload page after replacing code as this is often required to get it running
                 window.location.reload()
             })
         })
 
-        app.ports.loadCodeFromGist.subscribe((url) => {
+        ui.ports.loadCodeFromGist.subscribe((url) => {
             fetchFromUrl(url, function(body) {
                 files = Object.values(JSON.parse(body).files)
 
@@ -50,12 +62,58 @@
                     alert("Importing more than one file in a gist isn't supported yet.")
                 }
                 else {
-                    replaceCodeInEditor(files[0].content)
+                    replaceCodeInEditor(editor, files[0].content)
 
                     // Reload page after replacing code as this is often required to get it running
                     window.location.reload()
                 }
             })
+        })
+    }
+
+    this.setUpModeHandling = (editor, ui) => {
+        that = this
+        ui.ports.modeChangedTo.subscribe((mode) => {
+            that.mode = mode;
+
+            if(mode == "editing") {
+                liveViewElement.blur()
+                editor.focus()
+            } else {
+                editor.blur()
+                liveViewElement.focus()
+            }
+
+            if(modeChangedSincePageLoad) { runCode(editor) }
+            modeChangedSincePageLoad = true
+        })
+
+        editor.on("focus", function() { ui.ports.updateMode.send("editing") })
+
+        keyWasPressed = (e) => {
+            if(e.key == decodeURIComponent(escape("§")) && e.type == "keydown") {
+                e.preventDefault()
+
+                if(that.mode == "editing") {
+                    ui.ports.updateMode.send("playing")
+                } else {
+                    ui.ports.updateMode.send("editing")
+                }
+            }
+        }
+
+        document.addEventListener("keydown", keyWasPressed)
+        document.addEventListener("keyup", keyWasPressed)
+
+        window.addEventListener("message", function(event) {
+            if(event.data == "iframeLoaded") { if(firstAttemptToLoadCodeHasRun) { runCode(editor) } else { loadSavedCode(editor) } }
+            else if(event.data == "iframeWasClickedOrTouched") { ui.ports.updateMode.send("playing") }
+            else if(event.data.keyDownInIframe) {
+                keyWasPressed({ key: event.data.keyDownInIframe, type: "keydown", preventDefault: () => {} })
+            }
+            else if(event.data.consoleLogFromIframe) {
+                console.log(event.data.consoleLogFromIframe)
+            }
         })
     }
 
@@ -66,11 +124,8 @@
     this.setUpConsole = () => {
         let consoleElement = document.getElementsByClassName("js-console")[0]
 
-        // Catch runtime errors (code loading errors are handled in runCode)
-        window.onerror = function(e) { console.log("LiveCoding: " + e) };
-
         browserLog = window.console.log
-        window.console.log = function(data, type) {
+        customConsoleLog = function(data, type) {
             if(data instanceof Error) {
                 data = data.stack.split(" at ")[1] + data
             } else if(typeof data === "object") {
@@ -84,6 +139,13 @@
 
             consoleElement.innerHTML = data + "<br/>" + consoleElement.innerHTML
         }
+
+        // TODO: Make this a button in the UI
+        if(window.location.href.indexOf("tempEnableRealConsole") == -1) {
+            window.console.log = customConsoleLog
+        }
+
+        console.log("<br/>LiveCoding: This is a JavaScript live coding environment, for more information see <a href='https://github.com/joakimk/live_coding'>https://github.com/joakimk/live_coding</a>.")
     }
 
     this.setUpEditor = () => {
@@ -141,37 +203,49 @@
 
         editor.gotoLine(1)
         editor.focus()
+
+        firstAttemptToLoadCodeHasRun = true
     }
 
     this.runCode = (editor) => {
         if(vimInsertMode) { return }
 
         code = editor.getValue()
-
-        script = document.createElement("script")
-        script.type = "text/javascript"
-
-        localStorage.setItem("code", code)
+        if(firstAttemptToLoadCodeHasRun) {
+            localStorage.setItem("code", code)
+        }
 
         window.liveCodeVersion += 1
 
-        script.innerHTML =
+        code =
+        "window.liveCodeVersion = " + window.liveCodeVersion + ";" +
         "(function() {" +
+        "let liveCoding = {" +
+        "  apiVersion: 1" +
+        ", codeVersion: " + window.liveCodeVersion +
+        ", outputElement: document.body" +
+        ", mode: '" + this.mode + "'" +
+        "}\n" +
+
         // Add function that can be used to check if the code is outdated and should stop running.
-        "function codeHasChanged() { return " + this.liveCodeVersion + " != this.liveCodeVersion };" +
+        "liveCoding.codeHasChanged = function() { return window.liveCodeVersion != liveCoding.codeVersion };" +
 
         // Save and load state to be able to resume the simulation after live code update
-        "function saveState(state) { this.liveCodeState = state };" +
-        "function loadStateOrDefaultTo(defaultState) { savedState = this.liveCodeState; return savedState ? savedState : defaultState }; try { " +
+        "liveCoding.saveState = function(state) { window.liveCodingState = state };" +
+        "liveCoding.loadStateOrDefaultTo = function(defaultState) { savedState = window.liveCodingState; return savedState ? savedState : defaultState };" +
+
+        "try {" +
 
         // Load the new version of the code.
         code +
 
-        "\nif(this.pendingSuccessfulCodeLoadAfterError) { this.pendingSuccessfulCodeLoadAfterError = false; console.log('LiveCoding: Code now loads successfully again!') }" +
-        " } catch(e) { this.pendingSuccessfulCodeLoadAfterError = true; console.log(e) }" +
+        "\n } catch(e) { console.log(e) }" +
         "})();"
 
-        document.body.appendChild(script)
+        liveViewElement.contentWindow.loadCode(code)
+
+        // TODO:
+        // - add css to highlight when running
     }
 
     this.fetchFromUrl = (url, callback) => {
@@ -189,7 +263,7 @@
         xmlhttp.send()
     }
 
-    this.replaceCodeInEditor = (code) => {
+    this.replaceCodeInEditor = (editor, code) => {
         editor.setValue(code)
         editor.gotoLine(1)
         editor.focus()

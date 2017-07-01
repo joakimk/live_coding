@@ -22,6 +22,10 @@ defmodule LiveCoding.Router do
     send_file(conn, 200, "live_coding_ide/app.css")
   end
 
+  get "/iframe.html" do
+    send_file(conn, 200, "live_coding_ide/iframe.html")
+  end
+
   get "/ace-editor/:file" do
     path = "live_coding_ide/ace-editor/" <> (conn.params["file"] |> String.replace("..", ""))
     send_file(conn, 200, path)
