@@ -8569,11 +8569,15 @@ var _user$example$State$defaultSettings = {
 		_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'},
 		_1: {
 			ctor: '::',
-			_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'},
+			_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js'},
 			_1: {
 				ctor: '::',
-				_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'},
-				_1: {ctor: '[]'}
+				_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'},
+				_1: {
+					ctor: '::',
+					_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'},
+					_1: {ctor: '[]'}
+				}
 			}
 		}
 	}
