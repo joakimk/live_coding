@@ -8460,7 +8460,7 @@ var _user$example$View$renderProject = function (project) {
 						},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('X'),
+							_0: _elm_lang$html$Html$text('Delete local code'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {

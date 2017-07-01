@@ -41,7 +41,7 @@ renderProject project =
     p []
         [ span [] [ text (shortFormCodeUrl project) ]
         , text " "
-        , button [ onClick (RemoveProject project) ] [ text "X" ]
+        , button [ onClick (RemoveProject project) ] [ text "Delete local code" ]
         , button [ onClick (LoadCode project) ] [ text "Load code" ]
         , button [ onClick (CloseProject) ] [ text "Close" ]
         , button [ onClick (RebootPlayer) ] [ text "Reboot" ]
