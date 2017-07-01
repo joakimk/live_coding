@@ -37,8 +37,9 @@ body {
 
 .view__controls__console {
   background-color: #141414;
-  height: 100px;
+  min-height: 100px;
   overflow: scroll;
+  resize: both;
   padding-left: 10px;
   padding-top: 10px;
 }
