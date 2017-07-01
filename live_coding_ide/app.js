@@ -4,6 +4,7 @@
     this.liveCodeState = null
     this.liveCodeVersion = 1
     this.liveViewElement = null
+    this.liveViewContainerElement = null
     this.mode = "editing" // NOTE: Duplicated in Elm
     this.modeChangedSincePageLoad = false
     this.firstAttemptToLoadCodeHasRun = false
@@ -79,9 +80,14 @@
             if(mode == "editing") {
                 liveViewElement.blur()
                 editor.focus()
+
+                classes = liveViewContainerElement.className
+                classes = classes.replace(" view__content--playing", "")
+                liveViewContainerElement.className = classes
             } else {
                 editor.blur()
                 liveViewElement.focus()
+                liveViewContainerElement.className += " view__content--playing"
             }
 
             if(modeChangedSincePageLoad) { runCode(editor) }
@@ -119,6 +125,7 @@
 
     this.setUpLiveView = () => {
         this.liveViewElement = document.getElementsByClassName("js-view")[0]
+        this.liveViewContainerElement = document.getElementsByClassName("js-view-container")[0]
     }
 
     this.setUpConsole = () => {

@@ -26,6 +26,11 @@ body {
   height: 600px;
 }
 
+.view__content--playing {
+    border-left: 5px solid green;
+    margin-left: -5px;
+}
+
 .editor__controls, .view__controls {
   margin-top: 20px;
 }
