@@ -1,12 +1,12 @@
 /* jshint asi:true */
 // PixiJS v4 example (WebGL rendering)
 
-model = loadStateOrDefaultTo({
+model = liveCoding.loadStateOrDefaultTo({
     move: 1
 })
 
 tick = (delta) => {
-    if(codeHasChanged()) { return }
+    if(liveCoding.codeHasChanged()) { return }
 
     app.stage.removeChildren()
 
@@ -31,7 +31,7 @@ tick = (delta) => {
         app.stage.addChild(container)
     }
 
-    saveState(model)
+    liveCoding.saveState(model)
 }
 
 // Helper code below here ------------------------------------------------
@@ -39,7 +39,7 @@ tick = (delta) => {
 bootstrap = () => {
     // We can only set up the GL context once
     window.app = new PIXI.Application(800, 600, { antialias: true })
-    liveViewElement.appendChild(app.view);
+    liveCoding.outputElement.appendChild(app.view);
     start()
 }
 

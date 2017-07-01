@@ -6,7 +6,7 @@
 // - Look up fabric.js animation and frame code
 // - Set up proper state-update-render flow
 
-model = loadStateOrDefaultTo(100)
+model = liveCoding.loadStateOrDefaultTo(100)
 direction = 0
 
 rect = null
@@ -39,35 +39,35 @@ setup = () => {
 main = () => {
   // Always check this in the main loop to stop running
   // old versions of your code!
-  if(codeHasChanged()) { return; }
+  if(liveCoding.codeHasChanged()) { return; }
 
   if(direction == 0 && model < 600) {
     model += 5
   } else {
     direction = 1
   }
-  
+
   if(direction == 1 && model > 10) {
     model -= 5
   } else {
     direction = 0
   }
-  
+
   rect.set({ left: model, top: Math.sin(model * 5.013) * 200 + 300, width: 200 - (Math.cos(model * 5.013) * 100) + 30, angle: model });
-  rect2.set({ left: 700 - model, top: -Math.sin(model * 5.0132) * 300 + 300, width: 200 - (Math.cos(model * 5.013) * 100) + 30, angle: -model });  
-  
+  rect2.set({ left: 700 - model, top: -Math.sin(model * 5.0132) * 300 + 300, width: 200 - (Math.cos(model * 5.013) * 100) + 30, angle: -model });
+
   canvas.renderAll();
 
   rect.left += model
-  
-  saveState(model)
+
+  liveCoding.saveState(model)
 }
 
 start = () => setup(); setInterval(main, 25)
 
 if(!window.depsLoaded) {
-  liveViewElement.innerHTML = '<canvas id="prototype" width="800" height="600" />'
-  
+  liveCoding.outputElement.innerHTML = '<canvas id="prototype" width="800" height="600" />'
+
   script = document.createElement("script")
   script.src = "https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.11/fabric.min.js"
   document.body.appendChild(script)

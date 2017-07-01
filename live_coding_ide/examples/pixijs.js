@@ -2,13 +2,13 @@
 
 // PixiJS v4 example (WebGL rendering)
 
-model = loadStateOrDefaultTo({
+model = liveCoding.loadStateOrDefaultTo({
     x: 250,
     y: 250,
 })
 
 render = (delta) => {
-    if(codeHasChanged()) { return }
+    if(liveCoding.codeHasChanged()) { return }
 
     model.x = 330
 
@@ -22,13 +22,13 @@ render = (delta) => {
     app.stage.removeChildren()
     app.stage.addChild(graphics)
 
-    saveState(model)
+    liveCoding.saveState(model)
 }
 
 bootstrap = () => {
     // We can only set up the GL context once
     window.app = new PIXI.Application(800, 600, { antialias: true })
-    liveViewElement.appendChild(app.view);
+    liveCoding.outputElement.appendChild(app.view);
     start()
 }
 
