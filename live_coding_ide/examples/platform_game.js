@@ -433,7 +433,7 @@ applyVelocity = () => {
         }
     }
 
-    // model.debugboxes.push(characterCollision)
+    if(inDebugMode){ model.debugboxes.push(characterCollision) }
 
     //leftMapBorder = 0.3;
     //if(model.character.x < leftMapBorder) {
