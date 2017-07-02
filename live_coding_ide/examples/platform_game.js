@@ -129,6 +129,22 @@ groundTileMap = [
   "10:3",
   "11",
   "2","2","2+TR3","2","2+TR1","2","2+TR2+BU1(-3.5,0)+MU2","2","3",
+  "W",
+  "W",
+  "1",
+  "2::12:4:4:4:4:4:4:4:4:4",
+  "2::9:5:5:10:6:6:6:6:6:6",
+  "2::9:10:6:3",
+  "2::9:11",
+  "2::9:2:::12:1",
+  "2::9:2:::9:2",
+  "2::9:2:::9:2",
+  "2::9:2:::9:2",
+  "2::16:3:::9:2",
+  "7::::::9:2",
+  "8:1:::::9:2",
+  "5:8:4:4:4:4:5:2",
+  "6:6:6:6:6:6:6:3",
   "W","W","W","W","W","W","W","W",
   "W","W","W","W","W","W","W","W"
 ]
@@ -355,15 +371,12 @@ applyFriction = (delta) => {
     }
 }
 
-//console.log(mapIndexByIntegerX)
 applyVelocity = () => {
     model.character.x += model.character.vx
     model.character.y += model.character.vy
 
     // does boxes collide? on what side
 
-    //model.debugboxes = { x: 7, y: 1 }
-    //collisionBoxes = []
     characterCollision = { x: model.character.x - 0.5, y: (model.character.y*2) + 1 }
 
     characterIntX = Math.floor(characterCollision.x + 0.5)
@@ -372,17 +385,23 @@ applyVelocity = () => {
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX] || [])
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX + 1] || [])
 
-    //console.log(characterCollision.x)
-    // console.log(nearMap)
 
     for(let i = 0; i < nearMap.length; i++) {
         if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
 
-        xHitLeft = (characterCollision.x < nearMap[i].x + 1 && characterCollision.x > nearMap[i].x && nearMap[i].collisionType != "platform")
-        xHitRight = (characterCollision.x + 1 > nearMap[i].x && characterCollision.x + 1 < nearMap[i].x + 1 && nearMap[i].collisionType != "platform")
+        xHitLeft = characterCollision.x < nearMap[i].x + 1
+            && characterCollision.x > nearMap[i].x
+            && nearMap[i].collisionType != "platform";
+
+        xHitRight = characterCollision.x + 1 > nearMap[i].x
+            && characterCollision.x + 1 < nearMap[i].x + 1
+            && nearMap[i].collisionType != "platform";
+
+        yHitTop = characterCollision.y + 1 > nearMap[i].y
+            && characterCollision.y + 1 < nearMap[i].y + 1
+            && nearMap[i].collisionType != "platform";
 
         yHitBottom = checkHitBottom(characterCollision, nearMap[i], model);
-        yHitTop = (characterCollision.y + 1 > nearMap[i].y && characterCollision.y + 1 < nearMap[i].y + 1 && nearMap[i].collisionType != "platform")
 
         onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
 
@@ -393,9 +412,8 @@ applyVelocity = () => {
                 if(model.character.vy <= 0) {
                     model.character.y = nearMap[i].y * 0.5
                     if(model.character.y == -1) {
-                      model.character.y = 0
+                        model.character.y = 0
                     }
-
                     model.character.vy = 0
                 }
 
@@ -405,7 +423,6 @@ applyVelocity = () => {
             }
             if(yHitTop){
                 if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-                // console.log("Hit top " + new Date().getMilliseconds())
 
                 model.character.y = nearMap[i].y * 0.5 - 1
                 if(model.character.y == -1) {
@@ -420,25 +437,29 @@ applyVelocity = () => {
         if (onSameLevel) {
             if(xHitRight) {
                 if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-                // console.log("Hit right " + new Date().getMilliseconds())
 
                 model.character.x = nearMap[i].x - 0.5
             }
             if(xHitLeft) {
                 if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-                // console.log("Hit left " + new Date().getMilliseconds())
 
                 model.character.x = nearMap[i].x + 1 + 0.5
             }
         }
     }
 
+    // WriteDebugText(
+    //     "cx:" + characterCollision.x + "\n" + 
+    //     "cy:" + characterCollision.y+ "\n" +
+    //     "yb:" + yHitBottom + " yt:" + yHitTop +
+    //     " xl:" + xHitLeft + " xr:" + xHitRight)
+
     if(inDebugMode){ model.debugboxes.push(characterCollision) }
 
-    //leftMapBorder = 0.3;
-    //if(model.character.x < leftMapBorder) {
-    //    model.character.x = leftMapBorder
-    //}
+    leftMapBorder = 0.3;
+    if(model.character.x < leftMapBorder) {
+        model.character.x = leftMapBorder
+    }
 
     // rightMapBorder = 24.8;
     // if(model.character.x > rightMapBorder) {
@@ -452,7 +473,6 @@ applyVelocity = () => {
 }
 
 function checkHitBottom(characterCollision, nearMap, model) {
-    // console.log(characterCollision.y)
     return (nearMap.collisionType == "solid"
             && characterCollision.y > nearMap.y
             && characterCollision.y < nearMap.y + 1) ||
@@ -461,11 +481,7 @@ function checkHitBottom(characterCollision, nearMap, model) {
             && characterCollision.y < nearMap.y + 1
             && model.character.vy <= 0
             )
-
-
 }
-
-
 
 applyGravity = (delta) => {
     model.character.vy -= gravityAcceleration * delta
@@ -523,7 +539,7 @@ render = (delta) => {
         if(model.debugboxes && model.debugboxes.length) {
             graphics = new PIXI.Graphics()
             graphics.beginFill(0xFFFF00, 0.2)
-            graphics.lineStyle(5, 0xFF0000)
+            graphics.lineStyle(1, 0xFF0000)
             for(i = 0; i < model.debugboxes.length; i++) {
               graphics.drawRect(model.debugboxes[i].x * 64 - mapX, -model.debugboxes[i].y  * 64 + app.renderer.height - 64, 64, 64)
             }
@@ -577,8 +593,6 @@ currentCatTexture = (delta) => {
 
     return sprite;
 }
-
-// Helper code below here ------------------------------------------------
 
 Vector = function(x, y) {
     this.x = x
@@ -780,7 +794,7 @@ function fetchFromUrl(url, callback) {
 
 if(!window.depsLoaded) {
     script = document.createElement("script")
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"
+    script.src = "https://pixijs.download/v4.5.3/pixi.min.js"
     document.body.appendChild(script)
 
     fetchFromUrl("https://gist.githubusercontent.com/joakimk/c014b72f418a9160b72761efd98acdf6/raw/406773b93343a49b3704704317072abc54e673d8/data.json", (body) => {
@@ -796,7 +810,7 @@ if(!window.depsLoaded) {
 
 function WriteDebugText(text){
     var textStyle = {};
-    //var textStyle = { font: 'bold 32px Arial', fill: '#0000ff', align: 'left', stroke: '#000000', strokeThickness: 2 };1
+    //var textStyle = { font: 'bold 32px Arial', fill: '#0000ff', align: 'left', stroke: '#000000', strokeThickness: 2 };
     window.pixiDebugText = new PIXI.Text(text, textStyle);
 }
 
