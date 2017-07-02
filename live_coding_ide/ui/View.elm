@@ -24,7 +24,15 @@ view model =
                 ]
 
         ViewProject project ->
-            renderProject project
+            renderProject (reloadProject model project)
+
+
+reloadProject : Model -> Project -> Project
+reloadProject model project =
+    model.projects
+        |> List.filter (\p -> p.remoteCodeUrl == project.remoteCodeUrl)
+        |> List.head
+        |> Maybe.withDefault project
 
 
 renderProjectListItem : Project -> Html.Html Msg
@@ -51,7 +59,20 @@ renderProject project =
         , br [] []
         , button [ onClick (CloseProject) ] [ text "Close project" ]
         , br [] []
+        , br [] []
+        , renderRemoteStatus project
         ]
+
+
+renderRemoteStatus : Project -> Html.Html Msg
+renderRemoteStatus project =
+    if project.fetchingRemoteFiles then
+        div [] [ text "WIP: Fetching code..." ]
+    else
+        div []
+            [ div [] [ text "WIP: Remote code fetched" ]
+            , div [] [ text (project.remoteFiles |> List.length |> toString) ]
+            ]
 
 
 shortFormCodeUrl : Project -> String

@@ -26,6 +26,7 @@ type Msg
     | LoadCode Project
     | ChangeModeByString String
     | RebootPlayer
+    | RemoteCodeLoaded CodeResponse
 
 
 type alias Model =
@@ -37,13 +38,40 @@ type alias Model =
 
 
 type alias Settings =
-    { projects : List Project
+    { projects : List SavedProject
     }
 
 
 type alias Project =
     { --title : String
       remoteCodeUrl : String
+    , localFiles : List File
+    , remoteFiles : List File
+    , fetchingRemoteFiles : Bool
+    }
+
+
+type alias SavedProject =
+    { remoteCodeUrl : String
+    , localFiles : List File
+    }
+
+
+type alias File =
+    { name : String
+    , content : String
+    }
+
+
+type alias CodeRequest =
+    { projectUrl : String
+    , apiUrl : String
+    }
+
+
+type alias CodeResponse =
+    { projectUrl : String
+    , files : List File
     }
 
 
