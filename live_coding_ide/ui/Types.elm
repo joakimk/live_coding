@@ -27,13 +27,15 @@ type RemoteFilesStatus
 type Msg
     = UpdatePendingRemoteCodeUrl String
     | AddProject
-    | OpenProject Project
     | CloseProject
-    | RemoveProject Project
-    | LoadCode Project
     | ChangeModeByString String
     | RebootPlayer
     | RemoteCodeLoaded CodeResponse
+    | OpenProject Project
+    | RemoveProject Project
+    | LoadCode Project
+    | ReplaceLocalFilesWithRemoteFiles Project
+    | FetchRemoteFiles Project
 
 
 type alias Model =

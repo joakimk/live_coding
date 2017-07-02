@@ -55,18 +55,10 @@ update msg model =
                 { model | projects = projects, pendingRemoteCodeUrl = "" } ! []
 
         OpenProject project ->
-            let
-                projects =
-                    model.projects
-                        |> List.map
-                            (\p ->
-                                if p.remoteCodeUrl == project.remoteCodeUrl then
-                                    { p | remoteFilesStatus = Pending }
-                                else
-                                    p
-                            )
-            in
-                { model | projects = projects, activeSection = ViewProject project } ! fetchRemoteFiles project
+            { model | projects = (setRemoteFilesStatusToPending model.projects project), activeSection = ViewProject project } ! fetchRemoteFiles project
+
+        FetchRemoteFiles project ->
+            { model | projects = (setRemoteFilesStatusToPending model.projects project) } ! fetchRemoteFiles project
 
         CloseProject ->
             { model | activeSection = Start } ! []
@@ -101,6 +93,32 @@ update msg model =
                             )
             in
                 { model | projects = projects } ! []
+
+        ReplaceLocalFilesWithRemoteFiles project ->
+            let
+                projects =
+                    model.projects
+                        |> List.map
+                            (\p ->
+                                if p == project then
+                                    { project | localFiles = project.remoteFiles }
+                                else
+                                    p
+                            )
+            in
+                { model | projects = projects } ! []
+
+
+setRemoteFilesStatusToPending : List Project -> Project -> List Project
+setRemoteFilesStatusToPending projects project =
+    projects
+        |> List.map
+            (\p ->
+                if p.remoteCodeUrl == project.remoteCodeUrl then
+                    { p | remoteFilesStatus = Pending }
+                else
+                    p
+            )
 
 
 restoreSettings : Model -> Settings -> Model

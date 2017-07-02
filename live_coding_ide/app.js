@@ -317,7 +317,13 @@
             }
         }
 
-        xmlhttp.open("GET", url, true)
+        let divider = url.indexOf("?") != -1 ? "&" : "?"
+
+        // Invalidate cache every 4 seconds instead of the 60 seconds default,
+        // since you might want to fetch an update you just did.
+        let cacheBuster = parseInt(new Date().getTime() / 4000)
+        xmlhttp.open("GET", url + divider + "noCachePlease=" + cacheBuster, true)
+
         xmlhttp.send()
     }
 
