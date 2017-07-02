@@ -50,7 +50,7 @@ update msg model =
         AddProject ->
             let
                 projects =
-                    { fetchingRemoteFiles = False, localFiles = [], remoteFiles = [], remoteCodeUrl = model.pendingRemoteCodeUrl } :: model.projects
+                    { remoteFilesStatus = NotRunYet, localFiles = [], remoteFiles = [], remoteCodeUrl = model.pendingRemoteCodeUrl } :: model.projects
             in
                 { model | projects = projects, pendingRemoteCodeUrl = "" } ! []
 
@@ -61,7 +61,7 @@ update msg model =
                         |> List.map
                             (\p ->
                                 if p.remoteCodeUrl == project.remoteCodeUrl then
-                                    { p | fetchingRemoteFiles = True }
+                                    { p | remoteFilesStatus = Pending }
                                 else
                                     p
                             )
@@ -92,7 +92,10 @@ update msg model =
                         |> List.map
                             (\p ->
                                 if p.remoteCodeUrl == codeResponse.projectUrl then
-                                    { p | remoteFiles = codeResponse.files, fetchingRemoteFiles = False }
+                                    if codeResponse.successful then
+                                        { p | remoteFiles = codeResponse.files, remoteFilesStatus = Successful }
+                                    else
+                                        { p | remoteFilesStatus = Failed }
                                 else
                                     p
                             )
@@ -108,7 +111,7 @@ restoreSettings model settings =
     --
     -- It also allows conditional logic when dumping or restoring settings if
     -- we want that at some point.
-    { defaultModel | projects = settings.projects |> List.map (\p -> { localFiles = p.localFiles, remoteCodeUrl = p.remoteCodeUrl, remoteFiles = [], fetchingRemoteFiles = False }) }
+    { defaultModel | projects = settings.projects |> List.map (\p -> { localFiles = p.localFiles, remoteCodeUrl = p.remoteCodeUrl, remoteFiles = [], remoteFilesStatus = NotRunYet }) }
 
 
 dumpSettings : Model -> Settings

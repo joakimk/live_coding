@@ -66,13 +66,21 @@ renderProject project =
 
 renderRemoteStatus : Project -> Html.Html Msg
 renderRemoteStatus project =
-    if project.fetchingRemoteFiles then
-        div [] [ text "WIP: Fetching code..." ]
-    else
-        div []
-            [ div [] [ text "WIP: Remote code fetched" ]
-            , div [] [ text (project.remoteFiles |> List.length |> toString) ]
-            ]
+    case project.remoteFilesStatus of
+        Pending ->
+            div [] [ text "WIP: Fetching code..." ]
+
+        Successful ->
+            div []
+                [ div [] [ text "WIP: Remote code fetched" ]
+                , div [] [ text (project.remoteFiles |> List.length |> toString) ]
+                ]
+
+        Failed ->
+            div [] [ text "Fetching code failed :(" ]
+
+        NotRunYet ->
+            div [] []
 
 
 shortFormCodeUrl : Project -> String

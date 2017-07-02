@@ -8269,7 +8269,7 @@ var _user$example$Types$Settings = function (a) {
 };
 var _user$example$Types$Project = F4(
 	function (a, b, c, d) {
-		return {remoteCodeUrl: a, localFiles: b, remoteFiles: c, fetchingRemoteFiles: d};
+		return {remoteCodeUrl: a, localFiles: b, remoteFiles: c, remoteFilesStatus: d};
 	});
 var _user$example$Types$SavedProject = F2(
 	function (a, b) {
@@ -8283,9 +8283,9 @@ var _user$example$Types$CodeRequest = F2(
 	function (a, b) {
 		return {projectUrl: a, apiUrl: b};
 	});
-var _user$example$Types$CodeResponse = F2(
-	function (a, b) {
-		return {projectUrl: a, files: b};
+var _user$example$Types$CodeResponse = F3(
+	function (a, b, c) {
+		return {projectUrl: a, files: b, successful: c};
 	});
 var _user$example$Types$GithubProjectMetadata = F4(
 	function (a, b, c, d) {
@@ -8304,6 +8304,10 @@ var _user$example$Types$ViewProject = function (a) {
 var _user$example$Types$Start = {ctor: 'Start'};
 var _user$example$Types$Playing = {ctor: 'Playing'};
 var _user$example$Types$Editing = {ctor: 'Editing'};
+var _user$example$Types$NotRunYet = {ctor: 'NotRunYet'};
+var _user$example$Types$Failed = {ctor: 'Failed'};
+var _user$example$Types$Successful = {ctor: 'Successful'};
+var _user$example$Types$Pending = {ctor: 'Pending'};
 var _user$example$Types$RemoteCodeLoaded = function (a) {
 	return {ctor: 'RemoteCodeLoaded', _0: a};
 };
@@ -8451,41 +8455,61 @@ var _user$example$View$shortFormCodeUrl = function (project) {
 	}
 };
 var _user$example$View$renderRemoteStatus = function (project) {
-	return project.fetchingRemoteFiles ? A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text('WIP: Fetching code...'),
-			_1: {ctor: '[]'}
-		}) : A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
+	var _p1 = project.remoteFilesStatus;
+	switch (_p1.ctor) {
+		case 'Pending':
+			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('WIP: Remote code fetched'),
+					_0: _elm_lang$html$Html$text('WIP: Fetching code...'),
 					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
+				});
+		case 'Successful':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('WIP: Remote code fetched'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(
-								_elm_lang$core$List$length(project.remoteFiles))),
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									_elm_lang$core$Basics$toString(
+										_elm_lang$core$List$length(project.remoteFiles))),
+								_1: {ctor: '[]'}
+							}),
 						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		});
+					}
+				});
+		case 'Failed':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Fetching code failed :('),
+					_1: {ctor: '[]'}
+				});
+		default:
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{ctor: '[]'});
+	}
 };
 var _user$example$View$renderProject = function (project) {
 	return A2(
@@ -8673,8 +8697,8 @@ var _user$example$View$reloadProject = F2(
 					model.projects)));
 	});
 var _user$example$View$view = function (model) {
-	var _p1 = model.activeSection;
-	if (_p1.ctor === 'Start') {
+	var _p2 = model.activeSection;
+	if (_p2.ctor === 'Start') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -8748,7 +8772,7 @@ var _user$example$View$view = function (model) {
 			});
 	} else {
 		return _user$example$View$renderProject(
-			A2(_user$example$View$reloadProject, model, _p1._0));
+			A2(_user$example$View$reloadProject, model, _p2._0));
 	}
 };
 
@@ -8815,7 +8839,7 @@ var _user$example$State$restoreSettings = F2(
 							localFiles: p.localFiles,
 							remoteCodeUrl: p.remoteCodeUrl,
 							remoteFiles: {ctor: '[]'},
-							fetchingRemoteFiles: false
+							remoteFilesStatus: _user$example$Types$NotRunYet
 						};
 					},
 					settings.projects)
@@ -8959,7 +8983,7 @@ var _user$example$State$update = F2(
 				var projects = {
 					ctor: '::',
 					_0: {
-						fetchingRemoteFiles: false,
+						remoteFilesStatus: _user$example$Types$NotRunYet,
 						localFiles: {ctor: '[]'},
 						remoteFiles: {ctor: '[]'},
 						remoteCodeUrl: model.pendingRemoteCodeUrl
@@ -8979,7 +9003,7 @@ var _user$example$State$update = F2(
 					function (p) {
 						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p3.remoteCodeUrl) ? _elm_lang$core$Native_Utils.update(
 							p,
-							{fetchingRemoteFiles: true}) : p;
+							{remoteFilesStatus: _user$example$Types$Pending}) : p;
 					},
 					model.projects);
 				return A2(
@@ -9046,9 +9070,11 @@ var _user$example$State$update = F2(
 				var projects = A2(
 					_elm_lang$core$List$map,
 					function (p) {
-						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p6.projectUrl) ? _elm_lang$core$Native_Utils.update(
+						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p6.projectUrl) ? (_p6.successful ? _elm_lang$core$Native_Utils.update(
 							p,
-							{remoteFiles: _p6.files, fetchingRemoteFiles: false}) : p;
+							{remoteFiles: _p6.files, remoteFilesStatus: _user$example$Types$Successful}) : _elm_lang$core$Native_Utils.update(
+							p,
+							{remoteFilesStatus: _user$example$Types$Failed})) : p;
 					},
 					model.projects);
 				return A2(
@@ -9089,8 +9115,13 @@ var _user$example$State$remoteCodeLoaded = _elm_lang$core$Native_Platform.incomi
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
 				function (files) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{projectUrl: projectUrl, files: files});
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (successful) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{projectUrl: projectUrl, files: files, successful: successful});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'successful', _elm_lang$core$Json_Decode$bool));
 				},
 				A2(
 					_elm_lang$core$Json_Decode$field,

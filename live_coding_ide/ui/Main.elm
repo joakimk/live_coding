@@ -24,5 +24,10 @@ main =
         { init = init
         , view = view
         , update = updateAndSaveSettings
-        , subscriptions = \_ -> Sub.batch [ updateMode Types.ChangeModeByString, remoteCodeLoaded Types.RemoteCodeLoaded ]
+        , subscriptions =
+            \_ ->
+                Sub.batch
+                    [ updateMode Types.ChangeModeByString
+                    , remoteCodeLoaded Types.RemoteCodeLoaded
+                    ]
         }
