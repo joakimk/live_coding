@@ -15,7 +15,7 @@ view model =
                 []
                 [ p []
                     [ p []
-                        [ input [ class "editor__controls__add-project__input", value model.pendingCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingCodeUrl ] []
+                        [ input [ class "editor__controls__add-project__input", value model.pendingRemoteCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingRemoteCodeUrl ] []
                         , text " "
                         , button [ class "editor__controls__add-project__button", onClick AddProject ] [ text "Add project" ]
                         ]
@@ -60,16 +60,16 @@ shortFormCodeUrl project =
         Github ->
             let
                 githubProjectMetadata =
-                    project.codeUrl |> buildGithubProjectMetadata
+                    project.remoteCodeUrl |> buildGithubProjectMetadata
             in
                 "[github] " ++ githubProjectMetadata.user ++ "/" ++ githubProjectMetadata.repo ++ "/" ++ githubProjectMetadata.path
 
         Gist ->
             let
                 gistMetadata =
-                    (buildGithubGistMetaData project.codeUrl)
+                    (buildGithubGistMetaData project.remoteCodeUrl)
             in
                 "[gist] " ++ gistMetadata.user ++ "/" ++ gistMetadata.id
 
         None ->
-            project.codeUrl
+            project.remoteCodeUrl

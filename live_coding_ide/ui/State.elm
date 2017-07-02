@@ -28,8 +28,8 @@ update msg model =
         LoadCode project ->
             model ! (loadCodeFromProject project)
 
-        UpdatePendingCodeUrl url ->
-            { model | pendingCodeUrl = url } ! []
+        UpdatePendingRemoteCodeUrl url ->
+            { model | pendingRemoteCodeUrl = url } ! []
 
         RemoveProject project ->
             let
@@ -41,9 +41,9 @@ update msg model =
         AddProject ->
             let
                 projects =
-                    { codeUrl = model.pendingCodeUrl } :: model.projects
+                    { remoteCodeUrl = model.pendingRemoteCodeUrl } :: model.projects
             in
-                { model | projects = projects, pendingCodeUrl = "" } ! []
+                { model | projects = projects, pendingRemoteCodeUrl = "" } ! []
 
         OpenProject project ->
             { model | activeSection = ViewProject project } ! []
@@ -86,10 +86,10 @@ loadCodeFromProject : Project -> List (Cmd msg)
 loadCodeFromProject project =
     case (detectCodeUrlType project) of
         Github ->
-            [ project.codeUrl |> buildGithubProjectMetadata |> buildGithubProjectApiUrl |> loadCodeFromGithub ]
+            [ project.remoteCodeUrl |> buildGithubProjectMetadata |> buildGithubProjectApiUrl |> loadCodeFromGithub ]
 
         Gist ->
-            [ project.codeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
+            [ project.remoteCodeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
 
         None ->
             []
@@ -97,7 +97,7 @@ loadCodeFromProject project =
 
 defaultModel : Model
 defaultModel =
-    { pendingCodeUrl = ""
+    { pendingRemoteCodeUrl = ""
     , projects = []
     , activeSection = Start
     , mode = Editing
@@ -109,10 +109,10 @@ defaultSettings =
     { projects =
         --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714"
         --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714/0000ded16a016d21116b904223a55da8d5f0193b"
-        [ { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js" }
-        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js" }
-        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js" }
-        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js" }
+        [ { remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js" }
+        , { remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js" }
+        , { remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js" }
+        , { remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js" }
         ]
     }
 

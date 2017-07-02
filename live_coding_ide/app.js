@@ -29,6 +29,17 @@
         // Throw away old incompatible data, remove after juli 2017
         if(settings && settings.githubProjectPath) { settings = null }
 
+        // Migrate old data format
+        if(settings) {
+            for(i = 0; i < settings.projects.length; i++) {
+                let project = settings.projects[i]
+                if(project.codeUrl) {
+                    settings.projects[i] = { remoteCodeUrl: project.codeUrl }
+                }
+
+            }
+        }
+
         let ui = Elm.Main.embed(node, settings)
 
         ui.ports.saveSettings.subscribe((settings) => {

@@ -18,7 +18,7 @@ type Mode
 
 
 type Msg
-    = UpdatePendingCodeUrl String
+    = UpdatePendingRemoteCodeUrl String
     | AddProject
     | OpenProject Project
     | CloseProject
@@ -30,7 +30,7 @@ type Msg
 
 type alias Model =
     { projects : List Project
-    , pendingCodeUrl : String
+    , pendingRemoteCodeUrl : String
     , activeSection : Section
     , mode : Mode
     }
@@ -43,7 +43,7 @@ type alias Settings =
 
 type alias Project =
     { --title : String
-      codeUrl : String
+      remoteCodeUrl : String
     }
 
 

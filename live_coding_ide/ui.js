@@ -8262,13 +8262,13 @@ var _elm_lang$html$Html_Events$Options = F2(
 
 var _user$example$Types$Model = F4(
 	function (a, b, c, d) {
-		return {projects: a, pendingCodeUrl: b, activeSection: c, mode: d};
+		return {projects: a, pendingRemoteCodeUrl: b, activeSection: c, mode: d};
 	});
 var _user$example$Types$Settings = function (a) {
 	return {projects: a};
 };
 var _user$example$Types$Project = function (a) {
-	return {codeUrl: a};
+	return {remoteCodeUrl: a};
 };
 var _user$example$Types$GithubProjectMetadata = F4(
 	function (a, b, c, d) {
@@ -8302,16 +8302,16 @@ var _user$example$Types$OpenProject = function (a) {
 	return {ctor: 'OpenProject', _0: a};
 };
 var _user$example$Types$AddProject = {ctor: 'AddProject'};
-var _user$example$Types$UpdatePendingCodeUrl = function (a) {
-	return {ctor: 'UpdatePendingCodeUrl', _0: a};
+var _user$example$Types$UpdatePendingRemoteCodeUrl = function (a) {
+	return {ctor: 'UpdatePendingRemoteCodeUrl', _0: a};
 };
 
 var _user$example$Helpers$buildGithubGistApiUrl = function (gistMetadata) {
 	return A2(_elm_lang$core$Basics_ops['++'], 'https://api.github.com/gists/', gistMetadata.id);
 };
-var _user$example$Helpers$buildGithubGistMetaData = function (codeUrl) {
+var _user$example$Helpers$buildGithubGistMetaData = function (remoteCodeUrl) {
 	var parts = _elm_lang$core$List$reverse(
-		A2(_elm_lang$core$String$split, '/', codeUrl));
+		A2(_elm_lang$core$String$split, '/', remoteCodeUrl));
 	var id = A2(
 		_elm_lang$core$Maybe$withDefault,
 		'unknown-gist-id',
@@ -8396,14 +8396,14 @@ var _user$example$Helpers$buildGithubProjectApiUrl = function (githubProjectMeta
 		A2(_elm_lang$core$Basics_ops['++'], '?ref=', githubProjectMetadata.ref));
 };
 var _user$example$Helpers$detectCodeUrlType = function (project) {
-	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.codeUrl) ? _user$example$Types$Github : (A2(_elm_lang$core$String$contains, 'https://gist.github.com/', project.codeUrl) ? _user$example$Types$Gist : _user$example$Types$None);
+	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.remoteCodeUrl) ? _user$example$Types$Github : (A2(_elm_lang$core$String$contains, 'https://gist.github.com/', project.remoteCodeUrl) ? _user$example$Types$Gist : _user$example$Types$None);
 };
 
 var _user$example$View$shortFormCodeUrl = function (project) {
 	var _p0 = _user$example$Helpers$detectCodeUrlType(project);
 	switch (_p0.ctor) {
 		case 'Github':
-			var githubProjectMetadata = _user$example$Helpers$buildGithubProjectMetadata(project.codeUrl);
+			var githubProjectMetadata = _user$example$Helpers$buildGithubProjectMetadata(project.remoteCodeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[github] ',
@@ -8418,7 +8418,7 @@ var _user$example$View$shortFormCodeUrl = function (project) {
 							githubProjectMetadata.repo,
 							A2(_elm_lang$core$Basics_ops['++'], '/', githubProjectMetadata.path)))));
 		case 'Gist':
-			var gistMetadata = _user$example$Helpers$buildGithubGistMetaData(project.codeUrl);
+			var gistMetadata = _user$example$Helpers$buildGithubGistMetaData(project.remoteCodeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[gist] ',
@@ -8427,7 +8427,7 @@ var _user$example$View$shortFormCodeUrl = function (project) {
 					gistMetadata.user,
 					A2(_elm_lang$core$Basics_ops['++'], '/', gistMetadata.id)));
 		default:
-			return project.codeUrl;
+			return project.remoteCodeUrl;
 	}
 };
 var _user$example$View$renderProject = function (project) {
@@ -8616,13 +8616,13 @@ var _user$example$View$view = function (model) {
 										_0: _elm_lang$html$Html_Attributes$class('editor__controls__add-project__input'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$value(model.pendingCodeUrl),
+											_0: _elm_lang$html$Html_Attributes$value(model.pendingRemoteCodeUrl),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Attributes$placeholder('<< Enter Github URL including path to file or Gist URL here >>'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$example$Types$UpdatePendingCodeUrl),
+													_0: _elm_lang$html$Html_Events$onInput(_user$example$Types$UpdatePendingRemoteCodeUrl),
 													_1: {ctor: '[]'}
 												}
 											}
@@ -8673,16 +8673,16 @@ var _user$example$View$view = function (model) {
 var _user$example$State$defaultSettings = {
 	projects: {
 		ctor: '::',
-		_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'},
+		_0: {remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'},
 		_1: {
 			ctor: '::',
-			_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js'},
+			_0: {remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js'},
 			_1: {
 				ctor: '::',
-				_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'},
+				_0: {remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'},
 				_1: {
 					ctor: '::',
-					_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'},
+					_0: {remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'},
 					_1: {ctor: '[]'}
 				}
 			}
@@ -8690,7 +8690,7 @@ var _user$example$State$defaultSettings = {
 	}
 };
 var _user$example$State$defaultModel = {
-	pendingCodeUrl: '',
+	pendingRemoteCodeUrl: '',
 	projects: {ctor: '[]'},
 	activeSection: _user$example$Types$Start,
 	mode: _user$example$Types$Editing
@@ -8729,7 +8729,7 @@ var _user$example$State$loadCodeFromProject = function (project) {
 				ctor: '::',
 				_0: _user$example$State$loadCodeFromGithub(
 					_user$example$Helpers$buildGithubProjectApiUrl(
-						_user$example$Helpers$buildGithubProjectMetadata(project.codeUrl))),
+						_user$example$Helpers$buildGithubProjectMetadata(project.remoteCodeUrl))),
 				_1: {ctor: '[]'}
 			};
 		case 'Gist':
@@ -8737,7 +8737,7 @@ var _user$example$State$loadCodeFromProject = function (project) {
 				ctor: '::',
 				_0: _user$example$State$loadCodeFromGist(
 					_user$example$Helpers$buildGithubGistApiUrl(
-						_user$example$Helpers$buildGithubGistMetaData(project.codeUrl))),
+						_user$example$Helpers$buildGithubGistMetaData(project.remoteCodeUrl))),
 				_1: {ctor: '[]'}
 			};
 		default:
@@ -8750,7 +8750,7 @@ var _user$example$State$saveSettings = _elm_lang$core$Native_Platform.outgoingPo
 		return {
 			projects: _elm_lang$core$Native_List.toArray(v.projects).map(
 				function (v) {
-					return {codeUrl: v.codeUrl};
+					return {remoteCodeUrl: v.remoteCodeUrl};
 				})
 		};
 	});
@@ -8773,12 +8773,12 @@ var _user$example$State$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					_user$example$State$loadCodeFromProject(_p1._0));
-			case 'UpdatePendingCodeUrl':
+			case 'UpdatePendingRemoteCodeUrl':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{pendingCodeUrl: _p1._0}),
+						{pendingRemoteCodeUrl: _p1._0}),
 					{ctor: '[]'});
 			case 'RemoveProject':
 				var projects = A2(
@@ -8796,14 +8796,14 @@ var _user$example$State$update = F2(
 			case 'AddProject':
 				var projects = {
 					ctor: '::',
-					_0: {codeUrl: model.pendingCodeUrl},
+					_0: {remoteCodeUrl: model.pendingRemoteCodeUrl},
 					_1: model.projects
 				};
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{projects: projects, pendingCodeUrl: ''}),
+						{projects: projects, pendingRemoteCodeUrl: ''}),
 					{ctor: '[]'});
 			case 'OpenProject':
 				return A2(
@@ -8924,11 +8924,11 @@ var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 							_elm_lang$core$Json_Decode$list(
 								A2(
 									_elm_lang$core$Json_Decode$andThen,
-									function (codeUrl) {
+									function (remoteCodeUrl) {
 										return _elm_lang$core$Json_Decode$succeed(
-											{codeUrl: codeUrl});
+											{remoteCodeUrl: remoteCodeUrl});
 									},
-									A2(_elm_lang$core$Json_Decode$field, 'codeUrl', _elm_lang$core$Json_Decode$string)))))),
+									A2(_elm_lang$core$Json_Decode$field, 'remoteCodeUrl', _elm_lang$core$Json_Decode$string)))))),
 				_1: {ctor: '[]'}
 			}
 		}));
