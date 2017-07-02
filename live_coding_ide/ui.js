@@ -8262,14 +8262,31 @@ var _elm_lang$html$Html_Events$Options = F2(
 
 var _user$example$Types$Model = F4(
 	function (a, b, c, d) {
-		return {projects: a, pendingCodeUrl: b, activeSection: c, mode: d};
+		return {projects: a, pendingRemoteCodeUrl: b, activeSection: c, mode: d};
 	});
 var _user$example$Types$Settings = function (a) {
 	return {projects: a};
 };
-var _user$example$Types$Project = function (a) {
-	return {codeUrl: a};
-};
+var _user$example$Types$Project = F4(
+	function (a, b, c, d) {
+		return {remoteCodeUrl: a, localFiles: b, remoteFiles: c, fetchingRemoteFiles: d};
+	});
+var _user$example$Types$SavedProject = F2(
+	function (a, b) {
+		return {remoteCodeUrl: a, localFiles: b};
+	});
+var _user$example$Types$File = F2(
+	function (a, b) {
+		return {name: a, content: b};
+	});
+var _user$example$Types$CodeRequest = F2(
+	function (a, b) {
+		return {projectUrl: a, apiUrl: b};
+	});
+var _user$example$Types$CodeResponse = F2(
+	function (a, b) {
+		return {projectUrl: a, files: b};
+	});
 var _user$example$Types$GithubProjectMetadata = F4(
 	function (a, b, c, d) {
 		return {ref: a, user: b, repo: c, path: d};
@@ -8287,6 +8304,9 @@ var _user$example$Types$ViewProject = function (a) {
 var _user$example$Types$Start = {ctor: 'Start'};
 var _user$example$Types$Playing = {ctor: 'Playing'};
 var _user$example$Types$Editing = {ctor: 'Editing'};
+var _user$example$Types$RemoteCodeLoaded = function (a) {
+	return {ctor: 'RemoteCodeLoaded', _0: a};
+};
 var _user$example$Types$RebootPlayer = {ctor: 'RebootPlayer'};
 var _user$example$Types$ChangeModeByString = function (a) {
 	return {ctor: 'ChangeModeByString', _0: a};
@@ -8302,16 +8322,16 @@ var _user$example$Types$OpenProject = function (a) {
 	return {ctor: 'OpenProject', _0: a};
 };
 var _user$example$Types$AddProject = {ctor: 'AddProject'};
-var _user$example$Types$UpdatePendingCodeUrl = function (a) {
-	return {ctor: 'UpdatePendingCodeUrl', _0: a};
+var _user$example$Types$UpdatePendingRemoteCodeUrl = function (a) {
+	return {ctor: 'UpdatePendingRemoteCodeUrl', _0: a};
 };
 
 var _user$example$Helpers$buildGithubGistApiUrl = function (gistMetadata) {
 	return A2(_elm_lang$core$Basics_ops['++'], 'https://api.github.com/gists/', gistMetadata.id);
 };
-var _user$example$Helpers$buildGithubGistMetaData = function (codeUrl) {
+var _user$example$Helpers$buildGithubGistMetaData = function (remoteCodeUrl) {
 	var parts = _elm_lang$core$List$reverse(
-		A2(_elm_lang$core$String$split, '/', codeUrl));
+		A2(_elm_lang$core$String$split, '/', remoteCodeUrl));
 	var id = A2(
 		_elm_lang$core$Maybe$withDefault,
 		'unknown-gist-id',
@@ -8396,14 +8416,14 @@ var _user$example$Helpers$buildGithubProjectApiUrl = function (githubProjectMeta
 		A2(_elm_lang$core$Basics_ops['++'], '?ref=', githubProjectMetadata.ref));
 };
 var _user$example$Helpers$detectCodeUrlType = function (project) {
-	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.codeUrl) ? _user$example$Types$Github : (A2(_elm_lang$core$String$contains, 'https://gist.github.com/', project.codeUrl) ? _user$example$Types$Gist : _user$example$Types$None);
+	return A2(_elm_lang$core$String$contains, 'https://github.com/', project.remoteCodeUrl) ? _user$example$Types$Github : (A2(_elm_lang$core$String$contains, 'https://gist.github.com/', project.remoteCodeUrl) ? _user$example$Types$Gist : _user$example$Types$None);
 };
 
 var _user$example$View$shortFormCodeUrl = function (project) {
 	var _p0 = _user$example$Helpers$detectCodeUrlType(project);
 	switch (_p0.ctor) {
 		case 'Github':
-			var githubProjectMetadata = _user$example$Helpers$buildGithubProjectMetadata(project.codeUrl);
+			var githubProjectMetadata = _user$example$Helpers$buildGithubProjectMetadata(project.remoteCodeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[github] ',
@@ -8418,7 +8438,7 @@ var _user$example$View$shortFormCodeUrl = function (project) {
 							githubProjectMetadata.repo,
 							A2(_elm_lang$core$Basics_ops['++'], '/', githubProjectMetadata.path)))));
 		case 'Gist':
-			var gistMetadata = _user$example$Helpers$buildGithubGistMetaData(project.codeUrl);
+			var gistMetadata = _user$example$Helpers$buildGithubGistMetaData(project.remoteCodeUrl);
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'[gist] ',
@@ -8427,8 +8447,45 @@ var _user$example$View$shortFormCodeUrl = function (project) {
 					gistMetadata.user,
 					A2(_elm_lang$core$Basics_ops['++'], '/', gistMetadata.id)));
 		default:
-			return project.codeUrl;
+			return project.remoteCodeUrl;
 	}
+};
+var _user$example$View$renderRemoteStatus = function (project) {
+	return project.fetchingRemoteFiles ? A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('WIP: Fetching code...'),
+			_1: {ctor: '[]'}
+		}) : A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('WIP: Remote code fetched'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(
+								_elm_lang$core$List$length(project.remoteFiles))),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _user$example$View$renderProject = function (project) {
 	return A2(
@@ -8437,55 +8494,44 @@ var _user$example$View$renderProject = function (project) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$span,
-				{ctor: '[]'},
+				_elm_lang$html$Html$button,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						_user$example$View$shortFormCodeUrl(project)),
+					_0: _elm_lang$html$Html_Events$onClick(
+						_user$example$Types$LoadCode(project)),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Load code'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$br,
-					{ctor: '[]'},
-					{ctor: '[]'}),
+				_0: _elm_lang$html$Html$text(' <- '),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$br,
+						_elm_lang$html$Html$span,
 						{ctor: '[]'},
-						{ctor: '[]'}),
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_user$example$View$shortFormCodeUrl(project)),
+							_1: {ctor: '[]'}
+						}),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(
-									_user$example$Types$LoadCode(project)),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Load code'),
-								_1: {ctor: '[]'}
-							}),
+							_elm_lang$html$Html$br,
+							{ctor: '[]'},
+							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$button,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Close'),
-									_1: {ctor: '[]'}
-								}),
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
+								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
@@ -8497,21 +8543,27 @@ var _user$example$View$renderProject = function (project) {
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Reboot'),
+										_0: _elm_lang$html$Html$text('Reboot the player'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
+									_0: _elm_lang$html$Html$text(' '),
 									_1: {
 										ctor: '::',
 										_0: A2(
-											_elm_lang$html$Html$br,
-											{ctor: '[]'},
-											{ctor: '[]'}),
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(
+													_user$example$Types$RemoveProject(project)),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Delete local code (!)'),
+												_1: {ctor: '[]'}
+											}),
 										_1: {
 											ctor: '::',
 											_0: A2(
@@ -8521,19 +8573,43 @@ var _user$example$View$renderProject = function (project) {
 											_1: {
 												ctor: '::',
 												_0: A2(
-													_elm_lang$html$Html$button,
-													{
+													_elm_lang$html$Html$br,
+													{ctor: '[]'},
+													{ctor: '[]'}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$button,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
+															_1: {ctor: '[]'}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('Close project'),
+															_1: {ctor: '[]'}
+														}),
+													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onClick(
-															_user$example$Types$RemoveProject(project)),
-														_1: {ctor: '[]'}
-													},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Delete local code (!)'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
+														_0: A2(
+															_elm_lang$html$Html$br,
+															{ctor: '[]'},
+															{ctor: '[]'}),
+														_1: {
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html$br,
+																{ctor: '[]'},
+																{ctor: '[]'}),
+															_1: {
+																ctor: '::',
+																_0: _user$example$View$renderRemoteStatus(project),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												}
 											}
 										}
 									}
@@ -8583,6 +8659,19 @@ var _user$example$View$renderProjectListItem = function (project) {
 			}
 		});
 };
+var _user$example$View$reloadProject = F2(
+	function (model, project) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			project,
+			_elm_lang$core$List$head(
+				A2(
+					_elm_lang$core$List$filter,
+					function (p) {
+						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, project.remoteCodeUrl);
+					},
+					model.projects)));
+	});
 var _user$example$View$view = function (model) {
 	var _p1 = model.activeSection;
 	if (_p1.ctor === 'Start') {
@@ -8608,13 +8697,13 @@ var _user$example$View$view = function (model) {
 										_0: _elm_lang$html$Html_Attributes$class('editor__controls__add-project__input'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$value(model.pendingCodeUrl),
+											_0: _elm_lang$html$Html_Attributes$value(model.pendingRemoteCodeUrl),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Attributes$placeholder('<< Enter Github URL including path to file or Gist URL here >>'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$example$Types$UpdatePendingCodeUrl),
+													_0: _elm_lang$html$Html_Events$onInput(_user$example$Types$UpdatePendingRemoteCodeUrl),
 													_1: {ctor: '[]'}
 												}
 											}
@@ -8658,23 +8747,36 @@ var _user$example$View$view = function (model) {
 				}
 			});
 	} else {
-		return _user$example$View$renderProject(_p1._0);
+		return _user$example$View$renderProject(
+			A2(_user$example$View$reloadProject, model, _p1._0));
 	}
 };
 
 var _user$example$State$defaultSettings = {
 	projects: {
 		ctor: '::',
-		_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'},
+		_0: {
+			localFiles: {ctor: '[]'},
+			remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js'
+		},
 		_1: {
 			ctor: '::',
-			_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js'},
+			_0: {
+				localFiles: {ctor: '[]'},
+				remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js'
+			},
 			_1: {
 				ctor: '::',
-				_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'},
+				_0: {
+					localFiles: {ctor: '[]'},
+					remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js'
+				},
 				_1: {
 					ctor: '::',
-					_0: {codeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'},
+					_0: {
+						localFiles: {ctor: '[]'},
+						remoteCodeUrl: 'https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js'
+					},
 					_1: {ctor: '[]'}
 				}
 			}
@@ -8682,19 +8784,42 @@ var _user$example$State$defaultSettings = {
 	}
 };
 var _user$example$State$defaultModel = {
-	pendingCodeUrl: '',
+	pendingRemoteCodeUrl: '',
 	projects: {ctor: '[]'},
 	activeSection: _user$example$Types$Start,
 	mode: _user$example$Types$Editing
 };
+var _user$example$State$wrapInCodeRequest = F2(
+	function (project, apiUrl) {
+		return {projectUrl: project.remoteCodeUrl, apiUrl: apiUrl};
+	});
 var _user$example$State$dumpSettings = function (model) {
-	return {projects: model.projects};
+	return {
+		projects: A2(
+			_elm_lang$core$List$map,
+			function (p) {
+				return {remoteCodeUrl: p.remoteCodeUrl, localFiles: p.localFiles};
+			},
+			model.projects)
+	};
 };
 var _user$example$State$restoreSettings = F2(
 	function (model, settings) {
 		return _elm_lang$core$Native_Utils.update(
 			_user$example$State$defaultModel,
-			{projects: settings.projects});
+			{
+				projects: A2(
+					_elm_lang$core$List$map,
+					function (p) {
+						return {
+							localFiles: p.localFiles,
+							remoteCodeUrl: p.remoteCodeUrl,
+							remoteFiles: {ctor: '[]'},
+							fetchingRemoteFiles: false
+						};
+					},
+					settings.projects)
+			});
 	});
 var _user$example$State$init = function (savedSettings) {
 	var settings = A2(_elm_lang$core$Maybe$withDefault, _user$example$State$defaultSettings, savedSettings);
@@ -8721,7 +8846,7 @@ var _user$example$State$loadCodeFromProject = function (project) {
 				ctor: '::',
 				_0: _user$example$State$loadCodeFromGithub(
 					_user$example$Helpers$buildGithubProjectApiUrl(
-						_user$example$Helpers$buildGithubProjectMetadata(project.codeUrl))),
+						_user$example$Helpers$buildGithubProjectMetadata(project.remoteCodeUrl))),
 				_1: {ctor: '[]'}
 			};
 		case 'Gist':
@@ -8729,7 +8854,46 @@ var _user$example$State$loadCodeFromProject = function (project) {
 				ctor: '::',
 				_0: _user$example$State$loadCodeFromGist(
 					_user$example$Helpers$buildGithubGistApiUrl(
-						_user$example$Helpers$buildGithubGistMetaData(project.codeUrl))),
+						_user$example$Helpers$buildGithubGistMetaData(project.remoteCodeUrl))),
+				_1: {ctor: '[]'}
+			};
+		default:
+			return {ctor: '[]'};
+	}
+};
+var _user$example$State$fetchCodeFromGithub = _elm_lang$core$Native_Platform.outgoingPort(
+	'fetchCodeFromGithub',
+	function (v) {
+		return {projectUrl: v.projectUrl, apiUrl: v.apiUrl};
+	});
+var _user$example$State$fetchCodeFromGist = _elm_lang$core$Native_Platform.outgoingPort(
+	'fetchCodeFromGist',
+	function (v) {
+		return {projectUrl: v.projectUrl, apiUrl: v.apiUrl};
+	});
+var _user$example$State$fetchRemoteFiles = function (project) {
+	var _p1 = _user$example$Helpers$detectCodeUrlType(project);
+	switch (_p1.ctor) {
+		case 'Github':
+			return {
+				ctor: '::',
+				_0: _user$example$State$fetchCodeFromGithub(
+					A2(
+						_user$example$State$wrapInCodeRequest,
+						project,
+						_user$example$Helpers$buildGithubProjectApiUrl(
+							_user$example$Helpers$buildGithubProjectMetadata(project.remoteCodeUrl)))),
+				_1: {ctor: '[]'}
+			};
+		case 'Gist':
+			return {
+				ctor: '::',
+				_0: _user$example$State$fetchCodeFromGist(
+					A2(
+						_user$example$State$wrapInCodeRequest,
+						project,
+						_user$example$Helpers$buildGithubGistApiUrl(
+							_user$example$Helpers$buildGithubGistMetaData(project.remoteCodeUrl)))),
 				_1: {ctor: '[]'}
 			};
 		default:
@@ -8742,7 +8906,13 @@ var _user$example$State$saveSettings = _elm_lang$core$Native_Platform.outgoingPo
 		return {
 			projects: _elm_lang$core$Native_List.toArray(v.projects).map(
 				function (v) {
-					return {codeUrl: v.codeUrl};
+					return {
+						remoteCodeUrl: v.remoteCodeUrl,
+						localFiles: _elm_lang$core$Native_List.toArray(v.localFiles).map(
+							function (v) {
+								return {name: v.name, content: v.content};
+							})
+					};
 				})
 		};
 	});
@@ -8758,25 +8928,25 @@ var _user$example$State$modeChangedTo = _elm_lang$core$Native_Platform.outgoingP
 	});
 var _user$example$State$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
 			case 'LoadCode':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
-					_user$example$State$loadCodeFromProject(_p1._0));
-			case 'UpdatePendingCodeUrl':
+					_user$example$State$loadCodeFromProject(_p2._0));
+			case 'UpdatePendingRemoteCodeUrl':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{pendingCodeUrl: _p1._0}),
+						{pendingRemoteCodeUrl: _p2._0}),
 					{ctor: '[]'});
 			case 'RemoveProject':
 				var projects = A2(
 					_elm_lang$core$List$filter,
 					function (p) {
-						return !_elm_lang$core$Native_Utils.eq(p, _p1._0);
+						return !_elm_lang$core$Native_Utils.eq(p, _p2._0);
 					},
 					model.projects);
 				return A2(
@@ -8788,24 +8958,39 @@ var _user$example$State$update = F2(
 			case 'AddProject':
 				var projects = {
 					ctor: '::',
-					_0: {codeUrl: model.pendingCodeUrl},
+					_0: {
+						fetchingRemoteFiles: false,
+						localFiles: {ctor: '[]'},
+						remoteFiles: {ctor: '[]'},
+						remoteCodeUrl: model.pendingRemoteCodeUrl
+					},
 					_1: model.projects
 				};
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{projects: projects, pendingCodeUrl: ''}),
+						{projects: projects, pendingRemoteCodeUrl: ''}),
 					{ctor: '[]'});
 			case 'OpenProject':
+				var _p3 = _p2._0;
+				var projects = A2(
+					_elm_lang$core$List$map,
+					function (p) {
+						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p3.remoteCodeUrl) ? _elm_lang$core$Native_Utils.update(
+							p,
+							{fetchingRemoteFiles: true}) : p;
+					},
+					model.projects);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							activeSection: _user$example$Types$ViewProject(_p1._0)
+							projects: projects,
+							activeSection: _user$example$Types$ViewProject(_p3)
 						}),
-					{ctor: '[]'});
+					_user$example$State$fetchRemoteFiles(_p3));
 			case 'CloseProject':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -8814,8 +8999,8 @@ var _user$example$State$update = F2(
 						{activeSection: _user$example$Types$Start}),
 					{ctor: '[]'});
 			case 'ChangeModeByString':
-				var _p2 = _p1._0;
-				switch (_p2) {
+				var _p4 = _p2._0;
+				switch (_p4) {
 					case 'editing':
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
@@ -8842,12 +9027,12 @@ var _user$example$State$update = F2(
 						return _elm_lang$core$Native_Utils.crashCase(
 							'State',
 							{
-								start: {line: 55, column: 13},
-								end: {line: 63, column: 69}
+								start: {line: 75, column: 13},
+								end: {line: 83, column: 69}
 							},
-							_p2)('If we get here then we have bad js');
+							_p4)('If we get here then we have bad js');
 				}
-			default:
+			case 'RebootPlayer':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
@@ -8856,13 +9041,29 @@ var _user$example$State$update = F2(
 						_0: _user$example$State$rebootPlayer(''),
 						_1: {ctor: '[]'}
 					});
+			default:
+				var _p6 = _p2._0;
+				var projects = A2(
+					_elm_lang$core$List$map,
+					function (p) {
+						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p6.projectUrl) ? _elm_lang$core$Native_Utils.update(
+							p,
+							{remoteFiles: _p6.files, fetchingRemoteFiles: false}) : p;
+					},
+					model.projects);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{projects: projects}),
+					{ctor: '[]'});
 		}
 	});
 var _user$example$State$updateAndSaveSettings = F2(
 	function (msg, model) {
-		var _p4 = A2(_user$example$State$update, msg, model);
-		var newModel = _p4._0;
-		var cmds = _p4._1;
+		var _p7 = A2(_user$example$State$update, msg, model);
+		var newModel = _p7._0;
+		var cmds = _p7._1;
 		return {
 			ctor: '_Tuple2',
 			_0: newModel,
@@ -8880,6 +9081,35 @@ var _user$example$State$updateAndSaveSettings = F2(
 		};
 	});
 var _user$example$State$updateMode = _elm_lang$core$Native_Platform.incomingPort('updateMode', _elm_lang$core$Json_Decode$string);
+var _user$example$State$remoteCodeLoaded = _elm_lang$core$Native_Platform.incomingPort(
+	'remoteCodeLoaded',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (projectUrl) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (files) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{projectUrl: projectUrl, files: files});
+				},
+				A2(
+					_elm_lang$core$Json_Decode$field,
+					'files',
+					_elm_lang$core$Json_Decode$list(
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							function (name) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									function (content) {
+										return _elm_lang$core$Json_Decode$succeed(
+											{name: name, content: content});
+									},
+									A2(_elm_lang$core$Json_Decode$field, 'content', _elm_lang$core$Json_Decode$string));
+							},
+							A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)))));
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'projectUrl', _elm_lang$core$Json_Decode$string)));
 
 var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 	{
@@ -8891,7 +9121,11 @@ var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 				{
 					ctor: '::',
 					_0: _user$example$State$updateMode(_user$example$Types$ChangeModeByString),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _user$example$State$remoteCodeLoaded(_user$example$Types$RemoteCodeLoaded),
+						_1: {ctor: '[]'}
+					}
 				});
 		}
 	})(
@@ -8916,11 +9150,31 @@ var _user$example$Main$main = _elm_lang$html$Html$programWithFlags(
 							_elm_lang$core$Json_Decode$list(
 								A2(
 									_elm_lang$core$Json_Decode$andThen,
-									function (codeUrl) {
-										return _elm_lang$core$Json_Decode$succeed(
-											{codeUrl: codeUrl});
+									function (localFiles) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											function (remoteCodeUrl) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{localFiles: localFiles, remoteCodeUrl: remoteCodeUrl});
+											},
+											A2(_elm_lang$core$Json_Decode$field, 'remoteCodeUrl', _elm_lang$core$Json_Decode$string));
 									},
-									A2(_elm_lang$core$Json_Decode$field, 'codeUrl', _elm_lang$core$Json_Decode$string)))))),
+									A2(
+										_elm_lang$core$Json_Decode$field,
+										'localFiles',
+										_elm_lang$core$Json_Decode$list(
+											A2(
+												_elm_lang$core$Json_Decode$andThen,
+												function (content) {
+													return A2(
+														_elm_lang$core$Json_Decode$andThen,
+														function (name) {
+															return _elm_lang$core$Json_Decode$succeed(
+																{content: content, name: name});
+														},
+														A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string));
+												},
+												A2(_elm_lang$core$Json_Decode$field, 'content', _elm_lang$core$Json_Decode$string))))))))),
 				_1: {ctor: '[]'}
 			}
 		}));

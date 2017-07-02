@@ -18,7 +18,7 @@ type Mode
 
 
 type Msg
-    = UpdatePendingCodeUrl String
+    = UpdatePendingRemoteCodeUrl String
     | AddProject
     | OpenProject Project
     | CloseProject
@@ -26,24 +26,52 @@ type Msg
     | LoadCode Project
     | ChangeModeByString String
     | RebootPlayer
+    | RemoteCodeLoaded CodeResponse
 
 
 type alias Model =
     { projects : List Project
-    , pendingCodeUrl : String
+    , pendingRemoteCodeUrl : String
     , activeSection : Section
     , mode : Mode
     }
 
 
 type alias Settings =
-    { projects : List Project
+    { projects : List SavedProject
     }
 
 
 type alias Project =
     { --title : String
-      codeUrl : String
+      remoteCodeUrl : String
+    , localFiles : List File
+    , remoteFiles : List File
+    , fetchingRemoteFiles : Bool
+    }
+
+
+type alias SavedProject =
+    { remoteCodeUrl : String
+    , localFiles : List File
+    }
+
+
+type alias File =
+    { name : String
+    , content : String
+    }
+
+
+type alias CodeRequest =
+    { projectUrl : String
+    , apiUrl : String
+    }
+
+
+type alias CodeResponse =
+    { projectUrl : String
+    , files : List File
     }
 
 

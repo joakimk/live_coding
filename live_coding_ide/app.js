@@ -29,6 +29,22 @@
         // Throw away old incompatible data, remove after juli 2017
         if(settings && settings.githubProjectPath) { settings = null }
 
+        // Migrate old data format
+        if(settings) {
+            for(i = 0; i < settings.projects.length; i++) {
+                let project = settings.projects[i]
+                if(project.codeUrl) {
+                    settings.projects[i] = { remoteCodeUrl: project.codeUrl }
+                }
+
+                if(!project.localFiles) {
+                    project.localFiles = []
+                    settings.projects[i] = project
+                }
+
+            }
+        }
+
         let ui = Elm.Main.embed(node, settings)
 
         ui.ports.saveSettings.subscribe((settings) => {
@@ -43,6 +59,35 @@
     }
 
     this.setUpCodeLoading = (ui) => {
+        // NEW way (wip)
+        ui.ports.fetchCodeFromGist.subscribe((codeRequest) => {
+            fetchFromUrl(codeRequest.apiUrl, function(body) {
+                files = Object.values(JSON.parse(body).files)
+
+                codeResponse = { projectUrl: codeRequest.projectUrl, files: [] }
+
+                for(i = 0; i < files.length; i++) {
+                    codeResponse.files.push({ name: files[i].filename, content: files[i].content })
+                }
+
+                ui.ports.remoteCodeLoaded.send(codeResponse)
+            })
+
+        })
+
+        ui.ports.fetchCodeFromGithub.subscribe((codeRequest) => {
+            fetchFromUrl(codeRequest.apiUrl, function(body) {
+                // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
+                code = decodeURIComponent(escape(atob(JSON.parse(body).content)))
+
+                codeResponse = { projectUrl: codeRequest.projectUrl, files: [] }
+                codeResponse.files.push({ name: "file.js", content: code })
+
+                ui.ports.remoteCodeLoaded.send(codeResponse)
+            })
+        })
+
+        // OLD way
         ui.ports.loadCodeFromGithub.subscribe((url) => {
             fetchFromUrl(url, function(body) {
                 // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8

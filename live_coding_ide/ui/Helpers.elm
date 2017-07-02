@@ -5,9 +5,9 @@ import Types exposing (..)
 
 detectCodeUrlType : Project -> CodeUrlType
 detectCodeUrlType project =
-    if project.codeUrl |> String.contains "https://github.com/" then
+    if project.remoteCodeUrl |> String.contains "https://github.com/" then
         Github
-    else if project.codeUrl |> String.contains "https://gist.github.com/" then
+    else if project.remoteCodeUrl |> String.contains "https://gist.github.com/" then
         Gist
     else
         None
@@ -48,10 +48,10 @@ buildGithubProjectMetadata url =
 
 
 buildGithubGistMetaData : String -> GithubGistMetadata
-buildGithubGistMetaData codeUrl =
+buildGithubGistMetaData remoteCodeUrl =
     let
         parts =
-            codeUrl |> String.split "/" |> List.reverse
+            remoteCodeUrl |> String.split "/" |> List.reverse
 
         id =
             parts |> List.head |> Maybe.withDefault "unknown-gist-id"

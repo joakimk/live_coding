@@ -15,7 +15,7 @@ view model =
                 []
                 [ p []
                     [ p []
-                        [ input [ class "editor__controls__add-project__input", value model.pendingCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingCodeUrl ] []
+                        [ input [ class "editor__controls__add-project__input", value model.pendingRemoteCodeUrl, placeholder "<< Enter Github URL including path to file or Gist URL here >>", onInput UpdatePendingRemoteCodeUrl ] []
                         , text " "
                         , button [ class "editor__controls__add-project__button", onClick AddProject ] [ text "Add project" ]
                         ]
@@ -24,7 +24,15 @@ view model =
                 ]
 
         ViewProject project ->
-            renderProject project
+            renderProject (reloadProject model project)
+
+
+reloadProject : Model -> Project -> Project
+reloadProject model project =
+    model.projects
+        |> List.filter (\p -> p.remoteCodeUrl == project.remoteCodeUrl)
+        |> List.head
+        |> Maybe.withDefault project
 
 
 renderProjectListItem : Project -> Html.Html Msg
@@ -39,17 +47,32 @@ renderProjectListItem project =
 renderProject : Project -> Html.Html Msg
 renderProject project =
     p []
-        [ span [] [ text (shortFormCodeUrl project) ]
+        [ button [ onClick (LoadCode project) ] [ text "Load code" ]
+        , text " <- "
+        , span [] [ text (shortFormCodeUrl project) ]
         , br [] []
         , br [] []
-        , button [ onClick (LoadCode project) ] [ text "Load code" ]
-        , button [ onClick (CloseProject) ] [ text "Close" ]
-        , button [ onClick (RebootPlayer) ] [ text "Reboot" ]
-        , br [] []
-        , br [] []
-        , br [] []
+        , button [ onClick (RebootPlayer) ] [ text "Reboot the player" ]
+        , text " "
         , button [ onClick (RemoveProject project) ] [ text "Delete local code (!)" ]
+        , br [] []
+        , br [] []
+        , button [ onClick (CloseProject) ] [ text "Close project" ]
+        , br [] []
+        , br [] []
+        , renderRemoteStatus project
         ]
+
+
+renderRemoteStatus : Project -> Html.Html Msg
+renderRemoteStatus project =
+    if project.fetchingRemoteFiles then
+        div [] [ text "WIP: Fetching code..." ]
+    else
+        div []
+            [ div [] [ text "WIP: Remote code fetched" ]
+            , div [] [ text (project.remoteFiles |> List.length |> toString) ]
+            ]
 
 
 shortFormCodeUrl : Project -> String
@@ -58,16 +81,16 @@ shortFormCodeUrl project =
         Github ->
             let
                 githubProjectMetadata =
-                    project.codeUrl |> buildGithubProjectMetadata
+                    project.remoteCodeUrl |> buildGithubProjectMetadata
             in
                 "[github] " ++ githubProjectMetadata.user ++ "/" ++ githubProjectMetadata.repo ++ "/" ++ githubProjectMetadata.path
 
         Gist ->
             let
                 gistMetadata =
-                    (buildGithubGistMetaData project.codeUrl)
+                    (buildGithubGistMetaData project.remoteCodeUrl)
             in
                 "[gist] " ++ gistMetadata.user ++ "/" ++ gistMetadata.id
 
         None ->
-            project.codeUrl
+            project.remoteCodeUrl

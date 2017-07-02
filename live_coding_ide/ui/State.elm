@@ -1,4 +1,4 @@
-port module State exposing (init, updateAndSaveSettings, updateMode)
+port module State exposing (init, updateAndSaveSettings, updateMode, remoteCodeLoaded)
 
 import Types exposing (..)
 import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubProjectApiUrl, buildGithubGistMetaData, buildGithubGistApiUrl)
@@ -8,6 +8,12 @@ port loadCodeFromGithub : String -> Cmd msg
 
 
 port loadCodeFromGist : String -> Cmd msg
+
+
+port fetchCodeFromGithub : CodeRequest -> Cmd msg
+
+
+port fetchCodeFromGist : CodeRequest -> Cmd msg
 
 
 port saveSettings : Settings -> Cmd msg
@@ -22,14 +28,17 @@ port modeChangedTo : String -> Cmd msg
 port updateMode : (String -> msg) -> Sub msg
 
 
+port remoteCodeLoaded : (CodeResponse -> msg) -> Sub msg
+
+
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         LoadCode project ->
             model ! (loadCodeFromProject project)
 
-        UpdatePendingCodeUrl url ->
-            { model | pendingCodeUrl = url } ! []
+        UpdatePendingRemoteCodeUrl url ->
+            { model | pendingRemoteCodeUrl = url } ! []
 
         RemoveProject project ->
             let
@@ -41,12 +50,23 @@ update msg model =
         AddProject ->
             let
                 projects =
-                    { codeUrl = model.pendingCodeUrl } :: model.projects
+                    { fetchingRemoteFiles = False, localFiles = [], remoteFiles = [], remoteCodeUrl = model.pendingRemoteCodeUrl } :: model.projects
             in
-                { model | projects = projects, pendingCodeUrl = "" } ! []
+                { model | projects = projects, pendingRemoteCodeUrl = "" } ! []
 
         OpenProject project ->
-            { model | activeSection = ViewProject project } ! []
+            let
+                projects =
+                    model.projects
+                        |> List.map
+                            (\p ->
+                                if p.remoteCodeUrl == project.remoteCodeUrl then
+                                    { p | fetchingRemoteFiles = True }
+                                else
+                                    p
+                            )
+            in
+                { model | projects = projects, activeSection = ViewProject project } ! fetchRemoteFiles project
 
         CloseProject ->
             { model | activeSection = Start } ! []
@@ -65,6 +85,20 @@ update msg model =
         RebootPlayer ->
             model ! [ rebootPlayer "" ]
 
+        RemoteCodeLoaded codeResponse ->
+            let
+                projects =
+                    model.projects
+                        |> List.map
+                            (\p ->
+                                if p.remoteCodeUrl == codeResponse.projectUrl then
+                                    { p | remoteFiles = codeResponse.files, fetchingRemoteFiles = False }
+                                else
+                                    p
+                            )
+            in
+                { model | projects = projects } ! []
+
 
 restoreSettings : Model -> Settings -> Model
 restoreSettings model settings =
@@ -74,22 +108,40 @@ restoreSettings model settings =
     --
     -- It also allows conditional logic when dumping or restoring settings if
     -- we want that at some point.
-    { defaultModel | projects = settings.projects }
+    { defaultModel | projects = settings.projects |> List.map (\p -> { localFiles = p.localFiles, remoteCodeUrl = p.remoteCodeUrl, remoteFiles = [], fetchingRemoteFiles = False }) }
 
 
 dumpSettings : Model -> Settings
 dumpSettings model =
-    { projects = model.projects }
+    { projects = model.projects |> List.map (\p -> { remoteCodeUrl = p.remoteCodeUrl, localFiles = p.localFiles }) }
+
+
+fetchRemoteFiles : Project -> List (Cmd msg)
+fetchRemoteFiles project =
+    case (detectCodeUrlType project) of
+        Github ->
+            [ project.remoteCodeUrl |> buildGithubProjectMetadata |> buildGithubProjectApiUrl |> wrapInCodeRequest project |> fetchCodeFromGithub ]
+
+        Gist ->
+            [ project.remoteCodeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> wrapInCodeRequest project |> fetchCodeFromGist ]
+
+        None ->
+            []
+
+
+wrapInCodeRequest : Project -> String -> CodeRequest
+wrapInCodeRequest project apiUrl =
+    { projectUrl = project.remoteCodeUrl, apiUrl = apiUrl }
 
 
 loadCodeFromProject : Project -> List (Cmd msg)
 loadCodeFromProject project =
     case (detectCodeUrlType project) of
         Github ->
-            [ project.codeUrl |> buildGithubProjectMetadata |> buildGithubProjectApiUrl |> loadCodeFromGithub ]
+            [ project.remoteCodeUrl |> buildGithubProjectMetadata |> buildGithubProjectApiUrl |> loadCodeFromGithub ]
 
         Gist ->
-            [ project.codeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
+            [ project.remoteCodeUrl |> buildGithubGistMetaData |> buildGithubGistApiUrl |> loadCodeFromGist ]
 
         None ->
             []
@@ -97,7 +149,7 @@ loadCodeFromProject project =
 
 defaultModel : Model
 defaultModel =
-    { pendingCodeUrl = ""
+    { pendingRemoteCodeUrl = ""
     , projects = []
     , activeSection = Start
     , mode = Editing
@@ -109,10 +161,10 @@ defaultSettings =
     { projects =
         --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714"
         --, "https://gist.github.com/joakimk/a8b2c1d67e20e7963739fc8ae3a49714/0000ded16a016d21116b904223a55da8d5f0193b"
-        [ { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js" }
-        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js" }
-        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js" }
-        , { codeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js" }
+        [ { localFiles = [], remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/platform_game.js" }
+        , { localFiles = [], remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/effect_demo.js" }
+        , { localFiles = [], remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/pixijs.js" }
+        , { localFiles = [], remoteCodeUrl = "https://github.com/joakimk/live_coding/blob/master/live_coding_ide/examples/fabric.js" }
         ]
     }
 
