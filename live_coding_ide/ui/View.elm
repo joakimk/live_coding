@@ -1,7 +1,7 @@
 module View exposing (view)
 
 import Types exposing (..)
-import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubGistMetaData)
+import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubGistMetaData, reloadProject)
 import Html exposing (text, div, p, a, button, input, span, br)
 import Html.Attributes exposing (href, value, class, placeholder)
 import Html.Events exposing (onClick, onInput)
@@ -24,15 +24,7 @@ view model =
                 ]
 
         ViewProject project ->
-            renderProject (reloadProject model project)
-
-
-reloadProject : Model -> Project -> Project
-reloadProject model project =
-    model.projects
-        |> List.filter (\p -> p.remoteCodeUrl == project.remoteCodeUrl)
-        |> List.head
-        |> Maybe.withDefault project
+            renderProject (reloadProject model.projects project)
 
 
 renderProjectListItem : Project -> Html.Html Msg

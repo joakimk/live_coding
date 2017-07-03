@@ -8,6 +8,7 @@
     this.mode = "editing" // NOTE: Duplicated in Elm
     this.modeChangedSincePageLoad = false
     this.firstAttemptToLoadCodeHasRun = false
+    this.currentProject = null
 
     init = () => {
         setUpLiveView()
@@ -94,6 +95,28 @@
                 ui.ports.remoteCodeLoaded.send(codeResponse)
             })
         })
+
+        ui.ports.loadCodeInEditor.subscribe((project) => {
+            if(project.localFiles.length != 1) {
+                alert("Unsupported number of files: " + files.length)
+            }
+
+            currentProject = null
+            replaceCodeInEditor(editor, project.localFiles[0].content)
+            currentProject = project
+        })
+
+        editor.on("change", () => {
+            if(!currentProject) { return }
+
+            project = currentProject
+
+            if(project.localFiles.length != 1) { alert("Unsupported number of files") }
+
+            project.localFiles[0].content = editor.getValue()
+
+            ui.ports.codeChangedByUser.send(project)
+        });
 
         // OLD way
         ui.ports.loadCodeFromGithub.subscribe((url) => {

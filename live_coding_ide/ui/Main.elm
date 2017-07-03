@@ -14,7 +14,7 @@ module Main exposing (..)
 
 import Types exposing (Settings, Model, Msg)
 import View exposing (view)
-import State exposing (init, updateAndSaveSettings, updateMode, remoteCodeLoaded)
+import State exposing (init, updateAndSaveSettings, updateMode, remoteCodeLoaded, codeChangedByUser)
 import Html
 
 
@@ -29,5 +29,6 @@ main =
                 Sub.batch
                     [ updateMode Types.ChangeModeByString
                     , remoteCodeLoaded Types.RemoteCodeLoaded
+                    , codeChangedByUser Types.CodeChangedByUser
                     ]
         }
