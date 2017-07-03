@@ -63,6 +63,8 @@ groundTileMap = [
   "W",
   "W",
   "1",
+  "2",
+  "2",
   "2::12:4:4:4:4:4:4:4:4:4",
   "2::9:5:5:10:6:6:6:6:6:6",
   "2::9:10:6:3",
@@ -87,8 +89,8 @@ groundTileMap = [
   "W::14",
   "W::14+TR2",
   "W::14",
-  "W::14+BU2",
   "W::14",
+  "W::14+BU2",
   "W::15",
   "W",
   "W",
@@ -381,9 +383,10 @@ applyVelocity = () => {
     model.character.x += model.character.vx
     model.character.y += model.character.vy
 
-    // does boxes collide? on what side
-
-    characterCollision = { x: model.character.x - 0.5, y: (model.character.y*2) + 1 }
+    characterCollision = {
+        x: model.character.x - 0.5,
+        y: (model.character.y*2) + 1
+    }
 
     characterIntX = Math.floor(characterCollision.x + 0.5)
     nearMap = []
@@ -391,76 +394,65 @@ applyVelocity = () => {
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX] || [])
     nearMap = nearMap.concat(collisionMapIndexByIntegerX[characterIntX + 1] || [])
 
+    // does boxes collide? on what side
 
-    for(let i = 0; i < nearMap.length; i++) {
-        if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
+    hitDirections = calculateCollisionHits(characterCollision, nearMap, model);
 
-        xHitLeft = characterCollision.x < nearMap[i].x + 1
-            && characterCollision.x > nearMap[i].x
-            && nearMap[i].collisionType != "platform";
-
-        xHitRight = characterCollision.x + 1 > nearMap[i].x
-            && characterCollision.x + 1 < nearMap[i].x + 1
-            && nearMap[i].collisionType != "platform";
-
-        yHitTop = characterCollision.y + 1 > nearMap[i].y
-            && characterCollision.y + 1 < nearMap[i].y + 1
-            && nearMap[i].collisionType != "platform";
-
-        yHitBottom = checkHitBottom(characterCollision, nearMap[i], model);
-
-        onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
-
-        if(onSameColumn) {
-            if(yHitBottom) {
-                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-
-                if(model.character.vy <= 0) {
-                    model.character.y = nearMap[i].y * 0.5
-                    if(model.character.y == -1) {
-                        model.character.y = 0
-                    }
-                    model.character.vy = 0
-                }
-
-                characterResetValues.x = model.character.x
-                characterResetValues.y = model.character.y
-                characterResetValues.lastdirection = model.input.lastdirection
-            }
-            if(yHitTop){
-                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-
-                model.character.y = nearMap[i].y * 0.5 - 1
-                if(model.character.y == -1) {
-                    model.character.y = 0
-                }
-                model.character.vy = -0.01
-            }
-        }
-
-        onSameLevel = (nearMap[i].y == Math.ceil(characterCollision.y - 0.25))
-
-        if (onSameLevel) {
-            if(xHitRight) {
-                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-
-                model.character.x = nearMap[i].x - 0.5
-            }
-            if(xHitLeft) {
-                if(inDebugMode) { model.debugboxes.push(nearMap[i]) }
-
-                model.character.x = nearMap[i].x + 1 + 0.5
-            }
-        }
+    if(hitDirections.left !== null) {
+        model.character.x = hitDirections.left.x + 1 + 0.5
     }
 
-    // WriteDebugText(
-    //     "cx:" + characterCollision.x + "\n" + 
-    //     "cy:" + characterCollision.y+ "\n" +
-    //     "yb:" + yHitBottom + " yt:" + yHitTop +
-    //     " xl:" + xHitLeft + " xr:" + xHitRight)
+    if(hitDirections.right !== null) {
+        model.character.x = hitDirections.right.x - 0.5
+    }
 
-    if(inDebugMode){ model.debugboxes.push(characterCollision) }
+    if(hitDirections.top !== null) {
+        model.character.y = hitDirections.top.y * 0.5 - 1
+        if(model.character.y == -1) {
+            model.character.y = 0
+        }
+        model.character.vy = -0.01
+    }
+
+    if(hitDirections.bottom !== null) {
+        if(model.character.vy <= 0) {
+            model.character.y = hitDirections.bottom.y * 0.5
+            if(model.character.y == -1) {
+                model.character.y = 0
+            }
+            model.character.vy = 0
+        }
+
+        characterResetValues.x = model.character.x
+        characterResetValues.y = model.character.y
+        characterResetValues.lastdirection = model.input.lastdirection
+    }
+
+    if(inDebugMode){
+        model.debugboxes.push(characterCollision)
+        for(let i = 0; i < nearMap.length; i++) {
+            model.debugboxes.push(nearMap[i])
+        }
+        
+        if(hitDirections.left !== null) {
+            model.debugboxes.push(hitDirections.left)
+        }
+        if(hitDirections.right !== null) {
+            model.debugboxes.push(hitDirections.right)
+        }
+        if(hitDirections.top !== null) {
+            model.debugboxes.push(hitDirections.top)
+        }
+        if(hitDirections.bottom !== null) {
+            model.debugboxes.push(hitDirections.bottom)
+        }
+
+        // WriteDebugText(
+        //     "cx:" + characterCollision.x + "\n" +
+        //     "cy:" + characterCollision.y+ "\n" +
+        //     "cb:" + yHitBottom + " ct:" + yHitTop +
+        //     " cl:" + xHitLeft + " cr:" + xHitRight)
+    }
 
     leftMapBorder = 0.3;
     if(model.character.x < leftMapBorder) {
@@ -472,7 +464,7 @@ applyVelocity = () => {
     //     model.character.x = rightMapBorder
     // }
 
-    if (model.character.y <= -1){
+    if (model.character.y <= -1) {
         console.log("Thus ends the story of our brave kitty! You have died!")
         model = getDefaultModelValues(characterResetValues);
     }
@@ -488,6 +480,65 @@ function checkHitBottom(characterCollision, nearMap, model) {
             && model.character.vy <= 0
             )
 }
+
+
+function calculateCollisionHits(characterCollision, nearMap, model) {
+
+    hitDirections = {
+        left: null,
+        right: null,
+        top: null,
+        bottom: null
+    }
+
+    for(let i = 0; i < nearMap.length; i++) {
+
+        hitBottom = false;
+        hitTop = false;
+        hitLeft = false;
+        hitRight = false
+
+        onSameRow = (nearMap[i].y == Math.ceil(characterCollision.y - 0.25))
+        onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
+
+        if(onSameColumn){
+            hitBottom = checkHitBottom(characterCollision, nearMap[i], model);
+
+            hitTop = characterCollision.y + 1 > nearMap[i].y
+                && characterCollision.y + 1 < nearMap[i].y + 1
+                && nearMap[i].collisionType != "platform";
+        }
+
+        if(onSameRow){
+            hitLeft = characterCollision.x < nearMap[i].x + 1
+                && characterCollision.x > nearMap[i].x
+                && nearMap[i].collisionType != "platform";
+    
+            hitRight = characterCollision.x + 1 > nearMap[i].x
+                && characterCollision.x + 1 < nearMap[i].x + 1
+                && nearMap[i].collisionType != "platform";
+        }
+
+        if(hitRight) {
+            hitDirections.right = nearMap[i];
+        }
+        
+        if(hitLeft) {
+            hitDirections.left = nearMap[i];
+        }
+
+        if(hitTop) {
+            hitDirections.top = nearMap[i];
+        }
+        
+        if(hitBottom) {
+            hitDirections.bottom = nearMap[i];
+        }
+    }
+    
+    return hitDirections;
+}
+
 
 applyGravity = (delta) => {
     model.character.vy -= gravityAcceleration * delta
