@@ -1,7 +1,7 @@
-port module State exposing (init, updateAndSaveSettings, updateMode, remoteCodeLoaded)
+port module State exposing (init, updateAndSaveSettings, updateMode, remoteCodeLoaded, codeChangedByUser)
 
 import Types exposing (..)
-import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubProjectApiUrl, buildGithubGistMetaData, buildGithubGistApiUrl)
+import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubProjectApiUrl, buildGithubGistMetaData, buildGithubGistApiUrl, reloadProject)
 
 
 port loadCodeFromGithub : String -> Cmd msg
@@ -25,10 +25,16 @@ port rebootPlayer : String -> Cmd msg
 port modeChangedTo : String -> Cmd msg
 
 
+port loadCodeInEditor : SavedProject -> Cmd msg
+
+
 port updateMode : (String -> msg) -> Sub msg
 
 
 port remoteCodeLoaded : (CodeResponse -> msg) -> Sub msg
+
+
+port codeChangedByUser : (SavedProject -> msg) -> Sub msg
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -55,7 +61,8 @@ update msg model =
                 { model | projects = projects, pendingRemoteCodeUrl = "" } ! []
 
         OpenProject project ->
-            { model | projects = (setRemoteFilesStatusToPending model.projects project), activeSection = ViewProject project } ! fetchRemoteFiles project
+            { model | projects = (setRemoteFilesStatusToPending model.projects project), activeSection = ViewProject project }
+                ! ([ fetchRemoteFiles project, [ loadCodeInEditor { remoteCodeUrl = project.remoteCodeUrl, localFiles = project.localFiles } ] ] |> List.concat)
 
         FetchRemoteFiles project ->
             { model | projects = (setRemoteFilesStatusToPending model.projects project) } ! fetchRemoteFiles project
@@ -102,6 +109,23 @@ update msg model =
                             (\p ->
                                 if p == project then
                                     { project | localFiles = project.remoteFiles }
+                                else
+                                    p
+                            )
+
+                updatedProject =
+                    (reloadProject projects project)
+            in
+                { model | projects = projects } ! [ loadCodeInEditor { remoteCodeUrl = project.remoteCodeUrl, localFiles = updatedProject.localFiles } ]
+
+        CodeChangedByUser project ->
+            let
+                projects =
+                    model.projects
+                        |> List.map
+                            (\p ->
+                                if p.remoteCodeUrl == project.remoteCodeUrl then
+                                    { p | localFiles = project.localFiles }
                                 else
                                     p
                             )

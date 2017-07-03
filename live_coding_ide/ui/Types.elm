@@ -31,6 +31,7 @@ type Msg
     | ChangeModeByString String
     | RebootPlayer
     | RemoteCodeLoaded CodeResponse
+    | CodeChangedByUser SavedProject
     | OpenProject Project
     | RemoveProject Project
     | LoadCode Project

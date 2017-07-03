@@ -65,3 +65,11 @@ buildGithubGistMetaData remoteCodeUrl =
 buildGithubGistApiUrl : GithubGistMetadata -> String
 buildGithubGistApiUrl gistMetadata =
     "https://api.github.com/gists/" ++ gistMetadata.id
+
+
+reloadProject : List Project -> Project -> Project
+reloadProject projects project =
+    projects
+        |> List.filter (\p -> p.remoteCodeUrl == project.remoteCodeUrl)
+        |> List.head
+        |> Maybe.withDefault project
