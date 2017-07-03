@@ -97,6 +97,9 @@
         })
 
         ui.ports.loadCodeInEditor.subscribe((project) => {
+            // TODO: why is this called with zero files?
+            if(project.localFiles.length == 0) { return }
+
             if(project.localFiles.length != 1) { alert("Unsupported number of files: " + project.localFiles.length) }
 
             currentProject = null
