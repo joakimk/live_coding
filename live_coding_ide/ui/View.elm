@@ -61,17 +61,40 @@ renderProject project =
         , br [] []
         , br [] []
         , renderRemoteStatus project
+        , br [] []
+        , button [ onClick (FetchRemoteFiles project) ] [ text "Check for updates" ]
         ]
 
 
 renderRemoteStatus : Project -> Html.Html Msg
 renderRemoteStatus project =
-    if project.fetchingRemoteFiles then
-        div [] [ text "WIP: Fetching code..." ]
+    case project.remoteFilesStatus of
+        Pending ->
+            div [] [ text "WIP: Fetching code..." ]
+
+        Successful ->
+            showButtonOrStatusForLocalVsRemoteFiles project
+
+        Failed ->
+            div [] [ text "WIP: Fetching code failed :(" ]
+
+        NotRunYet ->
+            div [] []
+
+
+showButtonOrStatusForLocalVsRemoteFiles : Project -> Html.Html Msg
+showButtonOrStatusForLocalVsRemoteFiles project =
+    if project.localFiles == project.remoteFiles then
+        div [] [ text "WIP: No changes since remote code was loaded." ]
+    else if (project.localFiles |> List.length) == 0 then
+        div []
+            [ div [] [ text "WIP: This project is empty." ]
+            , button [ onClick (ReplaceLocalFilesWithRemoteFiles project) ] [ text "Load code" ]
+            ]
     else
         div []
-            [ div [] [ text "WIP: Remote code fetched" ]
-            , div [] [ text (project.remoteFiles |> List.length |> toString) ]
+            [ div [] [ text "WIP: Local code differs from remote code." ]
+            , button [ onClick (ReplaceLocalFilesWithRemoteFiles project) ] [ text "Load code (replaces the current code)" ]
             ]
 
 

@@ -62,12 +62,16 @@
         // NEW way (wip)
         ui.ports.fetchCodeFromGist.subscribe((codeRequest) => {
             fetchFromUrl(codeRequest.apiUrl, function(body) {
-                files = Object.values(JSON.parse(body).files)
+                let codeResponse = { projectUrl: codeRequest.projectUrl, files: [], successful: true }
 
-                codeResponse = { projectUrl: codeRequest.projectUrl, files: [] }
+                if(body == "request_failed") {
+                    codeResponse.successful = false
+                } else {
+                    files = Object.values(JSON.parse(body).files)
 
-                for(i = 0; i < files.length; i++) {
-                    codeResponse.files.push({ name: files[i].filename, content: files[i].content })
+                    for(i = 0; i < files.length; i++) {
+                        codeResponse.files.push({ name: files[i].filename, content: files[i].content })
+                    }
                 }
 
                 ui.ports.remoteCodeLoaded.send(codeResponse)
@@ -77,11 +81,15 @@
 
         ui.ports.fetchCodeFromGithub.subscribe((codeRequest) => {
             fetchFromUrl(codeRequest.apiUrl, function(body) {
-                // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
-                code = decodeURIComponent(escape(atob(JSON.parse(body).content)))
+                let codeResponse = { projectUrl: codeRequest.projectUrl, files: [], successful: true }
 
-                codeResponse = { projectUrl: codeRequest.projectUrl, files: [] }
-                codeResponse.files.push({ name: "file.js", content: code })
+                if(body == "request_failed") {
+                    codeResponse.successful = false
+                } else {
+                    // https://stackoverflow.com/questions/22587308/convert-iso-8859-1-to-utf-8
+                    code = decodeURIComponent(escape(atob(JSON.parse(body).content)))
+                    codeResponse.files.push({ name: "file.js", content: code })
+                }
 
                 ui.ports.remoteCodeLoaded.send(codeResponse)
             })
@@ -304,11 +312,18 @@
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 callback(xmlhttp.responseText)
             } else if (xmlhttp.status != 0 && xmlhttp.status != 200) {
+                callback("request_failed")
                 console.log("Failed to get " + url + ": " + xmlhttp.responseText + " [" + xmlhttp.status + "]")
             }
         }
 
-        xmlhttp.open("GET", url, true)
+        let divider = url.indexOf("?") != -1 ? "&" : "?"
+
+        // Invalidate cache every 4 seconds instead of the 60 seconds default,
+        // since you might want to fetch an update you just did.
+        let cacheBuster = parseInt(new Date().getTime() / 4000)
+        xmlhttp.open("GET", url + divider + "noCachePlease=" + cacheBuster, true)
+
         xmlhttp.send()
     }
 

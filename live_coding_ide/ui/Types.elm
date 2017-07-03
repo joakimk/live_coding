@@ -17,16 +17,25 @@ type Mode
     | Playing
 
 
+type RemoteFilesStatus
+    = Pending
+    | Successful
+    | Failed
+    | NotRunYet
+
+
 type Msg
     = UpdatePendingRemoteCodeUrl String
     | AddProject
-    | OpenProject Project
     | CloseProject
-    | RemoveProject Project
-    | LoadCode Project
     | ChangeModeByString String
     | RebootPlayer
     | RemoteCodeLoaded CodeResponse
+    | OpenProject Project
+    | RemoveProject Project
+    | LoadCode Project
+    | ReplaceLocalFilesWithRemoteFiles Project
+    | FetchRemoteFiles Project
 
 
 type alias Model =
@@ -47,7 +56,7 @@ type alias Project =
       remoteCodeUrl : String
     , localFiles : List File
     , remoteFiles : List File
-    , fetchingRemoteFiles : Bool
+    , remoteFilesStatus : RemoteFilesStatus
     }
 
 
@@ -72,6 +81,7 @@ type alias CodeRequest =
 type alias CodeResponse =
     { projectUrl : String
     , files : List File
+    , successful : Bool
     }
 
 

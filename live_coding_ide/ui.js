@@ -8269,7 +8269,7 @@ var _user$example$Types$Settings = function (a) {
 };
 var _user$example$Types$Project = F4(
 	function (a, b, c, d) {
-		return {remoteCodeUrl: a, localFiles: b, remoteFiles: c, fetchingRemoteFiles: d};
+		return {remoteCodeUrl: a, localFiles: b, remoteFiles: c, remoteFilesStatus: d};
 	});
 var _user$example$Types$SavedProject = F2(
 	function (a, b) {
@@ -8283,9 +8283,9 @@ var _user$example$Types$CodeRequest = F2(
 	function (a, b) {
 		return {projectUrl: a, apiUrl: b};
 	});
-var _user$example$Types$CodeResponse = F2(
-	function (a, b) {
-		return {projectUrl: a, files: b};
+var _user$example$Types$CodeResponse = F3(
+	function (a, b, c) {
+		return {projectUrl: a, files: b, successful: c};
 	});
 var _user$example$Types$GithubProjectMetadata = F4(
 	function (a, b, c, d) {
@@ -8304,12 +8304,15 @@ var _user$example$Types$ViewProject = function (a) {
 var _user$example$Types$Start = {ctor: 'Start'};
 var _user$example$Types$Playing = {ctor: 'Playing'};
 var _user$example$Types$Editing = {ctor: 'Editing'};
-var _user$example$Types$RemoteCodeLoaded = function (a) {
-	return {ctor: 'RemoteCodeLoaded', _0: a};
+var _user$example$Types$NotRunYet = {ctor: 'NotRunYet'};
+var _user$example$Types$Failed = {ctor: 'Failed'};
+var _user$example$Types$Successful = {ctor: 'Successful'};
+var _user$example$Types$Pending = {ctor: 'Pending'};
+var _user$example$Types$FetchRemoteFiles = function (a) {
+	return {ctor: 'FetchRemoteFiles', _0: a};
 };
-var _user$example$Types$RebootPlayer = {ctor: 'RebootPlayer'};
-var _user$example$Types$ChangeModeByString = function (a) {
-	return {ctor: 'ChangeModeByString', _0: a};
+var _user$example$Types$ReplaceLocalFilesWithRemoteFiles = function (a) {
+	return {ctor: 'ReplaceLocalFilesWithRemoteFiles', _0: a};
 };
 var _user$example$Types$LoadCode = function (a) {
 	return {ctor: 'LoadCode', _0: a};
@@ -8317,10 +8320,17 @@ var _user$example$Types$LoadCode = function (a) {
 var _user$example$Types$RemoveProject = function (a) {
 	return {ctor: 'RemoveProject', _0: a};
 };
-var _user$example$Types$CloseProject = {ctor: 'CloseProject'};
 var _user$example$Types$OpenProject = function (a) {
 	return {ctor: 'OpenProject', _0: a};
 };
+var _user$example$Types$RemoteCodeLoaded = function (a) {
+	return {ctor: 'RemoteCodeLoaded', _0: a};
+};
+var _user$example$Types$RebootPlayer = {ctor: 'RebootPlayer'};
+var _user$example$Types$ChangeModeByString = function (a) {
+	return {ctor: 'ChangeModeByString', _0: a};
+};
+var _user$example$Types$CloseProject = {ctor: 'CloseProject'};
 var _user$example$Types$AddProject = {ctor: 'AddProject'};
 var _user$example$Types$UpdatePendingRemoteCodeUrl = function (a) {
 	return {ctor: 'UpdatePendingRemoteCodeUrl', _0: a};
@@ -8450,14 +8460,46 @@ var _user$example$View$shortFormCodeUrl = function (project) {
 			return project.remoteCodeUrl;
 	}
 };
-var _user$example$View$renderRemoteStatus = function (project) {
-	return project.fetchingRemoteFiles ? A2(
+var _user$example$View$showButtonOrStatusForLocalVsRemoteFiles = function (project) {
+	return _elm_lang$core$Native_Utils.eq(project.localFiles, project.remoteFiles) ? A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('WIP: Fetching code...'),
+			_0: _elm_lang$html$Html$text('WIP: No changes since remote code was loaded.'),
 			_1: {ctor: '[]'}
+		}) : (_elm_lang$core$Native_Utils.eq(
+		_elm_lang$core$List$length(project.localFiles),
+		0) ? A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('WIP: This project is empty.'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_user$example$Types$ReplaceLocalFilesWithRemoteFiles(project)),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Load code'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
 		}) : A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -8468,24 +8510,57 @@ var _user$example$View$renderRemoteStatus = function (project) {
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('WIP: Remote code fetched'),
+					_0: _elm_lang$html$Html$text('WIP: Local code differs from remote code.'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
+					_elm_lang$html$Html$button,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(
-								_elm_lang$core$List$length(project.remoteFiles))),
+						_0: _elm_lang$html$Html_Events$onClick(
+							_user$example$Types$ReplaceLocalFilesWithRemoteFiles(project)),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Load code (replaces the current code)'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
 			}
-		});
+		}));
+};
+var _user$example$View$renderRemoteStatus = function (project) {
+	var _p1 = project.remoteFilesStatus;
+	switch (_p1.ctor) {
+		case 'Pending':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('WIP: Fetching code...'),
+					_1: {ctor: '[]'}
+				});
+		case 'Successful':
+			return _user$example$View$showButtonOrStatusForLocalVsRemoteFiles(project);
+		case 'Failed':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('WIP: Fetching code failed :('),
+					_1: {ctor: '[]'}
+				});
+		default:
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{ctor: '[]'});
+	}
 };
 var _user$example$View$renderProject = function (project) {
 	return A2(
@@ -8605,7 +8680,30 @@ var _user$example$View$renderProject = function (project) {
 															_1: {
 																ctor: '::',
 																_0: _user$example$View$renderRemoteStatus(project),
-																_1: {ctor: '[]'}
+																_1: {
+																	ctor: '::',
+																	_0: A2(
+																		_elm_lang$html$Html$br,
+																		{ctor: '[]'},
+																		{ctor: '[]'}),
+																	_1: {
+																		ctor: '::',
+																		_0: A2(
+																			_elm_lang$html$Html$button,
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Events$onClick(
+																					_user$example$Types$FetchRemoteFiles(project)),
+																				_1: {ctor: '[]'}
+																			},
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html$text('Check for updates'),
+																				_1: {ctor: '[]'}
+																			}),
+																		_1: {ctor: '[]'}
+																	}
+																}
 															}
 														}
 													}
@@ -8673,8 +8771,8 @@ var _user$example$View$reloadProject = F2(
 					model.projects)));
 	});
 var _user$example$View$view = function (model) {
-	var _p1 = model.activeSection;
-	if (_p1.ctor === 'Start') {
+	var _p2 = model.activeSection;
+	if (_p2.ctor === 'Start') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -8748,7 +8846,7 @@ var _user$example$View$view = function (model) {
 			});
 	} else {
 		return _user$example$View$renderProject(
-			A2(_user$example$View$reloadProject, model, _p1._0));
+			A2(_user$example$View$reloadProject, model, _p2._0));
 	}
 };
 
@@ -8815,7 +8913,7 @@ var _user$example$State$restoreSettings = F2(
 							localFiles: p.localFiles,
 							remoteCodeUrl: p.remoteCodeUrl,
 							remoteFiles: {ctor: '[]'},
-							fetchingRemoteFiles: false
+							remoteFilesStatus: _user$example$Types$NotRunYet
 						};
 					},
 					settings.projects)
@@ -8828,6 +8926,17 @@ var _user$example$State$init = function (savedSettings) {
 		A2(_user$example$State$restoreSettings, _user$example$State$defaultModel, settings),
 		{ctor: '[]'});
 };
+var _user$example$State$setRemoteFilesStatusToPending = F2(
+	function (projects, project) {
+		return A2(
+			_elm_lang$core$List$map,
+			function (p) {
+				return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, project.remoteCodeUrl) ? _elm_lang$core$Native_Utils.update(
+					p,
+					{remoteFilesStatus: _user$example$Types$Pending}) : p;
+			},
+			projects);
+	});
 var _user$example$State$loadCodeFromGithub = _elm_lang$core$Native_Platform.outgoingPort(
 	'loadCodeFromGithub',
 	function (v) {
@@ -8959,7 +9068,7 @@ var _user$example$State$update = F2(
 				var projects = {
 					ctor: '::',
 					_0: {
-						fetchingRemoteFiles: false,
+						remoteFilesStatus: _user$example$Types$NotRunYet,
 						localFiles: {ctor: '[]'},
 						remoteFiles: {ctor: '[]'},
 						remoteCodeUrl: model.pendingRemoteCodeUrl
@@ -8974,23 +9083,25 @@ var _user$example$State$update = F2(
 					{ctor: '[]'});
 			case 'OpenProject':
 				var _p3 = _p2._0;
-				var projects = A2(
-					_elm_lang$core$List$map,
-					function (p) {
-						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p3.remoteCodeUrl) ? _elm_lang$core$Native_Utils.update(
-							p,
-							{fetchingRemoteFiles: true}) : p;
-					},
-					model.projects);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							projects: projects,
+							projects: A2(_user$example$State$setRemoteFilesStatusToPending, model.projects, _p3),
 							activeSection: _user$example$Types$ViewProject(_p3)
 						}),
 					_user$example$State$fetchRemoteFiles(_p3));
+			case 'FetchRemoteFiles':
+				var _p4 = _p2._0;
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							projects: A2(_user$example$State$setRemoteFilesStatusToPending, model.projects, _p4)
+						}),
+					_user$example$State$fetchRemoteFiles(_p4));
 			case 'CloseProject':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -8999,8 +9110,8 @@ var _user$example$State$update = F2(
 						{activeSection: _user$example$Types$Start}),
 					{ctor: '[]'});
 			case 'ChangeModeByString':
-				var _p4 = _p2._0;
-				switch (_p4) {
+				var _p5 = _p2._0;
+				switch (_p5) {
 					case 'editing':
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
@@ -9027,10 +9138,10 @@ var _user$example$State$update = F2(
 						return _elm_lang$core$Native_Utils.crashCase(
 							'State',
 							{
-								start: {line: 75, column: 13},
-								end: {line: 83, column: 69}
+								start: {line: 67, column: 13},
+								end: {line: 75, column: 69}
 							},
-							_p4)('If we get here then we have bad js');
+							_p5)('If we get here then we have bad js');
 				}
 			case 'RebootPlayer':
 				return A2(
@@ -9041,14 +9152,32 @@ var _user$example$State$update = F2(
 						_0: _user$example$State$rebootPlayer(''),
 						_1: {ctor: '[]'}
 					});
-			default:
-				var _p6 = _p2._0;
+			case 'RemoteCodeLoaded':
+				var _p7 = _p2._0;
 				var projects = A2(
 					_elm_lang$core$List$map,
 					function (p) {
-						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p6.projectUrl) ? _elm_lang$core$Native_Utils.update(
+						return _elm_lang$core$Native_Utils.eq(p.remoteCodeUrl, _p7.projectUrl) ? (_p7.successful ? _elm_lang$core$Native_Utils.update(
 							p,
-							{remoteFiles: _p6.files, fetchingRemoteFiles: false}) : p;
+							{remoteFiles: _p7.files, remoteFilesStatus: _user$example$Types$Successful}) : _elm_lang$core$Native_Utils.update(
+							p,
+							{remoteFilesStatus: _user$example$Types$Failed})) : p;
+					},
+					model.projects);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{projects: projects}),
+					{ctor: '[]'});
+			default:
+				var _p8 = _p2._0;
+				var projects = A2(
+					_elm_lang$core$List$map,
+					function (p) {
+						return _elm_lang$core$Native_Utils.eq(p, _p8) ? _elm_lang$core$Native_Utils.update(
+							_p8,
+							{localFiles: _p8.remoteFiles}) : p;
 					},
 					model.projects);
 				return A2(
@@ -9061,9 +9190,9 @@ var _user$example$State$update = F2(
 	});
 var _user$example$State$updateAndSaveSettings = F2(
 	function (msg, model) {
-		var _p7 = A2(_user$example$State$update, msg, model);
-		var newModel = _p7._0;
-		var cmds = _p7._1;
+		var _p9 = A2(_user$example$State$update, msg, model);
+		var newModel = _p9._0;
+		var cmds = _p9._1;
 		return {
 			ctor: '_Tuple2',
 			_0: newModel,
@@ -9089,8 +9218,13 @@ var _user$example$State$remoteCodeLoaded = _elm_lang$core$Native_Platform.incomi
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
 				function (files) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{projectUrl: projectUrl, files: files});
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (successful) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{projectUrl: projectUrl, files: files, successful: successful});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'successful', _elm_lang$core$Json_Decode$bool));
 				},
 				A2(
 					_elm_lang$core$Json_Decode$field,
