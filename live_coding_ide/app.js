@@ -97,12 +97,11 @@
         })
 
         ui.ports.loadCodeInEditor.subscribe((project) => {
-            if(project.localFiles.length != 1) {
-                alert("Unsupported number of files: " + files.length)
-            }
+            if(project.localFiles.length != 1) { alert("Unsupported number of files: " + project.localFiles.length) }
 
             currentProject = null
             replaceCodeInEditor(editor, project.localFiles[0].content)
+            liveViewElement.contentWindow.location.reload()
             currentProject = project
         })
 
@@ -111,7 +110,7 @@
 
             project = currentProject
 
-            if(project.localFiles.length != 1) { alert("Unsupported number of files") }
+            if(project.localFiles.length != 1) { alert("Unsupported number of files: " + project.localFiles.length) }
 
             project.localFiles[0].content = editor.getValue()
 
