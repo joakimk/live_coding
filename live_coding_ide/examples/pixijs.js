@@ -10,7 +10,7 @@ model = liveCoding.loadStateOrDefaultTo({
 render = (delta) => {
     if(liveCoding.codeHasChanged()) { return }
 
-    model.x = 330
+    model.x = 320
 
     graphics = new PIXI.Graphics()
 
