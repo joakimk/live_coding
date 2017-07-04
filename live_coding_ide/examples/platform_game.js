@@ -489,7 +489,7 @@ applyVelocity = () => {
         for(let i = 0; i < nearMap.length; i++) {
             model.debugboxes.push(nearMap[i])
         }
-        
+
         if(hitDirections.left !== null) {
             model.debugboxes.push(hitDirections.left)
         }
@@ -569,7 +569,7 @@ function calculateCollisionHits(characterCollision, nearMap, model) {
             hitLeft = characterCollision.x < nearMap[i].x + 1
                 && characterCollision.x > nearMap[i].x
                 && nearMap[i].collisionType != "platform";
-    
+
             hitRight = characterCollision.x + 1 > nearMap[i].x
                 && characterCollision.x + 1 < nearMap[i].x + 1
                 && nearMap[i].collisionType != "platform";
@@ -578,7 +578,7 @@ function calculateCollisionHits(characterCollision, nearMap, model) {
         if(hitRight) {
             hitDirections.right = nearMap[i];
         }
-        
+
         if(hitLeft) {
             hitDirections.left = nearMap[i];
         }
@@ -586,12 +586,12 @@ function calculateCollisionHits(characterCollision, nearMap, model) {
         if(hitTop) {
             hitDirections.top = nearMap[i];
         }
-        
+
         if(hitBottom) {
             hitDirections.bottom = nearMap[i];
         }
     }
-    
+
     return hitDirections;
 }
 
@@ -743,6 +743,8 @@ function handlePlayInput(e, f) {
             model.input.direction = "left"
         else if(e.key == "w")
             model.input.jump = true
+        else if(e.key == "g")
+            inDebugMode = !inDebugMode
 
         return;
     }
@@ -755,8 +757,6 @@ function handlePlayInput(e, f) {
         else if(e.key == "w") {
             model.input.jump = false;
             model.input.isJumpPossible = false;
-        } else if(e.key == "g") {
-            inDebugMode = !inDebugMode
         }
 
         return;
