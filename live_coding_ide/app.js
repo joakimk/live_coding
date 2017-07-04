@@ -38,7 +38,7 @@
             for(i = 0; i < settings.projects.length; i++) {
                 let project = settings.projects[i]
                 if(project.codeUrl) {
-                    settings.projects[i] = { remoteCodeUrl: project.codeUrl }
+                    settings.projects[i] = { remoteCodeUrl: project.codeUrl, localFiles: project.localFiles }
                 }
 
                 if(!project.localFiles) {
