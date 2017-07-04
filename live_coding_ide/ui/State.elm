@@ -16,6 +16,9 @@ port fetchCodeFromGithub : CodeRequest -> Cmd msg
 port fetchCodeFromGist : CodeRequest -> Cmd msg
 
 
+port redirectConsoleOutput : Bool -> Cmd msg
+
+
 port saveSettings : Settings -> Cmd msg
 
 
@@ -132,6 +135,9 @@ update msg model =
             in
                 { model | projects = projects } ! []
 
+        ToggleConsoleOutput ->
+            { model | redirectConsoleOutput = not model.redirectConsoleOutput } ! [ redirectConsoleOutput (not model.redirectConsoleOutput) ]
+
 
 setRemoteFilesStatusToPending : List Project -> Project -> List Project
 setRemoteFilesStatusToPending projects project =
@@ -153,7 +159,18 @@ restoreSettings model settings =
     --
     -- It also allows conditional logic when dumping or restoring settings if
     -- we want that at some point.
-    { defaultModel | projects = settings.projects |> List.map (\p -> { localFiles = p.localFiles, remoteCodeUrl = p.remoteCodeUrl, remoteFiles = [], remoteFilesStatus = NotRunYet }) }
+    { defaultModel
+        | projects =
+            settings.projects
+                |> List.map
+                    (\p ->
+                        { localFiles = p.localFiles
+                        , remoteCodeUrl = p.remoteCodeUrl
+                        , remoteFiles = []
+                        , remoteFilesStatus = NotRunYet
+                        }
+                    )
+    }
 
 
 dumpSettings : Model -> Settings
@@ -198,6 +215,7 @@ defaultModel =
     , projects = []
     , activeSection = Start
     , mode = Editing
+    , redirectConsoleOutput = True
     }
 
 
