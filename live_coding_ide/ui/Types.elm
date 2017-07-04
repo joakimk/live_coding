@@ -37,6 +37,7 @@ type Msg
     | LoadCode Project
     | ReplaceLocalFilesWithRemoteFiles Project
     | FetchRemoteFiles Project
+    | ToggleConsoleOutput
 
 
 type alias Model =
@@ -44,6 +45,7 @@ type alias Model =
     , pendingRemoteCodeUrl : String
     , activeSection : Section
     , mode : Mode
+    , redirectConsoleOutput : Bool
     }
 
 

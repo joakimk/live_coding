@@ -8260,9 +8260,9 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$example$Types$Model = F4(
-	function (a, b, c, d) {
-		return {projects: a, pendingRemoteCodeUrl: b, activeSection: c, mode: d};
+var _user$example$Types$Model = F5(
+	function (a, b, c, d, e) {
+		return {projects: a, pendingRemoteCodeUrl: b, activeSection: c, mode: d, redirectConsoleOutput: e};
 	});
 var _user$example$Types$Settings = function (a) {
 	return {projects: a};
@@ -8308,6 +8308,7 @@ var _user$example$Types$NotRunYet = {ctor: 'NotRunYet'};
 var _user$example$Types$Failed = {ctor: 'Failed'};
 var _user$example$Types$Successful = {ctor: 'Successful'};
 var _user$example$Types$Pending = {ctor: 'Pending'};
+var _user$example$Types$ToggleConsoleOutput = {ctor: 'ToggleConsoleOutput'};
 var _user$example$Types$FetchRemoteFiles = function (a) {
 	return {ctor: 'FetchRemoteFiles', _0: a};
 };
@@ -8578,45 +8579,40 @@ var _user$example$View$renderRemoteStatus = function (project) {
 				{ctor: '[]'});
 	}
 };
-var _user$example$View$renderProject = function (project) {
-	return A2(
-		_elm_lang$html$Html$p,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$button,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						_user$example$Types$LoadCode(project)),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Load code'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
+var _user$example$View$renderProject = F2(
+	function (model, project) {
+		return A2(
+			_elm_lang$html$Html$p,
+			{ctor: '[]'},
+			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(' <- '),
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_user$example$Types$LoadCode(project)),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Load code'),
+						_1: {ctor: '[]'}
+					}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_user$example$View$shortFormCodeUrl(project)),
-							_1: {ctor: '[]'}
-						}),
+					_0: _elm_lang$html$Html$text(' <- '),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$br,
+							_elm_lang$html$Html$span,
 							{ctor: '[]'},
-							{ctor: '[]'}),
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									_user$example$View$shortFormCodeUrl(project)),
+								_1: {ctor: '[]'}
+							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
@@ -8626,41 +8622,41 @@ var _user$example$View$renderProject = function (project) {
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$button,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$RebootPlayer),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Reboot the player'),
-										_1: {ctor: '[]'}
-									}),
+									_elm_lang$html$Html$br,
+									{ctor: '[]'},
+									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
-									_0: _elm_lang$html$Html$text(' '),
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$RebootPlayer),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Reboot the player'),
+											_1: {ctor: '[]'}
+										}),
 									_1: {
 										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$button,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(
-													_user$example$Types$RemoveProject(project)),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('Delete local code (!)'),
-												_1: {ctor: '[]'}
-											}),
+										_0: _elm_lang$html$Html$text(' '),
 										_1: {
 											ctor: '::',
 											_0: A2(
-												_elm_lang$html$Html$br,
-												{ctor: '[]'},
-												{ctor: '[]'}),
+												_elm_lang$html$Html$button,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onClick(
+														_user$example$Types$RemoveProject(project)),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Delete local code (!)'),
+													_1: {ctor: '[]'}
+												}),
 											_1: {
 												ctor: '::',
 												_0: A2(
@@ -8670,23 +8666,23 @@ var _user$example$View$renderProject = function (project) {
 												_1: {
 													ctor: '::',
 													_0: A2(
-														_elm_lang$html$Html$button,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
-															_1: {ctor: '[]'}
-														},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('Close project'),
-															_1: {ctor: '[]'}
-														}),
+														_elm_lang$html$Html$br,
+														{ctor: '[]'},
+														{ctor: '[]'}),
 													_1: {
 														ctor: '::',
 														_0: A2(
-															_elm_lang$html$Html$br,
-															{ctor: '[]'},
-															{ctor: '[]'}),
+															_elm_lang$html$Html$button,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$CloseProject),
+																_1: {ctor: '[]'}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('Close project'),
+																_1: {ctor: '[]'}
+															}),
 														_1: {
 															ctor: '::',
 															_0: A2(
@@ -8695,29 +8691,88 @@ var _user$example$View$renderProject = function (project) {
 																{ctor: '[]'}),
 															_1: {
 																ctor: '::',
-																_0: _user$example$View$renderRemoteStatus(project),
+																_0: A2(
+																	_elm_lang$html$Html$br,
+																	{ctor: '[]'},
+																	{ctor: '[]'}),
 																_1: {
 																	ctor: '::',
-																	_0: A2(
-																		_elm_lang$html$Html$br,
-																		{ctor: '[]'},
-																		{ctor: '[]'}),
+																	_0: _user$example$View$renderRemoteStatus(project),
 																	_1: {
 																		ctor: '::',
 																		_0: A2(
-																			_elm_lang$html$Html$button,
-																			{
+																			_elm_lang$html$Html$br,
+																			{ctor: '[]'},
+																			{ctor: '[]'}),
+																		_1: {
+																			ctor: '::',
+																			_0: A2(
+																				_elm_lang$html$Html$button,
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html_Events$onClick(
+																						_user$example$Types$FetchRemoteFiles(project)),
+																					_1: {ctor: '[]'}
+																				},
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html$text('Check for updates'),
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {
 																				ctor: '::',
-																				_0: _elm_lang$html$Html_Events$onClick(
-																					_user$example$Types$FetchRemoteFiles(project)),
-																				_1: {ctor: '[]'}
-																			},
-																			{
-																				ctor: '::',
-																				_0: _elm_lang$html$Html$text('Check for updates'),
-																				_1: {ctor: '[]'}
-																			}),
-																		_1: {ctor: '[]'}
+																				_0: A2(
+																					_elm_lang$html$Html$br,
+																					{ctor: '[]'},
+																					{ctor: '[]'}),
+																				_1: {
+																					ctor: '::',
+																					_0: A2(
+																						_elm_lang$html$Html$br,
+																						{ctor: '[]'},
+																						{ctor: '[]'}),
+																					_1: {
+																						ctor: '::',
+																						_0: A2(
+																							_elm_lang$html$Html$input,
+																							{
+																								ctor: '::',
+																								_0: _elm_lang$html$Html_Attributes$id('redirect_console_output'),
+																								_1: {
+																									ctor: '::',
+																									_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
+																									_1: {
+																										ctor: '::',
+																										_0: _elm_lang$html$Html_Events$onClick(_user$example$Types$ToggleConsoleOutput),
+																										_1: {
+																											ctor: '::',
+																											_0: _elm_lang$html$Html_Attributes$checked(model.redirectConsoleOutput),
+																											_1: {ctor: '[]'}
+																										}
+																									}
+																								}
+																							},
+																							{ctor: '[]'}),
+																						_1: {
+																							ctor: '::',
+																							_0: A2(
+																								_elm_lang$html$Html$label,
+																								{
+																									ctor: '::',
+																									_0: _elm_lang$html$Html_Attributes$for('redirect_console_output'),
+																									_1: {ctor: '[]'}
+																								},
+																								{
+																									ctor: '::',
+																									_0: _elm_lang$html$Html$text('Redirect console output'),
+																									_1: {ctor: '[]'}
+																								}),
+																							_1: {ctor: '[]'}
+																						}
+																					}
+																				}
+																			}
+																		}
 																	}
 																}
 															}
@@ -8732,9 +8787,8 @@ var _user$example$View$renderProject = function (project) {
 						}
 					}
 				}
-			}
-		});
-};
+			});
+	});
 var _user$example$View$renderProjectListItem = function (project) {
 	return A2(
 		_elm_lang$html$Html$p,
@@ -8848,7 +8902,9 @@ var _user$example$View$view = function (model) {
 				}
 			});
 	} else {
-		return _user$example$View$renderProject(
+		return A2(
+			_user$example$View$renderProject,
+			model,
 			A2(_user$example$Helpers$reloadProject, model.projects, _p2._0));
 	}
 };
@@ -8888,7 +8944,8 @@ var _user$example$State$defaultModel = {
 	pendingRemoteCodeUrl: '',
 	projects: {ctor: '[]'},
 	activeSection: _user$example$Types$Start,
-	mode: _user$example$Types$Editing
+	mode: _user$example$Types$Editing,
+	redirectConsoleOutput: true
 };
 var _user$example$State$wrapInCodeRequest = F2(
 	function (project, apiUrl) {
@@ -9012,6 +9069,11 @@ var _user$example$State$fetchRemoteFiles = function (project) {
 			return {ctor: '[]'};
 	}
 };
+var _user$example$State$redirectConsoleOutput = _elm_lang$core$Native_Platform.outgoingPort(
+	'redirectConsoleOutput',
+	function (v) {
+		return v;
+	});
 var _user$example$State$saveSettings = _elm_lang$core$Native_Platform.outgoingPort(
 	'saveSettings',
 	function (v) {
@@ -9166,8 +9228,8 @@ var _user$example$State$update = F2(
 						return _elm_lang$core$Native_Utils.crashCase(
 							'State',
 							{
-								start: {line: 74, column: 13},
-								end: {line: 82, column: 69}
+								start: {line: 77, column: 13},
+								end: {line: 85, column: 69}
 							},
 							_p5)('If we get here then we have bad js');
 				}
@@ -9220,7 +9282,7 @@ var _user$example$State$update = F2(
 							{remoteCodeUrl: _p8.remoteCodeUrl, localFiles: updatedProject.localFiles}),
 						_1: {ctor: '[]'}
 					});
-			default:
+			case 'CodeChangedByUser':
 				var _p9 = _p2._0;
 				var projects = A2(
 					_elm_lang$core$List$map,
@@ -9236,6 +9298,17 @@ var _user$example$State$update = F2(
 						model,
 						{projects: projects}),
 					{ctor: '[]'});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{redirectConsoleOutput: !model.redirectConsoleOutput}),
+					{
+						ctor: '::',
+						_0: _user$example$State$redirectConsoleOutput(!model.redirectConsoleOutput),
+						_1: {ctor: '[]'}
+					});
 		}
 	});
 var _user$example$State$updateAndSaveSettings = F2(

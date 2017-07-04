@@ -13,13 +13,22 @@
 
         document.addEventListener("touchstart", function() { parent.postMessage("iframeWasClickedOrTouched", "*") })
 
+        window.browserConsoleLog = window.console.log
+
         // See app.js for more info
         if(window.location.href.indexOf("tempEnableRealConsole") == -1) {
             window.onerror = function(e) { console.log("LiveCoding: " + e) }
 
-            window.console.log = function(x) {
+            window.customConsoleLog = function(x) {
                 parent.postMessage({ consoleLogFromIframe: x.toString() }, "*")
             }
+
+            window.console.log = customConsoleLog
+        }
+
+        window.redirectConsoleOutput = function(enable) {
+            if(enable) { window.console.log = customConsoleLog }
+            else { window.console.log = browserConsoleLog }
         }
 
         window.loadCode = function(code) {

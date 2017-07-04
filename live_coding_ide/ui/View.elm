@@ -1,10 +1,10 @@
 module View exposing (view)
 
-import Types exposing (..)
-import Helpers exposing (detectCodeUrlType, buildGithubProjectMetadata, buildGithubGistMetaData, reloadProject)
-import Html exposing (text, div, p, a, button, input, span, br)
-import Html.Attributes exposing (href, value, class, placeholder)
+import Helpers exposing (buildGithubGistMetaData, buildGithubProjectMetadata, detectCodeUrlType, reloadProject)
+import Html exposing (a, br, button, div, input, label, p, span, text)
+import Html.Attributes exposing (checked, class, for, href, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Types exposing (..)
 
 
 view : Model -> Html.Html Msg
@@ -24,7 +24,7 @@ view model =
                 ]
 
         ViewProject project ->
-            renderProject (reloadProject model.projects project)
+            renderProject model (reloadProject model.projects project)
 
 
 renderProjectListItem : Project -> Html.Html Msg
@@ -36,8 +36,8 @@ renderProjectListItem project =
         ]
 
 
-renderProject : Project -> Html.Html Msg
-renderProject project =
+renderProject : Model -> Project -> Html.Html Msg
+renderProject model project =
     p []
         [ button [ onClick (LoadCode project) ] [ text "Load code" ]
         , text " <- "
@@ -55,6 +55,11 @@ renderProject project =
         , renderRemoteStatus project
         , br [] []
         , button [ onClick (FetchRemoteFiles project) ] [ text "Check for updates" ]
+        , br [] []
+        , br [] []
+          -- NOTE: Not a per-project setting so might be confusing here
+        , input [ id "redirect_console_output", type_ "checkbox", onClick ToggleConsoleOutput, checked model.redirectConsoleOutput ] []
+        , label [ for "redirect_console_output" ] [ text "Redirect console output" ]
         ]
 
 

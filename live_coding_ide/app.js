@@ -10,6 +10,9 @@
     this.firstAttemptToLoadCodeHasRun = false
     this.currentProject = null
 
+    this.browserConsoleLog = window.console.log
+    this.customConsoleLog = null
+
     init = () => {
         setUpLiveView()
         setUpConsole()
@@ -35,7 +38,7 @@
             for(i = 0; i < settings.projects.length; i++) {
                 let project = settings.projects[i]
                 if(project.codeUrl) {
-                    settings.projects[i] = { remoteCodeUrl: project.codeUrl }
+                    settings.projects[i] = { remoteCodeUrl: project.codeUrl, localFiles: project.localFiles }
                 }
 
                 if(!project.localFiles) {
@@ -54,6 +57,12 @@
 
         ui.ports.rebootPlayer.subscribe(() => {
             liveViewElement.contentWindow.location.reload()
+        })
+
+        ui.ports.redirectConsoleOutput.subscribe((enable) => {
+            liveViewElement.contentWindow.redirectConsoleOutput(enable)
+            if(enable) { window.console.log = customConsoleLog }
+            else { window.console.log = browserConsoleLog }
         })
 
         return ui
@@ -209,7 +218,7 @@
     this.setUpConsole = () => {
         let consoleElement = document.getElementsByClassName("js-console")[0]
 
-        browserLog = window.console.log
+        browserConsoleLog = window.console.log
         customConsoleLog = function(data, type) {
             if(data instanceof Error) {
                 data = data.stack.split(" at ")[1] + data
@@ -225,10 +234,7 @@
             consoleElement.innerHTML = data + "<br/>" + consoleElement.innerHTML
         }
 
-        // TODO: Make this a button in the UI
-        if(window.location.href.indexOf("tempEnableRealConsole") == -1) {
-            window.console.log = customConsoleLog
-        }
+        window.console.log = customConsoleLog
 
         console.log("<br/>LiveCoding: This is a JavaScript live coding environment, for more information see <a href='https://github.com/joakimk/live_coding'>https://github.com/joakimk/live_coding</a>.")
     }
