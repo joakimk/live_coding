@@ -22,14 +22,14 @@ inDebugMode = true
 // - "S" means solid, e.g. you can stand on it and not walk though it
 // - "P" means platform, you can jump up to it.
 //
+// Adding tiles with tile number 0 will render a fully transparent
+// tile that tile modifiers (like collision) can be added to.
+//
 // There is also shorthand syntax:
 // - "W" is shorthand for 17:B (water, background)
 //
 // Besides those you can use addons from customMapAddons.
 // These also have offset syntax, e.g. BU1(0.5,0).
-//
-// Adding tiles with tile number 0 will render a fully transparent
-// tile, that tile modifiers (like collision) can be added to
 groundTileMap = [
   "2",
   "2",
@@ -43,10 +43,10 @@ groundTileMap = [
   "2+BU3:5B:5B:2P+MU2",
   "2+BU3:5B:5B:2P",
   "2:6B:6B:3P",
-  "3+SIGN2",
+  "0+BDW+BD3+SIGN2",
   "W",
   "W",
-  "1+SIGN1",
+  "0+BDW+BD1+SIGN1",
   "2",
   "2+TR2",
   "2+TR5(0.5,0)",
@@ -62,10 +62,10 @@ groundTileMap = [
   "10:6:3",
   "11",
   "2",
-  "3",
+  "0+BDW+BD3",
   "W",
   "W",
-  "1",
+  "0+BDW+BD1",
   "2",
   "2",
   "2::12:4:4:4:4:4:4:4:4:4",
@@ -80,7 +80,7 @@ groundTileMap = [
   "7::::::9:2",
   "8:1:::::9:2",
   "5:8:4:4:4:4:5:2",
-  "6:6:6:6:6:6:6:3",
+  "0+BDW+BD6:6:6:6:6:6:6:3",
   "W:::13",
   "W:::15::13",
   "W:::::15",
@@ -121,7 +121,7 @@ groundTileMap = [
   "W:15:::9:2",
   "W::::9:7",
   "W::::9:8:4:1",
-  "4:1:::9:5:5:2",
+  "0+BDW+BD4:1:::9:5:5:2",
   "10:3:::9:5:5:2",
   "11:::12:5:5:5:2",
   "2:::16:6:6:6:3",
@@ -206,7 +206,7 @@ groundTileMap = [
   "2:5B:5B:2P:5B:5B:5B:2P",
   "2:5B+BD6:5B+BD6:5P+BD3:5B:5B:5B:2P",
   "2:6B:6B:6B:6B:6B:6B:3P",
-  "3",
+  "0+BDW+BD3",
   "W",
   "W",
   "W:::::0",
@@ -238,7 +238,7 @@ groundTileMap = [
   "W",
   "W",
   "W",
-  "1",
+  "0+BDW+BD1",
   "2",
   "2",
   "2::::::13P",
@@ -252,7 +252,7 @@ groundTileMap = [
   "2:::15P:::::15P",
   "2",
   "2",
-  "3",
+  "0+BDW+BD3",
   "W",
   "W:::::::13P",
   "W:::::::15P",
@@ -459,6 +459,7 @@ customMapAddons = {
     "BD4": { x: 0, y: 0, texture: "tile_4", scale: 0.5, collisionType: "bg" },
     "BD5": { x: 0, y: 0, texture: "tile_5", scale: 0.5, collisionType: "bg" },
     "BD6": { x: 0, y: 0, texture: "tile_6", scale: 0.5, collisionType: "bg" },
+    "BDW": { x: 0, y: 0, texture: "tile_17", scale: 0.5, collisionType: "bg" },
 
 }
 
