@@ -27,6 +27,9 @@ inDebugMode = true
 //
 // Besides those you can use addons from customMapAddons.
 // These also have offset syntax, e.g. BU1(0.5,0).
+//
+// Adding tiles with tile number 0 will render a fully transparent
+// tile, that tile modifiers (like collision) can be added to
 groundTileMap = [
   "2",
   "2",
@@ -130,6 +133,8 @@ groundTileMap = [
   "5:7::::15",
   "5:8:4:4:4:4:4:1",
   "5:5:5:5:5:5:5:2",
+  "5:5:5:5:5:5:5:2",
+  "5:5:5:5:5:5:5:2",
   "10:6:6:6:6:6:6:3",
   "11",
   "2",
@@ -140,9 +145,15 @@ groundTileMap = [
   "2::::13",
   "2::::15+BU4",
   "2",
+  "2::::::13P",
+  "2:::13:::15P",
+  "2:::15",
   "2",
-  "2:::::13",
-  "7:::::15",
+  "2",
+  "2+BU1:::::13",
+  "2:::::15",
+  "2",
+  "7",
   "8:1",
   "5:7",
   "5:8:1+MU1",
@@ -152,35 +163,78 @@ groundTileMap = [
   "5:11",
   "10:3",
   "11",
-  "2","2","2+TR3","2","2+TR1","2","2+TR2+BU1(-3.5,0)+MU2","2","3",
+  "2",
+  "2",
+  "2+TR3",
+  "2",
+  "2+TR1",
+  "2","2+TR2+BU1(-3.5,0)+MU2",
+  "2",
+  "2:1P",
+  "2:2P:4B:4B:0B+BD4:0P+BD1",
+  "2:2P:5B:5B:5B:2P",
+  "2:2P:0B+BD5+BD4:0P+BD5+BD1:5B:2P",
+  "2:0P+BD5+BD3:5B:2P:5B:2P",
+  "2:5B:5B:2P:5B:2P",
+  "2:5B:5B:2P:5B:2P",
+  "2:0B+BD5+BD6:0B+BD5+BD6:0P+BD5+BD3:5B:2P",
+  "2:5B:5B:5B:5B:2P",
+  "2:5B:5B:5B:5B:2P:1P",
+  "2+TR1:5B:5B:5B:5B:2P:2P",
+  "2:5B:5B:5B:5B:2P:2P",
+  "2:5B:5B:5B:5B:2P:2P",
+  "2:0B+BD5+BD6:0B+BD5+BD6:0B+BD5+BD6:0B+BD5+BD6:0P+BD5+BD3:2P",
+  "2:5B:5B:5B:5B:5B:2P",
+  "2:5B:5B:5B:5B:5B:2P",
+  "2:5B:5B:5B:5B:5B:2P",
+  "2:0B+BD5+BD4:0B+BD5+BD4:0B+BD5+BD4:0P+BD5+BD1:5B:2P",
+  "2:5B:5B:5B:2P:5B:2P",
+  "2:5B:5B:5B:2P:5B:2P",
+  "2:5B:5B:5B:2P:6B:3P",
+  "2:5B:5B:5B:2P",
+  "2:5B:5B:5B:2P",
+  "2:5B:5B:5B:2P",
+  "2:5B:5B:5B:2P:1P",
+  "2:5B:5B:5B:2P:2P",
+  "2:0B+BD5+BD4:0B+BD5+BD4:0P+BD5+BD1:2P:3P",
+  "2:5B:5B:2P:2P",
+  "2:5B:5B:2P:2P",
+  "2:5B:5B:2P:2P:4B:4B:1P",
+  "2:5B:5B:2P:2P:5B:5B:2P",
+  "2:5B:5B:2P:0P+BD5+BD3:5B:5B:2P",
+  "2:5B:5B:2P:5B:5B:5B:2P",
+  "2:5B:5B:2P:5B:5B:5B:2P",
+  "2:0B+BD5+BD6:0B+BD5+BD6:0P+BD5+BD3:5B:5B:5B:2P",
+  "2:6B:6B:6B:6B:6B:6B:3P",
+  "3",
   "W",
   "W",
-  "W:18",
-  "W:18",
-  "W:18",
-  "W:18",
-  "W:18",
-  "W:18",
-  "W:::18P",
-  "W:::18P",
-  "W:::18P",
-  "W:::::18P",
-  "W:::18P::18P",
-  "W:::18P::18P",
+  "W:::::0",
+  "W:::::0",
+  "W:::::0",
+  "W:::::0",
   "W",
   "W",
-  "W:18",
-  "W:18",
-  "W:18",
-  "W:18",
-  "W:::18P",
-  "W:::18P",
-  "W:::18P",
+  "W:::0",
+  "W:::0",
+  "W:::0",
+  "W:::::0P",
+  "W:::0P::0P",
+  "W:::0P::0P",
   "W",
   "W",
-  "W:18",
-  "W:18",
-  "W:18",
+  "W:0",
+  "W:0",
+  "W:0",
+  "W:0",
+  "W:::0P",
+  "W:::0P",
+  "W:::0P",
+  "W",
+  "W",
+  "W:0",
+  "W:0",
+  "W:0",
   "W",
   "W",
   "W",
@@ -202,8 +256,8 @@ groundTileMap = [
   "W",
   "W:::::::13P",
   "W:::::::15P",
-  "W:18",
-  "W:18",
+  "W:0",
+  "W:0",
   "W",
   "W",
   "W",
@@ -211,6 +265,170 @@ groundTileMap = [
   "W::::15",
   "W","W","W","W","W","W","W","W",
   "W","W","W","W","W","W","W","W",
+];
+
+parallax_bg1_tileMap = [
+  "0B+TR1(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR3(0,-.5)",
+  "",
+  "",
+  "",
+  "0B+TR1(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR2(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR1(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR3(0,-.5)",
+  "",
+  "",
+  "",
+  "0B+TR1(0,-.5)",
+  "",
+  "0B+TR2(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR1(0,-.5)",
+  "",
+  "0B+TR3(0,-.5)",
+  "",
+  "",
+  "0B+TR2(0,-.5)",
+  "",
+  "",
+  "0B+TR1(0,-.5)",
+  "",
+  "",
+  "0B+TR2(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR2(0,-.5)",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "0B+TR1(0,-.5)",
+  "",
+  "",
+];
+
+parallax_bg2_tileMap = [
+  "18B+TR2(0,-.7)",
+  "",
+  "",
+  "18B+TR1(0,-.7)",
+  "",
+  "",
+  "18B+TR3(0,-.7)",
+  "",
+  "",
+  "",
+  "",
+  "18B+TR2(0,-.7)",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "18B+TR2(0,-.7)",
+  "",
+  "18B+TR2(0,-.7)",
+  "",
+  "18B+TR3(0,-.7)",
+  "",
+  "",
+  "18B+TR1(0,-.7)",
+  "",
+  "",
+  "18B+TR2(0,-.7)",
+  "",
+  "",
 ]
 
 customMapAddons = {
@@ -234,15 +452,23 @@ customMapAddons = {
     "ST1": { x: -0.23, y: 0.84, texture: "object_stone", scale: 1, collisionType: "bg" },
     "SIGN1": { x: 0, y: 1.02, texture: "object_sign_1", scale: 1, collisionType: "bg" },
     "SIGN2": { x: 0.1, y: 1, texture: "object_sign_2", scale: 1, collisionType: "bg" },
+    // Backdrop tiles to fix layer opacity problems
+    "BD1": { x: 0, y: 0, texture: "tile_1", scale: 0.5, collisionType: "bg" },
+    "BD2": { x: 0, y: 0, texture: "tile_2", scale: 0.5, collisionType: "bg" },
+    "BD3": { x: 0, y: 0, texture: "tile_3", scale: 0.5, collisionType: "bg" },
+    "BD4": { x: 0, y: 0, texture: "tile_4", scale: 0.5, collisionType: "bg" },
+    "BD5": { x: 0, y: 0, texture: "tile_5", scale: 0.5, collisionType: "bg" },
+    "BD6": { x: 0, y: 0, texture: "tile_6", scale: 0.5, collisionType: "bg" },
+
 }
 
 
-generateMap = () => {
+generateMap = (tileMap, customAddons) => {
     mapLayer = []
     addonLayer = []
 
-    for(x = 0; x < groundTileMap.length; x++) {
-        column = groundTileMap[x]
+    for(x = 0; x < tileMap.length; x++) {
+        column = tileMap[x]
         if(!Array.isArray(column)) { column = [ column ] }
 
         // Convert "1:2:3" to [ "1", "2", "3" ]
@@ -294,7 +520,11 @@ generateMap = () => {
                     ydiff = parseFloat(y)
                 }
 
-                let list = customMapAddons[name]
+                if (customAddons === undefined || customAddons === null){
+                    continue;
+                }
+
+                let list = customAddons[name]
                 if(!Array.isArray(list)) { list = [ list ] }
 
                 for(let j = 0; j < list.length; j++) {
@@ -310,7 +540,9 @@ generateMap = () => {
     return mapLayer.concat(addonLayer)
 }
 
-map = generateMap()
+map = generateMap(groundTileMap, customMapAddons);
+parallax_map_1 = generateMap(parallax_bg1_tileMap, customMapAddons);
+parallax_map_2 = generateMap(parallax_bg2_tileMap, customMapAddons);
 
 collisionMapIndexByIntegerX = {}
 for(let i = 0; i < map.length; i++) {
@@ -452,27 +684,27 @@ applyVelocity = () => {
 
     // does boxes collide? on what side
 
-    hitDirections = calculateCollisionHits(characterCollision, nearMap, model);
+    collisionHits = detectCollisions(characterCollision, nearMap, model);
 
-    if(hitDirections.left !== null) {
-        model.character.x = hitDirections.left.x + 1 + 0.5
+    if(collisionHits.left !== null) {
+        model.character.x = collisionHits.left.x + 1 + 0.5
     }
 
-    if(hitDirections.right !== null) {
-        model.character.x = hitDirections.right.x - 0.5
+    if(collisionHits.right !== null) {
+        model.character.x = collisionHits.right.x - 0.5
     }
 
-    if(hitDirections.top !== null) {
-        model.character.y = hitDirections.top.y * 0.5 - 1
+    if(collisionHits.top !== null) {
+        model.character.y = collisionHits.top.y * 0.5 - 1
         if(model.character.y == -1) {
             model.character.y = 0
         }
         model.character.vy = -0.01
     }
 
-    if(hitDirections.bottom !== null) {
+    if(collisionHits.bottom !== null) {
         if(model.character.vy <= 0) {
-            model.character.y = hitDirections.bottom.y * 0.5
+            model.character.y = collisionHits.bottom.y * 0.5
             if(model.character.y == -1) {
                 model.character.y = 0
             }
@@ -484,7 +716,7 @@ applyVelocity = () => {
         characterResetValues.lastdirection = model.input.lastdirection
     }
 
-    if(inDebugMode){
+    if(inDebugMode) {
         model.debugboxes.push(characterCollision)
         for(let i = 0; i < nearMap.length; i++) {
             model.debugboxes.push(nearMap[i])
@@ -538,7 +770,7 @@ function checkHitBottom(characterCollision, nearMap, model) {
 }
 
 
-function calculateCollisionHits(characterCollision, nearMap, model) {
+function detectCollisions(characterCollision, nearMap, model) {
 
     hitDirections = {
         left: null,
@@ -625,23 +857,11 @@ render = (delta) => {
     sky.scale.y = app.renderer.width / 128
     app.stage.addChild(sky)
 
-    // Render map
-    for(i = 0; i < map.length; i++) {
-      tile = map[i]
-      texture = loadTexture(tile.texture)
+    renderMapLayer(parallax_map_2, mapX * 0.25)
 
-      // Move pieces relative to eachother and the screen size
-      texture.x = tile.x * 64
-      texture.y = -tile.y * 64 + app.renderer.height - 64
+    renderMapLayer(parallax_map_1, mapX * 0.5)
 
-      // Move ground relative to character
-      texture.x -= mapX
-      //texture.y += model.character.y * 64 * 1
-
-      texture.scale.x = tile.scale
-      texture.scale.y = tile.scale
-      app.stage.addChild(texture)
-    }
+    renderMapLayer(map, mapX)
 
     // Render character
     app.stage.addChild(cat)
@@ -659,6 +879,31 @@ render = (delta) => {
 
             app.stage.addChild(graphics)
         }
+    }
+}
+
+
+function renderMapLayer(mapLayer, parallaxSpeed) {
+    for(i = 0; i < mapLayer.length; i++) {
+      tile = mapLayer[i]
+
+      if(tile.texture == "tile_0") {
+          continue;
+      }
+
+      texture = loadTexture(tile.texture)
+
+      // Move pieces relative to eachother and the screen size
+      texture.x = tile.x * 64
+      texture.y = -tile.y * 64 + app.renderer.height - 64
+
+      // Move ground relative to character
+      texture.x -= parallaxSpeed
+      //texture.y += model.character.y * 64 * 1
+
+      texture.scale.x = tile.scale
+      texture.scale.y = tile.scale
+      app.stage.addChild(texture)
     }
 }
 
@@ -736,15 +981,15 @@ function handlePlayInput(e, f) {
 
     if(e.type == "keydown") {
         if(e.key == "r")
-            model = getDefaultModelValues()
+            model = getDefaultModelValues();
         else if(e.key == "d")
-            model.input.direction = "right"
+            model.input.direction = "right";
         else if(e.key == "a")
-            model.input.direction = "left"
+            model.input.direction = "left";
         else if(e.key == "w")
-            model.input.jump = true
+            model.input.jump = true;
         else if(e.key == "g")
-            inDebugMode = !inDebugMode
+            inDebugMode = !inDebugMode;
 
         return;
     }
@@ -767,27 +1012,27 @@ function handlePlayInput(e, f) {
         var touchObj = e.touches[0];
         var firstObj = f.touches[0];
 
-        var touchDX = parseInt(touchObj.clientX) - parseInt(firstObj.clientX)
-        var touchDY = parseInt(firstObj.clientY) - parseInt(touchObj.clientY)
+        var touchDX = parseInt(touchObj.clientX) - parseInt(firstObj.clientX);
+        var touchDY = parseInt(firstObj.clientY) - parseInt(touchObj.clientY);
 
         WriteDebugText("inside touchmove\nDX:" + touchDX + " DY:" + touchDY);
 
-        var swipeTolerance = 30
+        var swipeTolerance = 30;
 
         if(touchDX < swipeTolerance && touchDX > -swipeTolerance)
-            model.input.direction = "none"
+            model.input.direction = "none";
 
         if(touchDX <= -swipeTolerance)
-            model.input.direction = "left"
+            model.input.direction = "left";
 
         if(touchDX >= swipeTolerance)
-            model.input.direction = "right"
+            model.input.direction = "right";
 
         if(touchDY < swipeTolerance)
-            model.input.jump = false
+            model.input.jump = false;
 
         if(touchDY >= swipeTolerance)
-            model.input.jump = true
+            model.input.jump = true;
 
         return;
     }
