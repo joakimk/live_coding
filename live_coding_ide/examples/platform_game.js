@@ -183,10 +183,10 @@ groundTileMap = [
   "2+TR1:5B:5B:5B:5B:2P:2P",
   "2:5B:5B:5B:5B:2P:2P",
   "2:5B:5B:5B:5B:2P:2P",
-  "2:5B+BD6:5B+BD6:5B+BD6:5B+BD6:5P+BD3:2P",
-  "2:5B:5B:5B:5B:5B:2P",
-  "2:5B:5B:5B:5B:5B:2P",
-  "2:5B:5B:5B:5B:5B:2P",
+  "2:5B+BD6:5B+BD6:5B+BD6:5B+BDCR1+BD6:5P+BD3:2P",
+  "2:5B:10B:6B:0B+BDCR1:5B:2P",
+  "2:5B:0B+BDUP::0B+BDDW:5B:2P",
+  "2:5B:8B:4B:0B+BDCR2:5B:2P",
   "2:5B+BD4:5B+BD4:5B+BD4:5P+BD1:5B:2P",
   "2:5B:5B:5B:2P:5B:2P",
   "2:5B:5B:5B:2P:5B:2P",
@@ -452,6 +452,11 @@ customMapAddons = {
     "ST1": { x: -0.23, y: 0.84, texture: "object_stone", scale: 1, collisionType: "bg" },
     "SIGN1": { x: 0, y: 1.02, texture: "object_sign_1", scale: 1, collisionType: "bg" },
     "SIGN2": { x: 0.1, y: 1, texture: "object_sign_2", scale: 1, collisionType: "bg" },
+    // Rotated backdrop tiles
+    "BDCR1": { x: 1, y: -1, texture: "tile_8", scale: 0.5, rotation: Math.PI, collisionType: "bg" },
+    "BDCR2": { x: 1, y: -1, texture: "tile_10", scale: 0.5, rotation: Math.PI, collisionType: "bg" },
+    "BDDW": { x: 1, y: 0.2, texture: "tile_6", scale: 0.5, rotation: Math.PI/2, collisionType: "bg" },
+    "BDUP": { x: 1, y: -0.2, texture: "tile_4", scale: 0.5, rotation: Math.PI/2, collisionType: "bg" },
     // Backdrop tiles to fix layer opacity problems
     "BD1": { x: 0, y: 0, texture: "tile_1", scale: 0.5, collisionType: "bg" },
     "BD2": { x: 0, y: 0, texture: "tile_2", scale: 0.5, collisionType: "bg" },
@@ -886,25 +891,36 @@ render = (delta) => {
 
 function renderMapLayer(mapLayer, parallaxSpeed) {
     for(i = 0; i < mapLayer.length; i++) {
-      tile = mapLayer[i]
+        tile = mapLayer[i]
 
-      if(tile.texture == "tile_0") {
+        if(tile.texture == "tile_0") {
           continue;
-      }
+        }
 
-      texture = loadTexture(tile.texture)
+        texture = loadTexture(tile.texture)
 
-      // Move pieces relative to eachother and the screen size
-      texture.x = tile.x * 64
-      texture.y = -tile.y * 64 + app.renderer.height - 64
+        // Move pieces relative to eachother and the screen size
+        texture.x = tile.x * 64
+        texture.y = -tile.y * 64 + app.renderer.height - 64
 
-      // Move ground relative to character
-      texture.x -= parallaxSpeed
-      //texture.y += model.character.y * 64 * 1
+        // Move ground relative to character
+        texture.x -= parallaxSpeed
+        //texture.y += model.character.y * 64 * 1
 
-      texture.scale.x = tile.scale
-      texture.scale.y = tile.scale
-      app.stage.addChild(texture)
+        if(tile.rotation !== undefined){
+            // texture.anchor.set(0.5)
+            texture.rotation = tile.rotation
+        }
+
+        // if(typeof tile.scale === 'object') {
+        //     texture.scale.x = tile.scale.x
+        //     texture.scale.y = tile.scale.y
+        // } else {
+            texture.scale.x = tile.scale
+            texture.scale.y = tile.scale
+        // }
+
+        app.stage.addChild(texture)
     }
 }
 
