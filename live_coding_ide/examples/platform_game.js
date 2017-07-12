@@ -722,6 +722,22 @@ applyVelocity = () => {
         characterResetValues.lastdirection = model.input.lastdirection
     }
 
+    leftMapBorder = 0.3;
+    if(model.character.x < leftMapBorder) {
+        model.character.x = leftMapBorder
+    }
+
+    // bottomBorder = 0.45
+    // if(model.character.y < bottomBorder) {
+    //     model.character.y = bottomBorder
+    //     model.character.vy = 0
+    // }
+
+    // rightMapBorder = 24.8;
+    // if(model.character.x > rightMapBorder) {
+    //     model.character.x = rightMapBorder
+    // }
+
     if(inDebugMode) {
         model.debugboxes.push(characterCollision)
         for(let i = 0; i < nearMap.length; i++) {
@@ -747,16 +763,6 @@ applyVelocity = () => {
         //     "cb:" + yHitBottom + " ct:" + yHitTop +
         //     " cl:" + xHitLeft + " cr:" + xHitRight)
     }
-
-    leftMapBorder = 0.3;
-    if(model.character.x < leftMapBorder) {
-        model.character.x = leftMapBorder
-    }
-
-    // rightMapBorder = 24.8;
-    // if(model.character.x > rightMapBorder) {
-    //     model.character.x = rightMapBorder
-    // }
 
     if (model.character.y <= -1) {
         console.log("Thus ends the story of our brave kitty! You have died!")
@@ -792,7 +798,7 @@ function detectCollisions(characterCollision, nearMap, model) {
         hitLeft = false;
         hitRight = false
 
-        onSameRow = (nearMap[i].y == Math.ceil(characterCollision.y - 0.25))
+        onSameRow = (nearMap[i].y == Math.ceil(characterCollision.y - 0.5));
         onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
 
         if(onSameColumn){
@@ -876,14 +882,26 @@ render = (delta) => {
         app.stage.addChild(window.pixiDebugText)
 
         if(model.debugboxes && model.debugboxes.length) {
-            graphics = new PIXI.Graphics()
-            graphics.beginFill(0xFFFF00, 0.2)
-            graphics.lineStyle(1, 0xFF0000)
+            redRects = new PIXI.Graphics()
+            redRects.beginFill(0xFFFF00, 0.2)
+            redRects.lineStyle(1, 0xFF0000)
+
+            blueRects = new PIXI.Graphics()
+            blueRects.beginFill(0xFFFF00, 0.2)
+            blueRects.lineStyle(1, 0x0000FF)
+
             for(i = 0; i < model.debugboxes.length; i++) {
-              graphics.drawRect(model.debugboxes[i].x * 64 - mapX, -model.debugboxes[i].y  * 64 + app.renderer.height - 64, 64, 64)
+                xStart = model.debugboxes[i].x * 64 - mapX;
+                yStart = -model.debugboxes[i].y * 64 + app.renderer.height - 64
+                if(model.debugboxes[i].collisionType == "platform")
+                  blueRects.drawRect(xStart, yStart, 64, 64)
+                else
+                  redRects.drawRect(xStart, yStart, 64, 64)
+
             }
 
-            app.stage.addChild(graphics)
+            app.stage.addChild(redRects)
+            app.stage.addChild(blueRects)
         }
     }
 }
