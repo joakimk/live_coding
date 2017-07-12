@@ -209,10 +209,10 @@ groundTileMap = [
   "0+BDW+BD3",
   "W",
   "W",
-  "W:::::0",
-  "W:::::0",
-  "W:::::0",
-  "W:::::0",
+  "W:::::0P",
+  "W:::::0P",
+  "W:::::0P",
+  "W:::::0P",
   "W",
   "W",
   "W:::0",
@@ -727,15 +727,15 @@ applyVelocity = () => {
         model.character.x = leftMapBorder
     }
 
-    // bottomBorder = 0.45
-    // if(model.character.y < bottomBorder) {
-    //     model.character.y = bottomBorder
-    //     model.character.vy = 0
-    // }
-
     // rightMapBorder = 24.8;
     // if(model.character.x > rightMapBorder) {
     //     model.character.x = rightMapBorder
+    // }
+
+    // bottomMapBorder = 0.45
+    // if(model.character.y < bottomMapBorder) {
+    //     model.character.y = bottomMapBorder
+    //     model.character.vy = 0
     // }
 
     if(inDebugMode) {
@@ -770,18 +770,6 @@ applyVelocity = () => {
     }
 }
 
-function checkHitBottom(characterCollision, nearMap, model) {
-    return (nearMap.collisionType == "solid"
-            && characterCollision.y > nearMap.y
-            && characterCollision.y < nearMap.y + 1) ||
-          (nearMap.collisionType == "platform"
-            && characterCollision.y > nearMap.y + 0.75
-            && characterCollision.y < nearMap.y + 1
-            && model.character.vy <= 0
-            )
-}
-
-
 function detectCollisions(characterCollision, nearMap, model) {
 
     hitDirections = {
@@ -802,7 +790,14 @@ function detectCollisions(characterCollision, nearMap, model) {
         onSameColumn = Math.floor(nearMap[i].x) == Math.floor(characterCollision.x + 0.5);
 
         if(onSameColumn){
-            hitBottom = checkHitBottom(characterCollision, nearMap[i], model);
+            hitBottom =
+                (nearMap[i].collisionType == "solid"
+                 && characterCollision.y > nearMap[i].y
+                 && characterCollision.y < nearMap[i].y + 1) ||
+                (nearMap[i].collisionType == "platform"
+                 && characterCollision.y > nearMap[i].y + 0.7
+                 && characterCollision.y < nearMap[i].y + 1
+                 && model.character.vy <= 0)
 
             hitTop = characterCollision.y + 1 > nearMap[i].y
                 && characterCollision.y + 1 < nearMap[i].y + 1
