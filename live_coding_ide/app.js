@@ -13,15 +13,26 @@
     this.browserConsoleLog = window.console.log
     this.customConsoleLog = null
 
+    this.showCodeFromWebSocketInFullScreen = window.location.search.split("load_from_ws=")[1]
+
     init = () => {
         setUpLiveView()
-        setUpConsole()
 
-        let editor = setUpEditor()
-        let ui = setUpEditorControlUI(editor)
+        if(this.showCodeFromWebSocketInFullScreen) {
+          let ws = new WebSocket(this.showCodeFromWebSocketInFullScreen)
+          let that = this
+          ws.onmessage = (event) => {
+            that.runCodeFromString(event.data)
+          }
+        } else {
+          setUpConsole()
 
-        setUpCodeLoading(ui)
-        setUpModeHandling(editor, ui)
+          let editor = setUpEditor()
+          let ui = setUpEditorControlUI(editor)
+
+          setUpCodeLoading(ui)
+          setUpModeHandling(editor, ui)
+        }
     }
 
     this.setUpEditorControlUI = () => {
@@ -211,8 +222,17 @@
     }
 
     this.setUpLiveView = () => {
-        this.liveViewElement = document.getElementsByClassName("js-view")[0]
-        this.liveViewContainerElement = document.getElementsByClassName("js-view-container")[0]
+        if(this.showCodeFromWebSocketInFullScreen) {
+          this.liveViewElement = document.getElementsByClassName("js-full-screen-view")[0]
+          this.liveViewContainerElement = document.getElementsByClassName("js-full-screen-view-container")[0]
+
+          // Show full screen container and hide (remove) the split screen container
+          document.getElementsByClassName("js-full-screen-container")[0].style = "display: block"
+          document.getElementsByClassName("js-split-screen-container")[0].innerHTML = ""
+        } else {
+          this.liveViewElement = document.getElementsByClassName("js-view")[0]
+          this.liveViewContainerElement = document.getElementsByClassName("js-view-container")[0]
+        }
     }
 
     this.setUpConsole = () => {
@@ -306,6 +326,10 @@
             localStorage.setItem("code", code)
         }
 
+        this.runCodeFromString(code)
+    }
+
+    this.runCodeFromString = (code) => {
         window.liveCodeVersion += 1
 
         code =

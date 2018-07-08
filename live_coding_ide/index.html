@@ -4,7 +4,13 @@
     <link rel="stylesheet" href="app.css">
   </head>
   <body>
-    <div class="container">
+    <div class="full-screen-container js-full-screen-container">
+        <div class="js-full-screen-view-container">
+          <iframe class="js-full-screen-view" src="iframe.html?use_browser_console=true" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" style="border: none; width: 100%; height: 100%;"></iframe>
+        </div>
+    </div>
+
+    <div class="container js-split-screen-container">
       <div class="view">
         <div class="view__content js-view-container">
             <iframe class="js-view" src="iframe.html" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="no" width="800" height="600" style="border: none"></iframe>

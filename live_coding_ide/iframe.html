@@ -15,8 +15,7 @@
 
         window.browserConsoleLog = window.console.log
 
-        // See app.js for more info
-        if(window.location.href.indexOf("tempEnableRealConsole") == -1) {
+        if(window.location.href.indexOf("use_browser_console") == -1) {
             window.onerror = function(e) { console.log("LiveCoding: " + e) }
 
             window.customConsoleLog = function(x) {

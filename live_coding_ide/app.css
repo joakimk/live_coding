@@ -3,6 +3,10 @@ body {
   color: #aaa;
 }
 
+.full-screen-container {
+  display: none;
+}
+
 .container {
   width: 1420px;
   padding-top: 20px;
