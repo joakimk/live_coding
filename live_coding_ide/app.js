@@ -202,6 +202,14 @@
               e.preventDefault()
             }
 
+            // Override cmd+r to reload the app.
+            if(e.code == "KeyR" && e.metaKey) {
+              e.preventDefault()
+
+              console.log("Rebooting the player window.")
+              liveViewElement.contentWindow.location.reload()
+            }
+
             // Going back from the editor does not work right now.
             if(e.code == "Backquote") {
                 e.preventDefault()
