@@ -198,7 +198,7 @@
             // Prevent default browser behavior for cmd+s / ctrl+s since it's kind of annoying
             // when you're used to saving a lot in other editors. The default behavior
             // brings up a dialog to save the HTML content of the page.
-            if(e.code == "KeyS") {
+            if(e.code == "KeyS" && e.metaKey) {
               e.preventDefault()
             }
 
