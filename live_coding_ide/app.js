@@ -202,8 +202,8 @@
               e.preventDefault()
             }
 
-            // Override cmd+r to reload the app.
-            if(e.code == "KeyR" && e.metaKey) {
+            // Override ctrl+r/cmd+r to reload the app.
+            if((e.code == "KeyR" && e.metaKey) || (e.code == "KeyR" && e.ctrlKey)) {
               e.preventDefault()
 
               console.log("Rebooting the player window.")
